@@ -9,6 +9,9 @@
 #include "media/AudioPlayer.hpp"
 #include "gui_tools/GuiUtil/QExtensions/QTabWidgetExtender.hpp"
 
+namespace common {
+	class Configuration;
+}
 
 namespace MusicQuiz {
 	class EntryCreator;
@@ -25,7 +28,7 @@ namespace MusicQuiz {
 		 * @param[in] audioPlayer The audio player.
 		 * @param[in] parent The parent widget.
 		 */
-		explicit CategoryCreator(const QString& name, const std::shared_ptr< media::AudioPlayer >& audioPlayer, QWidget* parent = nullptr);
+		explicit CategoryCreator(const QString& name, const std::shared_ptr< media::AudioPlayer >& audioPlayer, const common::Configuration& config, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Default destructor
@@ -111,5 +114,7 @@ namespace MusicQuiz {
 		std::vector< MusicQuiz::EntryCreator* > _entries;
 
 		std::shared_ptr< media::AudioPlayer > _audioPlayer = nullptr;
+
+		const common::Configuration& _config;
 	};
 }

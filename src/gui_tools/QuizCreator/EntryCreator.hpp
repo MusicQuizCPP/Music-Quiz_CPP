@@ -18,6 +18,10 @@
 #include "media/AudioPlayer.hpp"
 #include "media/VideoPlayer.hpp"
 
+namespace common {
+	class Configuration;
+}
+
 
 namespace MusicQuiz {
 
@@ -38,7 +42,7 @@ namespace MusicQuiz {
 		 * @param[in] audioPlayer The audio player.
 		 * @param[in] parent The parent widget.
 		 */
-		explicit EntryCreator(const QString& name, size_t points, const std::shared_ptr< media::AudioPlayer >& audioPlayer, QWidget* parent = nullptr);
+		explicit EntryCreator(const QString& name, size_t points, const std::shared_ptr< media::AudioPlayer >& audioPlayer, const common::Configuration& config, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Default destructor
@@ -353,5 +357,7 @@ namespace MusicQuiz {
 
 		const std::vector< QString > _validAudioFormats = { ".mp3", ".mp4", ".wav" };
 		const std::vector< QString > _validVideoFormats = { ".mp4"};
+
+		const common::Configuration& _config;
 	};
 }

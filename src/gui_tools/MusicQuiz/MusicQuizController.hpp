@@ -21,6 +21,9 @@
 #include "gui_tools/widgets/QuizEntry.hpp"
 #include "gui_tools/widgets/QuizBoard.hpp"
 
+namespace common {
+	class Configuration;
+}
 
 namespace MusicQuiz {
 	class QuizFactory;
@@ -48,7 +51,7 @@ namespace MusicQuiz {
 		 *
 		 * @param[in] parent The parent widget.
 		 */
-		explicit MusicQuizController(QWidget* parent = nullptr);
+		explicit MusicQuizController(const common::Configuration& config, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Destructor
@@ -104,8 +107,8 @@ namespace MusicQuiz {
 	private:
 
 		/** Variables */
-		const QString _themeSongFile = "./data/default/theme_song.mp3";
-		const QString _vicatorySongFile = "./data/default/victory_song.mp3";
+		const QString _themeSongFile;
+		const QString _victorySongFile;
 
 		MusicQuiz::QuizBoard* _quizBoard = nullptr;
 		std::vector< MusicQuiz::QuizTeam* > _teams;
@@ -138,5 +141,8 @@ namespace MusicQuiz {
 
 		/** Video Player */
 		std::shared_ptr<media::VideoPlayer> _videoPlayer = nullptr;
+
+		const common::Configuration& _config;
+
 	};
 }

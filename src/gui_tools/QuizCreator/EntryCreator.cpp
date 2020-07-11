@@ -1,5 +1,7 @@
 #include "EntryCreator.hpp"
 
+#include <filesystem>
+
 #include <QTime>
 #include <QLabel>
 #include <QString>
@@ -10,11 +12,12 @@
 #include <QRadioButton>
 #include <QMediaContent>
 
-#include <boost/filesystem.hpp>
+#include "common/Configuration.hpp"
 
+using namespace std;
 
-MusicQuiz::EntryCreator::EntryCreator(const QString& name, const size_t points, const media::AudioPlayer::Ptr& audioPlayer, QWidget* parent) :
-	QWidget(parent), _points(points), _entryName(name), _audioPlayer(audioPlayer)
+MusicQuiz::EntryCreator::EntryCreator(const QString& name, const size_t points, const media::AudioPlayer::Ptr& audioPlayer, const common::Configuration& config, QWidget* parent) :
+	QWidget(parent), _points(points), _entryName(name), _audioPlayer(audioPlayer), _config(config)
 {
 	/** Create Layout */
 	createLayout();
@@ -517,7 +520,7 @@ void MusicQuiz::EntryCreator::browseSong()
 	}
 
 	/** Open File Dialog */
-	const QString filePath = QFileDialog::getOpenFileName(this, "Select Audio File", "./data/", "Audio File (" + allowedAudioFormats + ");");
+	const QString filePath = QFileDialog::getOpenFileName(this, "Select Audio File", _config.getQuizDataPath().c_str(), "Audio File (" + allowedAudioFormats + ");");
 	if ( filePath.isEmpty() ) {
 		return;
 	}
@@ -540,7 +543,7 @@ void MusicQuiz::EntryCreator::browseVideo()
 	}
 
 	/** Open File Dialog */
-	const QString filePath = QFileDialog::getOpenFileName(this, "Select Video File", "./data/", "Video File (" + allowedVideoFormats + ");");
+	const QString filePath = QFileDialog::getOpenFileName(this, "Select Video File", _config.getQuizDataPath().c_str(), "Video File (" + allowedVideoFormats + ");");
 	if ( filePath.isEmpty() ) {
 		return;
 	}
@@ -563,7 +566,7 @@ void MusicQuiz::EntryCreator::browseVideoSong()
 	}
 
 	/** Open File Dialog */
-	const QString filePath = QFileDialog::getOpenFileName(this, "Select Audio File", "./data/", "Audio File (" + allowedAudioFormats + ");");
+	const QString filePath = QFileDialog::getOpenFileName(this, "Select Audio File", _config.getQuizDataPath().c_str(), "Audio File (" + allowedAudioFormats + ");");
 	if ( filePath.isEmpty() ) {
 		return;
 	}
@@ -676,7 +679,7 @@ bool MusicQuiz::EntryCreator::isSongFileValid(const QString& fileName)
 	}
 
 	/** Check if file exists */
-	if ( !boost::filesystem::exists(fileName.toStdString()) ) {
+	if ( !filesystem::exists(fileName.toStdString()) ) {
 		return false;
 	}
 
@@ -699,7 +702,7 @@ bool MusicQuiz::EntryCreator::isVideoFileValid(const QString& fileName)
 	}
 
 	/** Check if file exists */
-	if ( !boost::filesystem::exists(fileName.toStdString()) ) {
+	if ( !filesystem::exists(fileName.toStdString()) ) {
 		return false;
 	}
 

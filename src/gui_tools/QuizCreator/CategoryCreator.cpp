@@ -10,11 +10,13 @@
 #include <QRegExpValidator>
 #include <QTableWidgetItem>
 
+#include "common/Configuration.hpp"
+
 #include "gui_tools/QuizCreator/EntryCreator.hpp"
 
 
-MusicQuiz::CategoryCreator::CategoryCreator(const QString& name, const media::AudioPlayer::Ptr& audioPlayer, QWidget* parent) :
-	QWidget(parent), _categoryName(name), _audioPlayer(audioPlayer)
+MusicQuiz::CategoryCreator::CategoryCreator(const QString& name, const media::AudioPlayer::Ptr& audioPlayer, const common::Configuration& config, QWidget* parent) :
+	QWidget(parent), _categoryName(name), _audioPlayer(audioPlayer), _config(config)
 {
 	/** Create Layout */
 	createLayout();
@@ -125,7 +127,7 @@ void MusicQuiz::CategoryCreator::addEntry()
 
 	/** Add Tab */
 	const size_t points = (entryCount + 1) * 100;
-	MusicQuiz::EntryCreator* entry = new MusicQuiz::EntryCreator(entryNameStr, points, _audioPlayer, this);
+	MusicQuiz::EntryCreator* entry = new MusicQuiz::EntryCreator(entryNameStr, points, _audioPlayer, _config, this);
 	_entries.push_back(entry);
 	_tabWidget->addTab(entry, entryNameStr);
 }

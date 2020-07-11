@@ -9,6 +9,8 @@
 #include <QApplication>
 
 #include "common/Log.hpp"
+#include "common/Configuration.hpp"
+
 #include "gui_tools/widgets/QuizFactory.hpp"
 #include "gui_tools/widgets/QuizCategory.hpp"
 #include "gui_tools/GuiUtil/QuizSelector.hpp"
@@ -17,9 +19,12 @@
 #include "gui_tools/GuiUtil/QuizWinningScreen.hpp"
 
 
-MusicQuiz::MusicQuizController::MusicQuizController(QWidget* parent) :
-	QWidget(parent), _quizSelected(false), _teamSelected(false), _introScreenDone(false),
-	_gameCompleted(false)
+MusicQuiz::MusicQuizController::MusicQuizController(const common::Configuration& config, QWidget* parent) :
+	QWidget(parent), 
+	_themeSongFile((config.getQuizDataPath() + "/default/theme_song.mp3").c_str()),
+	_victorySongFile((config.getQuizDataPath() + "/default/victory_song.mp3").c_str()), 
+	_quizSelected(false), _teamSelected(false), _introScreenDone(false),
+	_gameCompleted(false), _config(config)
 {
 	/** Create Audio Player */
 	_audioPlayer = std::make_shared<media::AudioPlayer>();
@@ -102,7 +107,7 @@ void MusicQuiz::MusicQuizController::executeQuiz()
 		_audioPlayer->play(_themeSongFile, true);
 
 		/** Create Quiz Selector */
-		_quizSelector = new MusicQuiz::QuizSelector;
+		_quizSelector = new MusicQuiz::QuizSelector(_config);
 
 		/** Connect Signals */
 		connect(_quizSelector, SIGNAL(quitSignal()), this, SLOT(quitQuiz()));
@@ -175,7 +180,7 @@ void MusicQuiz::MusicQuizController::executeQuiz()
 
 		try {
 			/** Create Quiz Board */
-			_quizBoard = MusicQuiz::QuizFactory::createQuiz(_selectedQuizIdx, _settings, _audioPlayer, _videoPlayer, _teams);
+			_quizBoard = MusicQuiz::QuizFactory::createQuiz(_selectedQuizIdx, _settings, _audioPlayer, _videoPlayer, _config, _teams);
 
 			/** Connect Signals */
 			connect(_quizBoard, SIGNAL(quitSignal()), this, SLOT(quitQuiz()));
@@ -216,7 +221,7 @@ void MusicQuiz::MusicQuizController::executeQuiz()
 			connect(_quizWinningScreen, SIGNAL(winningScreenCompleteSignal()), this, SLOT(quitQuiz()));
 
 			/** Start Winning Song */
-			_audioPlayer->play(_vicatorySongFile, true);
+			_audioPlayer->play(_victorySongFile, true);
 
 			/** Show Widget */
 			_quizWinningScreen->exec();

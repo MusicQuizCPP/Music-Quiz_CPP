@@ -14,6 +14,10 @@
 #include "media/AudioPlayer.hpp"
 #include "media/VideoPlayer.hpp"
 
+namespace common {
+	class Configuration;
+}
+
 
 namespace MusicQuiz {
 	class QuizBoard;
@@ -41,7 +45,7 @@ namespace MusicQuiz {
 		 *
 		 * @param[in] parent The parent widget.
 		 */
-		explicit QuizCreator(QWidget* parent = nullptr);
+		explicit QuizCreator(const common::Configuration& config, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Default destructor
@@ -164,5 +168,7 @@ namespace MusicQuiz {
 
 		/** Preview Quiz Board */
 		MusicQuiz::QuizBoard* _previewQuizBoard = nullptr;
+
+		const common::Configuration& _config;
 	};
 }

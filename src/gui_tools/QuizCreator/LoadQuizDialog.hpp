@@ -12,6 +12,9 @@
 
 class QTableWidget;
 
+namespace common {
+	class Configuration;
+}
 
 namespace MusicQuiz {
 	/**
@@ -25,7 +28,7 @@ namespace MusicQuiz {
 		/**
 		 * @brief Constructor.
 		 */
-		explicit LoadQuizDialog(QWidget* parent = nullptr);
+		explicit LoadQuizDialog(const common::Configuration&config, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Default deconstructor.
@@ -63,5 +66,6 @@ namespace MusicQuiz {
 		QButtonGroup* _buttonGroup = nullptr;
 
 		std::vector<std::string> _quizList;
+		const common::Configuration& _config;
 	};
 }

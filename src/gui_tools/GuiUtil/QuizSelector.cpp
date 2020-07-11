@@ -17,12 +17,14 @@
 #include <QListWidgetItem>
 
 #include "common/Log.hpp"
+#include "common/Configuration.hpp"
+
 #include "util/QuizSettings.hpp"
 #include "gui_tools/widgets/QuizSettingsDialog.hpp"
 
 
-MusicQuiz::QuizSelector::QuizSelector(QWidget* parent) :
-	QDialog(parent)
+MusicQuiz::QuizSelector::QuizSelector(const common::Configuration& config, QWidget* parent) :
+	QDialog(parent), _config(config)
 {
 	/** Set Window Flags */
 	setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint | Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint);
@@ -31,7 +33,7 @@ MusicQuiz::QuizSelector::QuizSelector(QWidget* parent) :
 	setObjectName("QuizSelector");
 
 	/** Load Quizzes */
-	_quizList = MusicQuiz::util::QuizLoader::getListOfQuizzes();
+	_quizList = MusicQuiz::util::QuizLoader::getListOfQuizzes(config);
 	if ( _quizList.empty() ) {
 		throw std::runtime_error("No quizzes available.");
 	}
@@ -39,7 +41,7 @@ MusicQuiz::QuizSelector::QuizSelector(QWidget* parent) :
 	/** Load Quiz Previews */
 	for ( size_t i = 0; i < _quizList.size(); ++i ) {
 		try {
-			_quizPreviews.push_back(MusicQuiz::util::QuizLoader::getQuizPreview(i));
+			_quizPreviews.push_back(MusicQuiz::util::QuizLoader::getQuizPreview(i, config));
 		} catch ( const std::exception& err ) {
 			LOG_ERROR("Failed to load quiz #" << i << ". " << err.what());
 		} catch ( ... ) {

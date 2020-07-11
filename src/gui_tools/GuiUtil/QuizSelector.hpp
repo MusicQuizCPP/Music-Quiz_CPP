@@ -15,6 +15,9 @@
 #include "util/QuizLoader.hpp"
 #include "util/QuizSettings.hpp"
 
+namespace common {
+	class Configuration;
+}
 
 namespace MusicQuiz {
 	class QuizSettingsDialog;
@@ -28,7 +31,7 @@ namespace MusicQuiz {
 		 *
 		 * @param[in] parent The parent widget.
 		 */
-		explicit QuizSelector(QWidget* parent = nullptr);
+		explicit QuizSelector(const common::Configuration& config, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Destructor
@@ -119,5 +122,6 @@ namespace MusicQuiz {
 
 		std::vector<std::string> _quizList;
 		std::vector<MusicQuiz::util::QuizLoader::QuizPreview> _quizPreviews;
+		const common::Configuration& _config;
 	};
 }

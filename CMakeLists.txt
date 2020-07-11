@@ -48,6 +48,3 @@ ADD_SUBDIRECTORY(src)
 ### add the library
 add_library(${PROJECT_NAME} ${SRC_FILES})
 target_link_libraries(${PROJECT_NAME} ${Qt5Core_QTMAIN_LIBRARIES} ${Qt5Core_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES} ${Qt5Multimedia_LIBRARIES} ${Qt5MultimediaWidgets_LIBRARIES})
-if( DEFINED Boost_FOUND AND Boost_FOUND )
-	target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
-endif()
