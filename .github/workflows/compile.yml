@@ -29,6 +29,32 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
     - name: cmake
-      run: ${{ matrix.env }} cmake . -DBoost_ARCHITECTURE=-x64 -DBOOST_ROOT=$BOOST_ROOT_1_72_0  -B out
+      run: ${{ matrix.env }} cmake . ${{ matrix.cmake_params }} -DBoost_ARCHITECTURE=-x64 -DBOOST_ROOT=$BOOST_ROOT_1_72_0  -B out
     - name: build
-      run: cmake --build out --config Release -j2
+      run: VERBOSE=1 cmake --build out --config Release -j2
+    - name: package
+      run: |
+           if [ "$RUNNER_OS" == "Windows" ]; then
+            curl -L https://github.com/SerGreen/Appacker/releases/download/v1.3.6/Appacker.exe --output Appacker.exe
+            mkdir MusicQuizPackage
+            cp out/bin/Release/MusicQuizGUI.exe MusicQuizPackage/MusicQuizGUI.exe
+            cp -r installation/dlls/* MusicQuizPackage/
+            ./Appacker.exe -s MusicQuizPackage/ -e MusicQuizGUI.exe -d MusicQuizPackage.exe || true
+            sleep 10
+           fi
+
+    - name: Upload Artifact
+      if: runner.os == 'Windows'
+      uses: actions/upload-artifact@v2
+      with:
+        name: MusicQuizPackage.exe
+        path: MusicQuizPackage.exe
+
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      if: github.ref == 'refs/heads/master' && runner.os == 'Windows'
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: MusicQuizPackage.exe
+        asset_name: MusicQuizPackage.exe
+        tag: ${{ github.ref }}
