@@ -17,12 +17,12 @@ jobs:
       matrix:
         include:
         - os: ubuntu
-          env: CC=/usr/bin/clang-9 CXX=/usr/bin/clang++-9
-        - os: ubuntu
-          env: CC=/usr/bin/gcc-8 CXX=/usr/bin/g++-8
-        - os: ubuntu
           env: CC=/usr/bin/gcc-9 CXX=/usr/bin/g++-9
+          releasefile: MusicQuizGUI.AppImage
         - os: windows
+          releasefile: MusicQuizGUI.exe
+
+
 
     steps:
     - uses: actions/checkout@v2
@@ -39,22 +39,29 @@ jobs:
             mkdir MusicQuizPackage
             cp out/bin/Release/MusicQuizGUI.exe MusicQuizPackage/MusicQuizGUI.exe
             cp -r installation/dlls/* MusicQuizPackage/
-            ./Appacker.exe -s MusicQuizPackage/ -e MusicQuizGUI.exe -d MusicQuizPackage.exe || true
+            ./Appacker.exe -s MusicQuizPackage/ -e MusicQuizGUI.exe -d ${{ matrix.releasefile }} || true
             sleep 10
+           else
+            curl -L https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage --output linuxdeploy-x86_64.AppImage
+            chmod +x linuxdeploy-x86_64.AppImage
+            curl -L https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage --output linuxdeploy-plugin-qt-x86_64.AppImage
+            chmod +x linuxdeploy-plugin-qt-x86_64.AppImage
+            sudo apt-get install -y libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-doc gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio
+            ./linuxdeploy-x86_64.AppImage --appimage-extract-and-run --appdir AppDir --output appimage --create-desktop-file -e out/bin/MusicQuizGUI -i icons/MusicQuizGUI.png --plugin qt
+            mv MusicQuizGUI*.AppImage ${{ matrix.releasefile }}
            fi
 
     - name: Upload Artifact
-      if: runner.os == 'Windows'
       uses: actions/upload-artifact@v2
       with:
-        name: MusicQuizPackage.exe
-        path: MusicQuizPackage.exe
+        name: ${{ matrix.releasefile }}
+        path: ${{ matrix.releasefile }}
 
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
-      if: github.ref == 'refs/heads/master' && runner.os == 'Windows'
+      if: github.ref == 'refs/heads/master'
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: MusicQuizPackage.exe
-        asset_name: MusicQuizPackage.exe
+        file: ${{ matrix.releasefile }}
+        asset_name: ${{ matrix.releasefile }}
         tag: ${{ github.ref }}
