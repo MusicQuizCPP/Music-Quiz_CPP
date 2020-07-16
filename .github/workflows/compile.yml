@@ -64,4 +64,4 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: ${{ matrix.releasefile }}
         asset_name: ${{ matrix.releasefile }}
-        tag: ${{ github.sha }}
+        tag: ${{ github.run_number }}
