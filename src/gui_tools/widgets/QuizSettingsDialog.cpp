@@ -1,7 +1,7 @@
 #include "QuizSettingsDialog.hpp"
 
 #include <stdexcept>
-
+#include <chrono>
 #include <QString>
 #include <QLabel>
 #include <QWidget>
@@ -16,7 +16,7 @@
 
 
 MusicQuiz::QuizSettingsDialog::QuizSettingsDialog(const MusicQuiz::QuizSettings& settings, QWidget* parent) :
-	QDialog(parent)
+	QDialog(parent), _listUpdateTimer(this)
 {
 	/** Set Window Flags */
 	setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint);
@@ -93,6 +93,18 @@ void MusicQuiz::QuizSettingsDialog::createLayout(const MusicQuiz::QuizSettings& 
 	QWidget* dailyTriple = getDailyTripleLayout(settings);
 	if ( dailyTriple != nullptr ) {
 		mainlayout->addWidget(dailyTriple);
+	}
+
+	/** Line */
+	line = new QFrame;
+	line->setObjectName("settingsLine");
+	line->setFrameShape(QFrame::HLine);
+	mainlayout->addWidget(line);
+
+	/** LightInterface */
+	QWidget* lightInterface = getLightInterfaceLayout(settings);
+	if ( lightInterface != nullptr ) {
+		mainlayout->addWidget(lightInterface);
 	}
 
 	/** Save Button */
@@ -186,6 +198,58 @@ QWidget* MusicQuiz::QuizSettingsDialog::getDailyDoubleLayout(const MusicQuiz::Qu
 	widget->setLayout(mainlayout);
 	return widget;
 }
+
+QWidget* MusicQuiz::QuizSettingsDialog::getLightInterfaceLayout(const MusicQuiz::QuizSettings& settings)
+{
+	/** Layout */
+	QGridLayout* mainlayout = new QGridLayout;
+	mainlayout->setColumnStretch(1, 1);
+	mainlayout->setVerticalSpacing(10);
+	mainlayout->setHorizontalSpacing(0);
+	mainlayout->setContentsMargins(0, 10, 0, 10);
+
+	//Discovered devices dropdown
+	QHBoxLayout* discoveredLayout = new QHBoxLayout;
+	QLabel* label = new QLabel("Discovered Devices:");
+	label->setObjectName("settingsLabel");
+
+	discoveredLayout->setStretch(1, 1);
+	discoveredLayout->setContentsMargins(0, 10, 0, 10);
+
+	_discoveredList = new QComboBox();
+	_discoveredList->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+	connect(_discoveredList, QOverload<int>::of(&QComboBox::activated), this, &MusicQuiz::QuizSettingsDialog::updateIP);
+
+	discoveredLayout->addWidget(label);
+	discoveredLayout->addWidget(_discoveredList);
+
+	mainlayout->addItem(discoveredLayout, 0, 0, 1, 2, Qt::AlignLeft);
+
+	//IP input
+	QHBoxLayout* ipLayout = new QHBoxLayout;
+	label = new QLabel("Device IP:");
+	label->setObjectName("settingsLabel");
+
+	ipLayout->setStretch(1, 1);
+	ipLayout->setContentsMargins(0, 10, 0, 10);
+
+	_ipInput = new QLineEdit(QString::fromStdString(settings.deviceIP));
+	ipLayout->addWidget(label);
+	ipLayout->addWidget(_ipInput);
+
+	mainlayout->addItem(ipLayout, 1, 0, 1, 2, Qt::AlignLeft);
+
+	mainlayout->addItem(new QSpacerItem(35, 0, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 0);
+
+	_listUpdateTimer.setInterval(std::chrono::milliseconds(500));
+	_listUpdateTimer.callOnTimeout(this, &MusicQuiz::QuizSettingsDialog::updateLightDevices);
+	_listUpdateTimer.start();
+	/** Return Layout Widget */
+	QWidget* widget = new QWidget;
+	widget->setLayout(mainlayout);
+	return widget;
+}
+
 
 QWidget* MusicQuiz::QuizSettingsDialog::getDailyTripleLayout(const MusicQuiz::QuizSettings& settings)
 {
@@ -324,6 +388,7 @@ void MusicQuiz::QuizSettingsDialog::saveSettings()
 	settings.dailyTripleHidden = _dailyTripleHidden->isChecked();
 	settings.dailyTriplePercentage = _dailyTriplePercentage->value();
 
+	settings.deviceIP = _ipInput->text().toStdString();
 	/** Emit Signal with settings */
 	emit settingsUpdated(settings);
 
@@ -411,5 +476,29 @@ void MusicQuiz::QuizSettingsDialog::setLayoutEnabled(QLayout* layout, bool enabl
 				}
 			}
 		}
+	}
+}
+
+void MusicQuiz::QuizSettingsDialog::updateLightDevices()
+{
+	std::map<std::string, std::string> devices = lightcontrolDiscover.getDevices();
+	if(_discoveredList)
+	{
+		for(auto& device : devices)
+		{
+			if(_discoveredList->findText(QString::fromStdString(device.second)) == -1)
+			{
+				_discoveredList->addItem(QString::fromStdString(device.second));
+			}
+		}
+	}
+}
+
+void MusicQuiz::QuizSettingsDialog::updateIP(int index)
+{
+	(void)index;
+	if(_discoveredList && _ipInput)
+	{
+		_ipInput->setText(_discoveredList->currentText());
 	}
 }

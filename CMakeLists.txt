@@ -17,7 +17,7 @@ if( MSVC )
 	# -permissive- Forces C++ standards in the code.
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17 /permissive- ")
 else()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wconversion -Wlogical-op -Wpointer-arith -Wcast-qual -Wall -Wextra -Wshadow -Wold-style-cast -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -g")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wconversion -Wlogical-op -Wpointer-arith -Wcast-qual -Wall -Wextra -Wshadow -Wold-style-cast -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -pthread -g")
 endif()
 
 ### Set build type
@@ -35,6 +35,9 @@ find_package(Qt5MultimediaWidgets REQUIRED)
 include("cmake/FindBoost.cmake")
 
 INCLUDE_DIRECTORIES( src )
+
+### Zeroconf
+include_directories(SYSTEM submodules/mdns/)
 
 ### Set the output dir for generated libraries and binaries
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime directory" FORCE)

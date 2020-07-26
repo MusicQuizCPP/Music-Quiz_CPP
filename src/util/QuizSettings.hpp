@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstddef>
-
+#include <string>
 namespace MusicQuiz {
 	struct QuizSettings
 	{
@@ -24,5 +24,8 @@ namespace MusicQuiz {
 		/** Guess the category */
 		bool guessTheCategory = false;
 		size_t pointsPerCategory = 500;
+
+		/** Light Device */
+		std::string deviceIP;
 	};
 }

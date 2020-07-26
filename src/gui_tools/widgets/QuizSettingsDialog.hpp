@@ -12,8 +12,11 @@
 #include <QCheckBox>
 #include <QKeyEvent>
 #include <QGridLayout>
+#include <QComboBox>
+#include <QTimer>
 
 #include "util/QuizSettings.hpp"
+#include "lightcontrol/discover/LightControlDiscover.hpp"
 
 
 namespace MusicQuiz {
@@ -95,6 +98,18 @@ namespace MusicQuiz {
 		void informationMessageBox(const QString& info);
 
 		/**
+		 * @brief Update list of discovered light devices.
+		 *
+		 */
+		void updateLightDevices();
+
+		/**
+		 * @brief Update currently inputted IP.
+		 *
+		 */
+		void updateIP(int index);
+
+		/**
 		 * @brief Display Information boxes for the different settings.
 		 */
 		void showHiddenTeamsInfo();
@@ -134,6 +149,15 @@ namespace MusicQuiz {
 		QWidget* getDailyTripleLayout(const MusicQuiz::QuizSettings& settings);
 
 		/**
+		 * @brief Creates the Light Device interface.
+		 *
+		 * @param[in] settings The currently set settings.
+		 *
+		 * @return The Light Device layout.
+		 */
+		QWidget* getLightInterfaceLayout(const MusicQuiz::QuizSettings& settings);
+
+		/**
 		 * @brief Enable / disable a layout and its children.
 		 *
 		 * @param[in] layout The layout.
@@ -160,5 +184,11 @@ namespace MusicQuiz {
 		QGridLayout* _dailyTripleLayout = nullptr;
 		QLineEdit* _dailyTriplePercentageLineEdit = nullptr;
 		const int _minTriplePercentage = 5, _maxTriplePercentage = 25;
+
+		/**LightInterface */
+		LightControl::LightControlDiscover lightcontrolDiscover;
+		QTimer _listUpdateTimer;
+		QLineEdit *_ipInput = nullptr;
+		QComboBox *_discoveredList  = nullptr;
 	};
 }
