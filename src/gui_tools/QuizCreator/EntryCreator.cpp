@@ -140,6 +140,7 @@ QGridLayout* MusicQuiz::EntryCreator::createSongFileLayout()
 	_songStartTimeEdit->setAlignment(Qt::AlignCenter);
 	_songStartTimeEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 	_songStartTimeEdit->setObjectName("quizCreatorTimeEdit");
+	_songStartTimeEdit->setDisplayFormat("mm:ss");
 	songSettingsLayout->addWidget(_songStartTimeEdit, 0, 1, 1, 1);
 
 	/** Song Audio Buttons - Play */
@@ -171,6 +172,7 @@ QGridLayout* MusicQuiz::EntryCreator::createSongFileLayout()
 	_answerStartTimeEdit->setAlignment(Qt::AlignCenter);
 	_answerStartTimeEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 	_answerStartTimeEdit->setObjectName("quizCreatorTimeEdit");
+	_answerStartTimeEdit->setDisplayFormat("mm:ss");
 	songSettingsLayout->addWidget(_answerStartTimeEdit, 1, 1, 1, 1);
 
 	/** Answer Audio Buttons - Play */
@@ -267,6 +269,7 @@ QGridLayout* MusicQuiz::EntryCreator::createVideoFileLayout()
 	_videoStartTimeEdit->setAlignment(Qt::AlignCenter);
 	_videoStartTimeEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 	_videoStartTimeEdit->setObjectName("quizCreatorTimeEdit");
+	_videoStartTimeEdit->setDisplayFormat("mm:ss");
 	videoSettingsLayout->addWidget(_videoStartTimeEdit, 1, 1, 1, 1);
 
 	/** Video Buttons - Play */
@@ -298,6 +301,7 @@ QGridLayout* MusicQuiz::EntryCreator::createVideoFileLayout()
 	_videoAnswerStartTimeEdit->setAlignment(Qt::AlignCenter);
 	_videoAnswerStartTimeEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 	_videoAnswerStartTimeEdit->setObjectName("quizCreatorTimeEdit");
+	_videoAnswerStartTimeEdit->setDisplayFormat("mm:ss");
 	videoSettingsLayout->addWidget(_videoAnswerStartTimeEdit, 2, 1, 1, 1);
 
 	/** Answer Video Buttons - Play */
@@ -329,6 +333,7 @@ QGridLayout* MusicQuiz::EntryCreator::createVideoFileLayout()
 	_videoSongStartTimeEdit->setAlignment(Qt::AlignCenter);
 	_videoSongStartTimeEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 	_videoSongStartTimeEdit->setObjectName("quizCreatorTimeEdit");
+	_videoSongStartTimeEdit->setDisplayFormat("mm:ss");
 	videoSettingsLayout->addWidget(_videoSongStartTimeEdit, 3, 1, 1, 1);
 
 	/** Video Buttons - Play */
@@ -711,21 +716,21 @@ bool MusicQuiz::EntryCreator::isVideoFileValid(const QString& fileName)
 
 size_t MusicQuiz::EntryCreator::toMSec(const QTime& time)
 {
-	return time.hour() * 60000 + time.minute() * 1000;
+	return time.minute() * 60000 + time.second() * 1000;
 }
 
 QTime MusicQuiz::EntryCreator::fromMSec(size_t time)
 {
 	/** Hour */
-	const size_t hour = time / 60000;
-	time = time - 60000 * hour;
+	const size_t minute = time / 60000;
+	time = time - 60000 * minute;
 
 	/** Minute */
-	const size_t minute = time / 1000;
-	time = time - 1000 * minute;
+	const size_t second = time / 1000;
+	time = time - 1000 * second;
 
 	/** Return */
-	return QTime(static_cast<int>(hour), static_cast<int>(minute));
+	return QTime(0, static_cast<int>(minute), static_cast<int>(second), static_cast<int>(time));
 }
 
 void MusicQuiz::EntryCreator::setEntryType(int index)
