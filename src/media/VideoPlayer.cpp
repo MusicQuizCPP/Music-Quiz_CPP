@@ -55,13 +55,18 @@ void media::VideoPlayer::play(const QString& videoFile, const size_t startTime, 
 	/** Set Start Time */
 	_player->setPosition(startTime);
 
+	#if defined(_WIN32)
 	/** Play Video */
-	_player->pause();
-
+	_player->play();
 	/** Set State */
 	_state = VideoPlayState::PAUSED;
-
+	#else
+	/** Pause Video */
+	_player->pause();
+	/** Set State */
+	_state = VideoPlayState::PAUSED;
 	//The playback will be started in handleMediaStatus when file has been loaded.
+	#endif
 }
 
 void media::VideoPlayer::pause()
@@ -104,6 +109,7 @@ void media::VideoPlayer::stop()
 
 void media::VideoPlayer::handleMediaStatus(QMediaPlayer::MediaStatus status)
 {
+	#if !defined(_WIN32)
 	/** Check State */
 	if ( _state != VideoPlayState::PAUSED ) {
 		return;
@@ -113,6 +119,7 @@ void media::VideoPlayer::handleMediaStatus(QMediaPlayer::MediaStatus status)
 	{
 		this->resume();
 	}
+	#endif
 }
 
 void media::VideoPlayer::resize(const QSize& size)

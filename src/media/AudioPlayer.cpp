@@ -40,13 +40,18 @@ void media::AudioPlayer::play(const QString& audioFile, const size_t startTime)
 	/** Set Start Time */
 	_player->setPosition(startTime);
 
-	/** Pause Audio */
-	_player->pause();
-
+	#if defined(_WIN32)
+	/** Play Video */
+	_player->play();
 	/** Set State */
 	_state = AudioPlayState::PAUSED;
-	
+	#else
+	/** Pause Audio */
+	_player->pause();
+	/** Set State */
+	_state = AudioPlayState::PAUSED;
 	//The playback will be started in handleMediaStatus when file has been loaded.
+	#endif
 }
 
 void media::AudioPlayer::pause()
@@ -55,10 +60,8 @@ void media::AudioPlayer::pause()
 	if ( _state != AudioPlayState::PLAYING ) {
 		return;
 	}
-
 	/** Pause */
 	_player->pause();
-
 	/** Set State */
 	_state = AudioPlayState::PAUSED;
 }
@@ -89,6 +92,7 @@ void media::AudioPlayer::stop()
 
 void media::AudioPlayer::handleMediaStatus(QMediaPlayer::MediaStatus status)
 {
+	#if !defined(_WIN32)
 	/** Check State */
 	if ( _state != AudioPlayState::PAUSED ) {
 		return;
@@ -98,4 +102,5 @@ void media::AudioPlayer::handleMediaStatus(QMediaPlayer::MediaStatus status)
 	{
 		this->resume();
 	}
+	#endif
 }
