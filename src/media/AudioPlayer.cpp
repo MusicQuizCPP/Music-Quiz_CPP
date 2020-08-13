@@ -45,7 +45,7 @@ void media::AudioPlayer::play(const QString& audioFile, const size_t startTime)
 
 	/** Set State */
 	_state = AudioPlayState::PAUSED;
-	
+
 	//The playback will be started in handleMediaStatus when file has been loaded.
 }
 
@@ -94,8 +94,7 @@ void media::AudioPlayer::handleMediaStatus(QMediaPlayer::MediaStatus status)
 		return;
 	}
 
-	if(status == QMediaPlayer::MediaStatus::BufferedMedia || status == QMediaPlayer::MediaStatus::LoadedMedia)
-	{
+	if ( status == QMediaPlayer::MediaStatus::BufferedMedia || status == QMediaPlayer::MediaStatus::LoadedMedia ) {
 		this->resume();
 	}
 }

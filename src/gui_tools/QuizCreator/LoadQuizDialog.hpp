@@ -20,15 +20,14 @@ namespace MusicQuiz {
 	/**
 	 * @brief Quiz Load Dialog.
 	 */
-	class LoadQuizDialog : public QDialog
-	{
+	class LoadQuizDialog : public QDialog {
 		Q_OBJECT
 
 	public:
 		/**
 		 * @brief Constructor.
 		 */
-		explicit LoadQuizDialog(const common::Configuration&config, QWidget* parent = nullptr);
+		explicit LoadQuizDialog(const common::Configuration& config, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Default deconstructor.

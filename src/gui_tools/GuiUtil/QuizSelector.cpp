@@ -327,8 +327,7 @@ bool MusicQuiz::QuizSelector::closeWindow()
 
 void MusicQuiz::QuizSelector::keyPressEvent(QKeyEvent* event)
 {
-	switch ( event->key() )
-	{
+	switch ( event->key() ) {
 	case Qt::Key_Escape:
 		closeWindow();
 		break;

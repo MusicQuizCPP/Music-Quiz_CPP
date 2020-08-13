@@ -566,8 +566,7 @@ void MusicQuiz::QuizCreator::loadQuiz(const string& quizName)
 	}
 
 	/** Remove Tabs */
-	while(_tabWidget->count() > 1)
-	{
+	while ( _tabWidget->count() > 1 ) {
 		_tabWidget->removeTab(1);
 	}
 

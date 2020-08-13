@@ -8,8 +8,7 @@ namespace MusicQuiz {
 		/**
 		 * @brief \hack Tab bar specifically to get the tab on left side.
 		 */
-		class QTabBarExtender : public QTabBar
-		{
+		class QTabBarExtender : public QTabBar {
 		public:
 
 			/**

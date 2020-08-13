@@ -40,8 +40,8 @@ MusicQuiz::QuizEntry::QuizEntry(const QString& audioFile, const QString& answer,
 
 MusicQuiz::QuizEntry::QuizEntry(const QString& audioFile, const QString& videoFile, const QString& answer, size_t points, size_t songStartTime, size_t videoStartTime, size_t answerStartTime,
 	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, QWidget* parent) :
-	QPushButton(parent), _points(points), _startTime(songStartTime), _videoStartTime(videoStartTime), 
-	_answerStartTime(answerStartTime), _answer(answer), _audioFile(audioFile), 
+	QPushButton(parent), _points(points), _startTime(songStartTime), _videoStartTime(videoStartTime),
+	_answerStartTime(answerStartTime), _answer(answer), _audioFile(audioFile),
 	_videoFile(videoFile), _audioPlayer(audioPlayer), _videoPlayer(videoPlayer)
 {
 	/** Sanity Check */
@@ -92,8 +92,7 @@ void MusicQuiz::QuizEntry::handleMouseEvent(QMouseEvent* event)
 	}
 
 	/** Set Object Name (this changes the color) */
-	switch ( _state )
-	{
+	switch ( _state ) {
 	case MusicQuiz::QuizEntry::EntryState::IDLE:
 		applyColor(QColor(0, 0, 255));
 		break;
@@ -129,8 +128,7 @@ void MusicQuiz::QuizEntry::handleMouseEvent(QMouseEvent* event)
 
 void MusicQuiz::QuizEntry::leftClickEvent()
 {
-	switch ( _state )
-	{
+	switch ( _state ) {
 	case EntryState::IDLE: // Start Media
 		_state = EntryState::PLAYING;
 		if ( _type == EntryType::Song ) {
@@ -188,8 +186,7 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 
 void MusicQuiz::QuizEntry::rightClickEvent()
 {
-	switch ( _state )
-	{
+	switch ( _state ) {
 	case EntryState::IDLE:
 		break;
 	case EntryState::PLAYING: // Back to initial state

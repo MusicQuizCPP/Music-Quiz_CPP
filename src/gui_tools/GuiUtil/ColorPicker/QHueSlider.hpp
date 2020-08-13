@@ -12,8 +12,7 @@ namespace ColorPicker {
 	 * @brief A slider for selecting a hue value
 	 * @note Taken from https://gitlab.com/mattia.basaglia/Qt-Color-Widgets/-/tree/master/
 	 */
-	class QHueSlider : public QGradientSlider
-	{
+	class QHueSlider : public QGradientSlider {
 		Q_OBJECT
 			/** Saturation used in the rainbow gradient, as a [0-1] float  */
 			Q_PROPERTY(qreal colorSaturation READ colorSaturation WRITE setColorSaturation NOTIFY colorSaturationChanged)
@@ -120,8 +119,7 @@ namespace ColorPicker {
 	};
 
 
-	class QHueSlider::Private
-	{
+	class QHueSlider::Private {
 	private:
 		QHueSlider* _widget;
 

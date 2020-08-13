@@ -3,8 +3,7 @@
 #include <cstddef>
 #include <string>
 namespace MusicQuiz {
-	struct QuizSettings
-	{
+	struct QuizSettings {
 		/** Daily Double */
 		bool dailyDouble = false;
 		bool dailyDoubleHidden = true;

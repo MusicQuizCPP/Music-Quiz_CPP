@@ -18,8 +18,7 @@ namespace common {
 }
 
 namespace MusicQuiz {
-	class QuizFactory
-	{
+	class QuizFactory {
 	public:
 		/**
 		 * @brief Deleted constructor.

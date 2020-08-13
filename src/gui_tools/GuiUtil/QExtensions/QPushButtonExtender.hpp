@@ -9,8 +9,7 @@
 
 namespace MusicQuiz {
 	namespace QExtensions {
-		class QPushButtonExtender : public QPushButton
-		{
+		class QPushButtonExtender : public QPushButton {
 			Q_OBJECT
 
 		public:

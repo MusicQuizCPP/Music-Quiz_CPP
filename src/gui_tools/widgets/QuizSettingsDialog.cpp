@@ -398,8 +398,7 @@ void MusicQuiz::QuizSettingsDialog::saveSettings()
 
 void MusicQuiz::QuizSettingsDialog::keyPressEvent(QKeyEvent* event)
 {
-	switch ( event->key() )
-	{
+	switch ( event->key() ) {
 	case Qt::Key_Escape:
 		emit quitSignal();
 		break;
@@ -482,12 +481,9 @@ void MusicQuiz::QuizSettingsDialog::setLayoutEnabled(QLayout* layout, bool enabl
 void MusicQuiz::QuizSettingsDialog::updateLightDevices()
 {
 	std::map<std::string, std::string> devices = lightcontrolDiscover.getDevices();
-	if(_discoveredList)
-	{
-		for(auto& device : devices)
-		{
-			if(_discoveredList->findText(QString::fromStdString(device.second)) == -1)
-			{
+	if ( _discoveredList ) {
+		for ( auto& device : devices ) {
+			if ( _discoveredList->findText(QString::fromStdString(device.second)) == -1 ) {
 				_discoveredList->addItem(QString::fromStdString(device.second));
 			}
 		}
@@ -497,8 +493,7 @@ void MusicQuiz::QuizSettingsDialog::updateLightDevices()
 void MusicQuiz::QuizSettingsDialog::updateIP(int index)
 {
 	(void)index;
-	if(_discoveredList && _ipInput)
-	{
+	if ( _discoveredList && _ipInput ) {
 		_ipInput->setText(_discoveredList->currentText());
 	}
 }

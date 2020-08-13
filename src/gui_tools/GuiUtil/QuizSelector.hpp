@@ -22,8 +22,7 @@ namespace common {
 namespace MusicQuiz {
 	class QuizSettingsDialog;
 
-	class QuizSelector : public QDialog
-	{
+	class QuizSelector : public QDialog {
 		Q_OBJECT
 	public:
 		/**
@@ -117,7 +116,7 @@ namespace MusicQuiz {
 		QCheckBox* _includeSongsCheckbox = nullptr;
 		QCheckBox* _includeVideosCheckbox = nullptr;
 		QCheckBox* _guessTheCategoryCheckbox = nullptr;
-		
+
 		MusicQuiz::QuizSettings _settings;
 
 		std::vector<std::string> _quizList;

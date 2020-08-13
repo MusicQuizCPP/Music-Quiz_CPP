@@ -32,13 +32,11 @@ namespace MusicQuiz {
 	class QuizIntroScreen;
 	class QuizWinningScreen;
 
-	class MusicQuizController : public QWidget
-	{
+	class MusicQuizController : public QWidget {
 		Q_OBJECT
 
 	public:
-		enum QuizState
-		{
+		enum QuizState {
 			SELECT_QUIZ = 0,
 			SELECT_TEAM = 1,
 			QUIZ_INTRO_SCREEN = 2,

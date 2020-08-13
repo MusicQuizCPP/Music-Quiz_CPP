@@ -678,7 +678,7 @@ bool MusicQuiz::EntryCreator::isSongFileValid(const QString& fileName)
 			break;
 		}
 	}
-		
+
 	if ( !validFormat ) {
 		return false;
 	}

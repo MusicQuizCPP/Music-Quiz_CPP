@@ -12,12 +12,10 @@
 
 
 namespace media {
-	class AudioPlayer : public QWidget
-	{
+	class AudioPlayer : public QWidget {
 		Q_OBJECT
 	public:
-		enum class AudioPlayState
-		{
+		enum class AudioPlayState {
 			IDLE = 1,		// Default
 			PLAYING = 2,
 			PAUSED = 3

@@ -5,8 +5,7 @@
 
 namespace MusicQuiz {
 	namespace QExtensions {
-		class QTabWidgetExtender : public QTabWidget
-		{
+		class QTabWidgetExtender : public QTabWidget {
 		public:
 			/**
 			 * @brief Constructor.

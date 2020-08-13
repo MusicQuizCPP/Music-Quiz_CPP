@@ -13,8 +13,7 @@
 #include "common/Log.hpp"
 
 
-class VideoWidget : public QWidget
-{
+class VideoWidget : public QWidget {
 public:
 	VideoWidget(QWidget* parent = 0)
 		: QWidget(parent)
@@ -54,7 +53,7 @@ int main(int argc, char* argv[])
 	player->setPosition(2000);
 	player->play();*/
 
-	
+
 	/*QMediaPlaylist* playlist = new QMediaPlaylist;
 	playlist->addMedia(QUrl("C:/Users/Ztaal/Desktop/video.mp4"));
 	//playlist->addMedia(QUrl("http://example.com/movie2.mp4"));
@@ -77,10 +76,10 @@ int main(int argc, char* argv[])
 	dialog->setLayout(layout);
 
 	videoWidget->show();
-	videoWidget->play(); 
-	
+	videoWidget->play();
+
 	std::this_thread::sleep_for(std::chrono::seconds(2));
-	dialog->exec(); 
+	dialog->exec();
 
 	app.exec();
 	system("pause");

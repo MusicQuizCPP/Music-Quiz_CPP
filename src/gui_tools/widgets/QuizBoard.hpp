@@ -11,13 +11,12 @@
 #include <QKeyEvent>
 
 #include "util/QuizSettings.hpp"
-
+#include "lightcontrol/client/LightControlClient.hpp"
 
 namespace MusicQuiz {
 	class QuizTeam;
 	class QuizCategory;
-	class QuizBoard : public QDialog
-	{
+	class QuizBoard : public QDialog {
 		Q_OBJECT
 	public:
 		/**
@@ -57,6 +56,11 @@ namespace MusicQuiz {
 		 * @return The quiz name.
 		 */
 		QString getQuizName();
+
+		/**
+		 * @brief callback to run when the light client connects.
+		 */
+		static void lightClientConnectedCallback(LightControl::LightControlClient* client);
 
 	public slots:
 		/**
@@ -121,5 +125,6 @@ namespace MusicQuiz {
 		std::vector<QuizTeam*> _teams;
 		std::vector<QString> _rowCategories;
 		std::vector<MusicQuiz::QuizCategory*> _categories;
+		std::shared_ptr<LightControl::LightControlClient> _lightClient;
 	};
 }

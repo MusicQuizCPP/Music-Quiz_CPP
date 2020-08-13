@@ -20,8 +20,7 @@
 
 
 namespace MusicQuiz {
-	class QuizSettingsDialog : public QDialog
-	{
+	class QuizSettingsDialog : public QDialog {
 		Q_OBJECT
 	public:
 		/**
@@ -188,7 +187,7 @@ namespace MusicQuiz {
 		/**LightInterface */
 		LightControl::LightControlDiscover lightcontrolDiscover;
 		QTimer _listUpdateTimer;
-		QLineEdit *_ipInput = nullptr;
-		QComboBox *_discoveredList  = nullptr;
+		QLineEdit* _ipInput = nullptr;
+		QComboBox* _discoveredList = nullptr;
 	};
 }

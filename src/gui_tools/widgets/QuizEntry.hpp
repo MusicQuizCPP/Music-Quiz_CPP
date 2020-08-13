@@ -17,8 +17,7 @@ class QMouseEvent;
 
 
 namespace MusicQuiz {
-	class QuizEntry : public QPushButton
-	{
+	class QuizEntry : public QPushButton {
 		Q_OBJECT
 	public:
 		/**
@@ -63,8 +62,7 @@ namespace MusicQuiz {
 		QuizEntry(const QuizEntry&) = delete;
 		QuizEntry& operator=(const QuizEntry&) = delete;
 
-		enum class EntryState
-		{
+		enum class EntryState {
 			IDLE = 1, // Default
 			PLAYING = 2,
 			PAUSED = 3,
@@ -72,8 +70,7 @@ namespace MusicQuiz {
 			PLAYED = 5,
 		};
 
-		enum class EntryType
-		{
+		enum class EntryType {
 			Song = 0, Video = 1
 		};
 

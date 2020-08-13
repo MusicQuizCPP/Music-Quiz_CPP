@@ -20,8 +20,7 @@
 
 
 namespace MusicQuiz {
-	class TeamSelector : public QDialog
-	{
+	class TeamSelector : public QDialog {
 		Q_OBJECT
 	public:
 		/**

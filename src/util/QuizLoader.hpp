@@ -18,11 +18,9 @@ namespace common {
 
 namespace MusicQuiz {
 	namespace util {
-		class QuizLoader
-		{
+		class QuizLoader {
 		public:
-			struct QuizPreview
-			{
+			struct QuizPreview {
 				std::string quizName = "";
 				std::string quizAuthor = "";
 				bool includeSongs = false;

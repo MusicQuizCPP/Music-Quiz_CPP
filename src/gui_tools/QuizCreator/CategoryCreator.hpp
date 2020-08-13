@@ -16,8 +16,7 @@ namespace common {
 namespace MusicQuiz {
 	class EntryCreator;
 
-	class CategoryCreator : public QWidget
-	{
+	class CategoryCreator : public QWidget {
 		Q_OBJECT
 
 	public:

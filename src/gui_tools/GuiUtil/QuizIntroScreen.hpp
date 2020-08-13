@@ -9,8 +9,7 @@
 
 
 namespace MusicQuiz {
-	class QuizIntroScreen : public QDialog
-	{
+	class QuizIntroScreen : public QDialog {
 		Q_OBJECT
 	public:
 		/**

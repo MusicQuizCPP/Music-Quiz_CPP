@@ -72,8 +72,7 @@ void MusicQuiz::QuizCategory::leftClickEvent()
 		return;
 	}
 
-	switch ( _state )
-	{
+	switch ( _state ) {
 	case CategoryState::IDLE:
 		_state = CategoryState::GUESSED;
 		_categoryBtn->setText(QString::fromLocal8Bit(_name.toStdString().c_str()));
@@ -93,8 +92,7 @@ void MusicQuiz::QuizCategory::rightClickEvent()
 		return;
 	}
 
-	switch ( _state )
-	{
+	switch ( _state ) {
 	case CategoryState::IDLE:
 		break;
 	case CategoryState::GUESSED:

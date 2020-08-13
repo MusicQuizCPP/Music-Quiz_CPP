@@ -12,8 +12,7 @@
 
 namespace MusicQuiz {
 	class QuizEntry;
-	class QuizCategory : public QWidget
-	{
+	class QuizCategory : public QWidget {
 		Q_OBJECT
 	public:
 		/**
@@ -36,8 +35,7 @@ namespace MusicQuiz {
 		QuizCategory(const QuizCategory&) = delete;
 		QuizCategory& operator=(const QuizCategory&) = delete;
 
-		enum class CategoryState
-		{
+		enum class CategoryState {
 			IDLE, GUESSED
 		};
 

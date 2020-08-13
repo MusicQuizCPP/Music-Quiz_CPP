@@ -191,7 +191,7 @@ void MusicQuiz::QuizFactory::saveQuiz(const MusicQuiz::QuizCreator::QuizData& da
 
 		/** Check if quiz already exists */
 		error_code filesystem_error;
-		const string quizPath = config.getQuizDataPath() +  "/" + quizName;
+		const string quizPath = config.getQuizDataPath() + "/" + quizName;
 		if ( filesystem::is_directory(quizPath) ) {
 			QMessageBox::StandardButton resBtn = QMessageBox::question(parent, "Overwrite Quiz?", "Quiz already exists, do you want to overwrite existing quiz?",
 				QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
@@ -330,7 +330,7 @@ void MusicQuiz::QuizFactory::saveQuiz(const MusicQuiz::QuizCreator::QuizData& da
 						media_tree.put("SongFile", filesystem::relative(songPath, config.getQuizDataPath()).string());
 
 						/** Copy Media File */
-						filesystem::copy_file(songFile, mediaDirectoryPath + "/" + categoryName + "/" + entryName + audioFileExtension, filesystem::copy_options::overwrite_existing );
+						filesystem::copy_file(songFile, mediaDirectoryPath + "/" + categoryName + "/" + entryName + audioFileExtension, filesystem::copy_options::overwrite_existing);
 					}
 				} else if ( type == MusicQuiz::EntryCreator::EntryType::Video ) { // Video
 					/** Entry Video Start Time */
@@ -356,8 +356,8 @@ void MusicQuiz::QuizFactory::saveQuiz(const MusicQuiz::QuizCreator::QuizData& da
 						media_tree.put("SongFile", filesystem::relative(songPath, config.getQuizDataPath()).string());
 
 						/** Copy Media File */
-						filesystem::copy_file(videoFile, mediaDirectoryPath + "/" + categoryName + "/" + entryName + "_video" + videoFileExtension, filesystem::copy_options::overwrite_existing );
-						filesystem::copy_file(songFile, mediaDirectoryPath + "/" + categoryName + "/" + entryName + "_song" + audioFileExtension, filesystem::copy_options::overwrite_existing );
+						filesystem::copy_file(videoFile, mediaDirectoryPath + "/" + categoryName + "/" + entryName + "_video" + videoFileExtension, filesystem::copy_options::overwrite_existing);
+						filesystem::copy_file(songFile, mediaDirectoryPath + "/" + categoryName + "/" + entryName + "_song" + audioFileExtension, filesystem::copy_options::overwrite_existing);
 					}
 				}
 			}

@@ -18,8 +18,7 @@ namespace ColorPicker {
 	 * @brief A slider that moves on top of a gradient
 	 * @note Taken from https://gitlab.com/mattia.basaglia/Qt-Color-Widgets/-/tree/master/
 	 */
-	class QGradientSlider : public QSlider
-	{
+	class QGradientSlider : public QSlider {
 		Q_OBJECT
 			Q_PROPERTY(QLinearGradient gradient READ gradient WRITE setGradient)
 			Q_PROPERTY(QColor lastColor READ lastColor WRITE setLastColor STORED false)
@@ -146,8 +145,7 @@ namespace ColorPicker {
 	};
 
 
-	class ColorPicker::QGradientSlider::Private
-	{
+	class ColorPicker::QGradientSlider::Private {
 	public:
 		QBrush background;
 		QLinearGradient gradient;

@@ -12,8 +12,8 @@
 #include "gui_tools/QuizCreator/QuizCreator.hpp"
 
 static void errorMessage(const std::string& title, const std::string& errorMsg);
-static int runQuizCreator(QApplication &app, const common::Configuration& config);
-static int runMusicQuiz(QApplication &app, const common::Configuration& config);
+static int runQuizCreator(QApplication& app, const common::Configuration& config);
+static int runMusicQuiz(QApplication& app, const common::Configuration& config);
 static void selectQuizData(common::Configuration& config);
 
 static void errorMessage(const std::string& title, const std::string& errorMsg)
@@ -21,7 +21,7 @@ static void errorMessage(const std::string& title, const std::string& errorMsg)
 	QMessageBox::critical(nullptr, QString::fromLocal8Bit(title.c_str()), QString::fromLocal8Bit(errorMsg.c_str()), QMessageBox::Ok);
 }
 
-static int runMusicQuiz(QApplication &app, const common::Configuration& config)
+static int runMusicQuiz(QApplication& app, const common::Configuration& config)
 {
 	LOG_INFO("Music Quiz Selected.");
 
@@ -40,7 +40,7 @@ static int runMusicQuiz(QApplication &app, const common::Configuration& config)
 	return 0;
 }
 
-static int runQuizCreator(QApplication &app, const common::Configuration& config)
+static int runQuizCreator(QApplication& app, const common::Configuration& config)
 {
 	LOG_INFO("Quiz Creator Selected.");
 
@@ -93,20 +93,18 @@ int main(int argc, char* argv[])
 	msgBox.setStyleSheet(qss.readAll());
 	qss.close();
 
-	while(!config.doQuizDataPathExist())
-	{
+	while ( !config.doQuizDataPathExist() ) {
 		selectQuizData(config);
 	}
 
-	while(true)
-	{
+	while ( true ) {
 		msgBox.exec();
 		/** Start Selected Program */
 		if ( msgBox.clickedButton() == musicQuizButton ) {
 			return runMusicQuiz(app, config);
 		} else if ( msgBox.clickedButton() == quizCreatorButton ) {
 			return runQuizCreator(app, config);
-		} else if ( msgBox.clickedButton() == selectQuizDataButton) {
+		} else if ( msgBox.clickedButton() == selectQuizDataButton ) {
 			selectQuizData(config);
 		} else if ( msgBox.clickedButton() == exitButton ) {
 			/** Close Program */

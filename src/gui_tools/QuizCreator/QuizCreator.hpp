@@ -23,12 +23,10 @@ namespace MusicQuiz {
 	class QuizBoard;
 	class CategoryCreator;
 
-	class QuizCreator : public QDialog
-	{
+	class QuizCreator : public QDialog {
 		Q_OBJECT
 	public:
-		struct QuizData
-		{
+		struct QuizData {
 			QString quizName = "";
 			QString quizAuthor = "";
 			QString quizDescription = "";
@@ -132,11 +130,7 @@ namespace MusicQuiz {
 		 */
 		void quitCreator();
 
-
-
 		void categoryOrderChanged(int, int, int);
-
-
 
 	signals:
 

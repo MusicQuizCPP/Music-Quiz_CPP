@@ -20,9 +20,9 @@
 
 
 MusicQuiz::MusicQuizController::MusicQuizController(const common::Configuration& config, QWidget* parent) :
-	QWidget(parent), 
+	QWidget(parent),
 	_themeSongFile((config.getQuizDataPath() + "/default/theme_song.mp3").c_str()),
-	_victorySongFile((config.getQuizDataPath() + "/default/victory_song.mp3").c_str()), 
+	_victorySongFile((config.getQuizDataPath() + "/default/victory_song.mp3").c_str()),
 	_updateTimerDelayMs(25), _quizSelected(false), _teamSelected(false),
 	_introScreenDone(false), _gameCompleted(false), _config(config)
 {
@@ -99,8 +99,7 @@ MusicQuiz::MusicQuizController::~MusicQuizController()
 
 void MusicQuiz::MusicQuizController::executeQuiz()
 {
-	switch ( _quizState )
-	{
+	switch ( _quizState ) {
 	case MusicQuiz::MusicQuizController::SELECT_QUIZ:
 	{
 		/** Start Quiz Theme Song */

@@ -13,8 +13,7 @@
 
 
 namespace MusicQuiz {
-	class QuizWinningScreen : public QDialog
-	{
+	class QuizWinningScreen : public QDialog {
 		Q_OBJECT
 	public:
 		/**

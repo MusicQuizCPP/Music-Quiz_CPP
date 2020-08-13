@@ -109,8 +109,7 @@ void media::VideoPlayer::handleMediaStatus(QMediaPlayer::MediaStatus status)
 		return;
 	}
 
-	if(status == QMediaPlayer::MediaStatus::BufferedMedia || status == QMediaPlayer::MediaStatus::LoadedMedia)
-	{
+	if ( status == QMediaPlayer::MediaStatus::BufferedMedia || status == QMediaPlayer::MediaStatus::LoadedMedia ) {
 		this->resume();
 	}
 }

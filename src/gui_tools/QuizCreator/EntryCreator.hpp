@@ -25,8 +25,7 @@ namespace common {
 
 namespace MusicQuiz {
 
-	class EntryCreator : public QWidget
-	{
+	class EntryCreator : public QWidget {
 		Q_OBJECT
 
 	public:
@@ -356,7 +355,7 @@ namespace MusicQuiz {
 		media::VideoPlayer* _videoPlayer = nullptr;
 
 		const std::vector< QString > _validAudioFormats = { ".mp3", ".mp4", ".wav" };
-		const std::vector< QString > _validVideoFormats = { ".mp4"};
+		const std::vector< QString > _validVideoFormats = { ".mp4" };
 
 		const common::Configuration& _config;
 	};

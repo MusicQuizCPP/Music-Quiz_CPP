@@ -26,12 +26,16 @@ constexpr char FOLDER_SEPERATOR('\\');
 constexpr char FOLDER_SEPERATOR('/');
 #endif
 
+#ifndef NDEBUG
 #define LOG_DEBUG(a) {\
 	const std::string log_file_path = std::string(__FILE__); \
 	const size_t  log_idx = log_file_path.find_last_of(FOLDER_SEPERATOR, log_file_path.length());  \
 	std::stringstream log_common_stream; \
 	log_common_stream << log_file_path.substr(log_idx + 1, std::string::npos) << "::" << __func__ << ":" << __LINE__ << ": " << a << "\n"; \
 	std::cout << log_common_stream.str() << std::flush;}
+#else
+#define LOG_DEBUG(a)
+#endif
 
 #define LOG_INFO(a) {\
 	const std::string log_file_path = std::string(__FILE__); \

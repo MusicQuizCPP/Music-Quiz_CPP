@@ -11,16 +11,6 @@ SET(ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 
 SET(CMAKE_AUTOMOC ON)
 
-### add extra definitions. c++17
-set(CMAKE_CXX_STANDARD 17)
-if( MSVC )
-	# Using c++17.
-	# -permissive- Forces C++ standards in the code.
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17 /permissive- ")
-else()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wconversion -Wlogical-op -Wpointer-arith -Wcast-qual -Wall -Wextra -Wshadow -Wold-style-cast -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -pthread -g")
-endif()
-
 ### Set build type
 IF( NOT CMAKE_BUILD_TYPE )
   SET(CMAKE_BUILD_TYPE release)
@@ -40,10 +30,33 @@ INCLUDE_DIRECTORIES( src )
 ### Zeroconf
 include_directories(SYSTEM submodules/mdns/)
 
+### cereal serialisation library
+include_directories(SYSTEM submodules/cereal/include)
+
 ### Set the output dir for generated libraries and binaries
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime directory" FORCE)
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/libs" CACHE PATH "Library directory" FORCE)
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/libs" CACHE PATH "Archive directory" FORCE)
+
+### add extra definitions. c++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if( MSVC )
+	# Using c++17.
+	# -permissive- Forces C++ standards in the code.
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /permissive- ")
+	add_compile_definitions(BOOST_ASIO_DISABLE_CONCEPTS)
+	add_compile_definitions(_WIN32_WINNT=0x0A00) #Set target to WIN10
+	add_compile_definitions(WIN32_LEAN_AND_MEAN) #Disable complains about winsock.h includes
+	add_compile_definitions(BOOST_ALL_NO_LIB)    #Don't autolink boost libraries
+	add_compile_definitions(_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING) #shut up MSVC
+	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)                           #shut up MSVC
+
+else()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wconversion -Wlogical-op -Wpointer-arith -Wcast-qual -Wall -Wextra -Wshadow -Wold-style-cast -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -pthread -g")
+endif()
+
 
 ### find the files
 SET(SRC_FILES CACHE INTERNAL "" FORCE)

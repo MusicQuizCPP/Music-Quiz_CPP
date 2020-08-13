@@ -13,8 +13,7 @@
 
 
 namespace MusicQuiz {
-	class QuizTeam : public QPushButton
-	{
+	class QuizTeam : public QPushButton {
 		Q_OBJECT
 	public:
 		/**
@@ -89,7 +88,7 @@ namespace MusicQuiz {
 		QTimer _scoreCntTimer;
 		std::atomic<size_t> _newPoints;
 		std::atomic<size_t> _scoreCntRate;
-		
+
 		const std::chrono::milliseconds _scoreTimerDelayMs;
 
 		bool _hideScore;
