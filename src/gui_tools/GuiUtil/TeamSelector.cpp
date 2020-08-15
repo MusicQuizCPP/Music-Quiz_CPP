@@ -352,6 +352,10 @@ void MusicQuiz::TeamSelector::keyPressEvent(QKeyEvent* event)
 	case Qt::Key_Escape:
 		closeWindow();
 		break;
+	case Qt::Key_Enter:
+	case Qt::Key_Return:
+		addTeam();
+		break;
 	default:
 		QWidget::keyPressEvent(event);
 		break;
