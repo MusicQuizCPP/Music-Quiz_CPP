@@ -58,11 +58,13 @@ script:
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then ./Appacker.exe -s MusicQuizPackage/ -e MusicQuizGUI.exe -d artifacts/MusicQuizGUI.exe || true; fi
 
 before_deploy:
-- git config --local user.name "StefanRvO"
-- git config --local user.email "stefan@stefanrvo.dk"
-- export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
-- git tag $TRAVIS_TAG
-
+  if ! [[ $TRAVIS_TAG ]]; then
+    export TRAVIS_TAG="1.$TRAVIS_BUILD_NUMBER" &&
+    git config --local user.name "StefanRvO" &&
+    git config --local user.email "stefan@stefanrvo.dk" &&
+    git tag "$TRAVIS_TAG" "$TRAVIS_COMMIT";
+  fi
+  
 deploy:
   provider: releases
   api_key:
