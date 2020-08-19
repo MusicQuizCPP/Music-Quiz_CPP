@@ -34,7 +34,7 @@ namespace LightControl {
 		 * @param[in] b blue color.
 		 */
 		LightModeMessage(LightMode mode, float strength, uint8_t r, uint8_t g, uint8_t b)
-			: _mode(mode), _strength(strength), _r(r), _g(g), _b(b)
+			: _r(r), _g(g), _b(b), _mode(mode), _strength(strength)
 		{}
 
 		/**

@@ -32,7 +32,7 @@ namespace LightControl {
 		 * @param[in] percentOn percent of LEDs to be on (0-100)
 		 */
 		GlitterMessage(std::chrono::microseconds updateRate, bool randomColor, float percentOn)
-			: _updateRate(updateRate), _randomColor(randomColor), _percentOn(percentOn)
+			: _percentOn(percentOn), _randomColor(randomColor), _updateRate(updateRate)
 		{}
 
 		/**

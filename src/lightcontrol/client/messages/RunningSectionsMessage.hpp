@@ -31,7 +31,7 @@ namespace LightControl {
 		 * @param[in] updateRate how often the rainbow should be updated
 		 */
 		RunningSectionsMessage(std::chrono::milliseconds updateRate, uint32_t sectionCount, uint32_t sectionSize)
-			: _updateRate(updateRate), _sectionCount(sectionCount), _sectionSize(sectionSize)
+			: _sectionSize(sectionSize), _sectionCount(sectionCount), _updateRate(updateRate)
 		{}
 
 		/**

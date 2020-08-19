@@ -23,10 +23,9 @@ using namespace std::chrono_literals;
 
 
 LightControlClient::LightControlClient(std::string hostname, uint16_t port) :
-	_hostname(hostname), _port(port),
+	_port(port), _hostname(hostname),
 	_resolver(net::make_strand(_ioContext)),
 	_ws(net::make_strand(_ioContext)),
-	_shouldStop(false),
 	_state(std::make_unique<DeviceState>())
 {}
 

@@ -40,7 +40,7 @@ namespace LightControl {
 		 * @param[in] singleShot Whether the pulse should just run once, or continue
 		 */
 		PulseMessage(std::chrono::milliseconds pulseTime, PulseDirection direction, bool singleShot)
-			: _pulseTime(pulseTime), _direction(direction), _singleShot(singleShot)
+			: _singleShot(singleShot), _direction(direction), _pulseTime(pulseTime)
 		{}
 
 		/**

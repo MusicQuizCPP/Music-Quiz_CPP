@@ -15,8 +15,8 @@ namespace LightControl {
 		 */
 		PendingMessage(std::shared_ptr<std::ostringstream> data, std::chrono::milliseconds timeout) :
 			_data(data),
-			_queueTime(std::chrono::system_clock::now()),
-			_timeout(std::chrono::duration_cast<std::chrono::milliseconds>(timeout))
+			_timeout(std::chrono::duration_cast<std::chrono::milliseconds>(timeout)),
+			_queueTime(std::chrono::system_clock::now())
 		{}
 
 		/**

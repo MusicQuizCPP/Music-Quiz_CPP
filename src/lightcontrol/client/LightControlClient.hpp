@@ -120,7 +120,7 @@ namespace LightControl {
 
 
 		/** Variables */
-		bool _shouldStop;
+		bool _shouldStop = false;
 		bool _isRunning = false;
 		bool _isConnected = false;
 		bool _sendingMessage = false;
