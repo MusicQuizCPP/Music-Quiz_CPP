@@ -2,8 +2,8 @@
 
 namespace LightControl {
 	enum class LightMode {
-		ON,
 		OFF,
+		ON,
 		STROBE,
 		GLITTER,
 		FREQUENCY_PANEL,
