@@ -25,6 +25,7 @@
 
 #include "lightcontrol/client/messages/LightModeMessage.hpp"
 #include "lightcontrol/client/messages/OnBoardLEDStrength.hpp"
+#include "lightcontrol/client/messages/GlitterMessage.hpp"
 
 
 MusicQuiz::QuizBoard::QuizBoard(const std::vector<MusicQuiz::QuizCategory*>& categories, const std::vector<QString>& rowCategories,
@@ -81,6 +82,7 @@ MusicQuiz::QuizBoard::QuizBoard(const std::vector<MusicQuiz::QuizCategory*>& cat
 void MusicQuiz::QuizBoard::lightClientConnectedCallback(LightControl::LightControlClient* client)
 {
 	client->sendMessage(LightControl::OnBoardLEDStrength(0));
+	client->sendMessage(LightControl::LightModeMessage( LightControl::LightMode::OFF, 1.f, 0, 0, 0));
 }
 
 void MusicQuiz::QuizBoard::createLayout()
@@ -272,6 +274,9 @@ void MusicQuiz::QuizBoard::handleGameComplete()
 				winningTeams.push_back(_teams[i]);
 			}
 		}
+		_lightClient->sendMessage(LightControl::GlitterMessage(std::chrono::milliseconds(100), true, 50));
+		_lightClient->sendMessage(LightControl::LightModeMessage(LightControl::LightMode::GLITTER, 1.f, 0, 0, 0));
+
 
 		emit gameComplete(winningTeams);
 	} else if ( isGameComplete || _quizStopped ) {
