@@ -25,8 +25,13 @@ find_package(Qt5MultimediaWidgets REQUIRED)
 ### Boost
 include("cmake/FindBoost.cmake")
 
-INCLUDE_DIRECTORIES( src )
+### Go
+include("cmake/GoLang.cmake")
 
+### youtube download wrapper
+ADD_GO_LIBRARY(youtube_wrapper # library name
+               youtube_download_wrapper/youtube_download_wrapper.go)
+SET(GO_PATH $GOPATH:submodules/youtube)
 ### Zeroconf
 include_directories(SYSTEM submodules/mdns/)
 
@@ -58,10 +63,13 @@ else()
 endif()
 
 
+
+INCLUDE_DIRECTORIES( src )
+
 ### find the files
 SET(SRC_FILES CACHE INTERNAL "" FORCE)
 ADD_SUBDIRECTORY(src)
 
 ### add the library
 add_library(${PROJECT_NAME} ${SRC_FILES})
-target_link_libraries(${PROJECT_NAME} ${Qt5Core_QTMAIN_LIBRARIES} ${Qt5Core_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES} ${Qt5Multimedia_LIBRARIES} ${Qt5MultimediaWidgets_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${Qt5Core_QTMAIN_LIBRARIES} ${Qt5Core_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES} ${Qt5Multimedia_LIBRARIES} ${Qt5MultimediaWidgets_LIBRARIES} youtube_wrapper_golib)
