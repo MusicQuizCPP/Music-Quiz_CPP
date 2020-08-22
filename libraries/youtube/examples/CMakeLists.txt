@@ -1,0 +1,4 @@
+add_executable(youtube_downloader "download_example.cpp")
+
+add_dependencies(youtube_downloader youtube)
+target_link_libraries(youtube_downloader youtube)
