@@ -1,0 +1,6 @@
+SET(SRC_FILES
+    ${SRC_FILES}
+    CACHE INTERNAL ""
+)
+
+ADD_SUBDIRECTORY(youtube)

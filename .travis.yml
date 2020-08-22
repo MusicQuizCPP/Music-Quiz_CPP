@@ -1,6 +1,7 @@
 os:
 - linux
 - windows
+
 addons:
   artifacts:
     paths:
@@ -11,6 +12,10 @@ env:
 language: cpp
 services:
 - docker
+
+git:
+  autocrlf: input
+
 archlinux:
   packages:
   - python
@@ -24,6 +29,7 @@ archlinux:
   - gst-plugins-ugly
   - cmake
   - squashfuse
+  - nasm 
   mount:
   - "~/.pkg-cache:/var/cache/pacman/pkg"
   script:
@@ -37,19 +43,28 @@ archlinux:
   - mv MusicQuizGUI*.AppImage artifacts/MusicQuizGUI.AppImage
 script:
 - mkdir artifacts
+- git submodule init && git submodule update
+
 - if [ "$TRAVIS_OS_NAME" = "linux" ];   then curl -s https://raw.githubusercontent.com/mikkeloscar/arch-travis/master/arch-travis.sh | bash; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then git submodule init && git submodule update; fi
+
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then curl -LO https://code.qt.io/cgit/qbs/qbs.git/plain/scripts/install-qt.sh; fi
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then ./install-qt.sh   --version ${QT_VERSION} --toolchain win64_msvc2017_64 qtbase qtsvg qtmultimedia qttools; fi
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install NuGet.CommandLine ; fi
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then nuget install boost -OutputDirectory /c/boost; fi
+- if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install nasm; fi
+- if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install strawberryperl; fi
 
+- if [ "$TRAVIS_OS_NAME" = "windows" ]; then export CC=CL.exe ; fi
+- if [ "$TRAVIS_OS_NAME" = "windows" ]; then export CXX=CL.exe ; fi
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export "PATH=/c/Qt/${QT_VERSION}/msvc2017_64:/c/Qt/5.12.9/msvc2017_64/bin:$PATH"; fi
+- if [ "$TRAVIS_OS_NAME" = "windows" ]; then export "PATH=/c/Program Files/NASM:$PATH"; fi
+- if [ "$TRAVIS_OS_NAME" = "windows" ]; then export "PATH=/c/Strawberry/perl/bin:$PATH"; fi
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export "BOOST_INCLUDEDIR=/c/boost\boost.1.72.0.0\lib\native\include"; fi
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export "BOOST_ROOT=/c/boost\boost.1.72.0.0\lib\native\include"; fi
 
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then cmake . -G "Visual Studio 15 2017 Win64" -B out; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then VERBOSE=1 cmake --build out --config Release -j2; fi
+- if [ "$TRAVIS_OS_NAME" = "windows" ]; then cmake --build out --config Release -j2; fi
+
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then curl -LO https://github.com/SerGreen/Appacker/releases/download/v1.3.6/Appacker.exe; fi
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then chmod +x Appacker.exe; fi
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then mkdir MusicQuizPackage; fi
