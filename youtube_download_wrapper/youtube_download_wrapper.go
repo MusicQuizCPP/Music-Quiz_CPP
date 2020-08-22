@@ -63,7 +63,7 @@ func getBestFormat(video *client.Video) (client.Format, error) {
 }
 
 //export getVideoUrl
-func getVideoUrl(videoLink string) (string, int) {
+func getVideoUrl(videoLink string) *C.char {
 	cl := client.Client{}
 	fmt.Println(videoLink)
 
@@ -76,25 +76,25 @@ func getVideoUrl(videoLink string) (string, int) {
 	cl.HTTPClient = &http.Client{Transport: httpTransport}
 	video, err := cl.GetVideo(videoLink)
 	if err != nil {
-		return "", -1
+		return C.CString("")
 	}
 
 	format, err := getBestFormat(video)
 
 	if err != nil {
-		return "", -1
+		return C.CString("")
 	}
 
 	url, err := cl.GetStreamURL(context.Background(), video, &format)
 
 	if err != nil {
-		return "", -1
+		return C.CString("")
 	}
 
-	return url, 0
+	return C.CString(url)
 }
 
 func main() {
-	str, _ := getVideoUrl(os.Args[1])
+	str := getVideoUrl(os.Args[1])
 	fmt.Println(str)
 }

@@ -24,6 +24,7 @@ archlinux:
   - gst-plugins-ugly
   - cmake
   - squashfuse
+  - go
   mount:
   - "~/.pkg-cache:/var/cache/pacman/pkg"
   script:
@@ -41,6 +42,8 @@ script:
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then git submodule init && git submodule update; fi
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then curl -LO https://code.qt.io/cgit/qbs/qbs.git/plain/scripts/install-qt.sh; fi
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then ./install-qt.sh   --version ${QT_VERSION} --toolchain win64_msvc2017_64 qtbase qtsvg qtmultimedia qttools; fi
+- if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install golang ; fi
+
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install NuGet.CommandLine ; fi
 - if [ "$TRAVIS_OS_NAME" = "windows" ]; then nuget install boost -OutputDirectory /c/boost; fi
 

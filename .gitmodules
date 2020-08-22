@@ -4,6 +4,6 @@
 [submodule "submodules/cereal"]
 	path = submodules/cereal
 	url = https://github.com/USCiLab/cereal.git
-[submodule "youtube"]
-	path = submodules/youtube
-	url = https://github.com/kkdai/youtube
+[submodule "submodules/go/src/github.com/kkdai/youtube/youtube"]
+	path = submodules/go/src/github.com/kkdai/youtube/v2
+	url = https://github.com/MusicQuizCPP/youtube.git

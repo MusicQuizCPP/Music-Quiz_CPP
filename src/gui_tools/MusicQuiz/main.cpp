@@ -10,6 +10,7 @@
 
 #include "MusicQuizController.hpp"
 #include "gui_tools/QuizCreator/QuizCreator.hpp"
+#include "youtube_wrapper.h"
 
 static void errorMessage(const std::string& title, const std::string& errorMsg);
 static int runQuizCreator(QApplication& app, const common::Configuration& config);
@@ -73,6 +74,12 @@ static void selectQuizData(common::Configuration& config)
 
 int main(int argc, char* argv[])
 {
+	GoString video;
+	video.p = "https://www.youtube.com/watch?v=LXb3EKWsInQ";
+	video.n = strlen(video.p);
+
+	LOG_INFO(std::string(getVideoUrl(video)));
+
 	/** Create QApplication */
 	QApplication app(argc, argv);
 

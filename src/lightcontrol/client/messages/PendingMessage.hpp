@@ -3,7 +3,6 @@
 #include <chrono>
 #include <iostream>
 
-
 namespace LightControl {
 	class PendingMessage {
 	public:

@@ -25,13 +25,22 @@ find_package(Qt5MultimediaWidgets REQUIRED)
 ### Boost
 include("cmake/FindBoost.cmake")
 
-### Go
-include("cmake/GoLang.cmake")
-
 ### youtube download wrapper
-ADD_GO_LIBRARY(youtube_wrapper # library name
-               youtube_download_wrapper/youtube_download_wrapper.go)
-SET(GO_PATH $GOPATH:submodules/youtube)
+SET(GOPATH ${PROJECT_SOURCE_DIR}/submodules/go)
+
+set(GO_SRCS youtube_download_wrapper/youtube_download_wrapper.go)
+include_directories(SYSTEM youtube_download_wrapper)
+
+add_custom_command(OUTPUT youtubego
+  DEPENDS ${GO_SRCS}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  COMMAND env GOPATH="${GOPATH}" go build -buildmode=c-archive
+  -o "${CMAKE_CURRENT_BINARY_DIR}/youtubego"
+  ${CMAKE_GO_FLAGS} ${GO_SRCS}
+  COMMENT "Building Go library")
+
+add_custom_target(libyoutubego DEPENDS youtubego)
+
 ### Zeroconf
 include_directories(SYSTEM submodules/mdns/)
 
@@ -72,4 +81,5 @@ ADD_SUBDIRECTORY(src)
 
 ### add the library
 add_library(${PROJECT_NAME} ${SRC_FILES})
-target_link_libraries(${PROJECT_NAME} ${Qt5Core_QTMAIN_LIBRARIES} ${Qt5Core_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES} ${Qt5Multimedia_LIBRARIES} ${Qt5MultimediaWidgets_LIBRARIES} youtube_wrapper_golib)
+add_dependencies(${PROJECT_NAME} libyoutubego)
+target_link_libraries(${PROJECT_NAME} ${Qt5Core_QTMAIN_LIBRARIES} ${Qt5Core_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES} ${Qt5Multimedia_LIBRARIES} ${Qt5MultimediaWidgets_LIBRARIES} "${CMAKE_CURRENT_BINARY_DIR}/youtubego")
