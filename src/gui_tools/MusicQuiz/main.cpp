@@ -67,6 +67,7 @@ static void selectQuizData(common::Configuration& config)
 	if ( path.isEmpty() ) {
 		return;
 	}
+
 	config.setQuizDataPath(path.toStdString());
 	LOG_INFO("Set quiz path to " + path.toStdString());
 }
@@ -87,15 +88,32 @@ int main(int argc, char* argv[])
 	QMessageBox msgBox(QMessageBox::Question, "Select Program", "Select Program", QMessageBox::NoButton, nullptr, Qt::WindowStaysOnTopHint);
 	QAbstractButton* musicQuizButton = msgBox.addButton("Music Quiz", QMessageBox::YesRole);
 	QAbstractButton* quizCreatorButton = msgBox.addButton("Quiz Creator", QMessageBox::YesRole);
-	QAbstractButton* selectQuizDataButton = msgBox.addButton("Select Quiz Directory", QMessageBox::YesRole);
+	QAbstractButton* selectQuizDataButton = msgBox.addButton("", QMessageBox::YesRole);
+	QPixmap pixmap(":imgs/browse_file_icon.png");
+	QIcon icon(pixmap);
+	selectQuizDataButton->setIcon(icon);
 	QAbstractButton* exitButton = msgBox.addButton("Exit", QMessageBox::NoRole);
 
 	msgBox.setStyleSheet(qss.readAll());
 	qss.close();
 
-	while ( !config.doQuizDataPathExist() ) {
+	if ( !config.doQuizDataPathExist() ) {
+		/** Popup to tell the user to select a data folder */
+		QMessageBox::information(nullptr, "Select Data Directory", "No Data Directory Found!\n\nSelect a directory containing the quiz data. This is required to load existing- and save new quizzes.", QMessageBox::Ok);
+
+		/** Popup to select the data folder */
 		selectQuizData(config);
+
+		/** Check if data was set */
+		if ( !config.doQuizDataPathExist() ) {
+			QMessageBox::information(nullptr, "Information", "No directory selected! Closing application.", QMessageBox::Ok);
+
+			/** Close Program */
+			LOG_INFO("Closing program. No data directory selected.");
+			return 0;
+		}
 	}
+
 
 	while ( true ) {
 		msgBox.exec();
