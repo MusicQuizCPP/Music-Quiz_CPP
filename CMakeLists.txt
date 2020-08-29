@@ -20,6 +20,8 @@ MESSAGE("-- Build type: " ${CMAKE_BUILD_TYPE})
 ### Find Qt
 include("cmake/FindQt.cmake")
 find_package(Qt5Multimedia REQUIRED)
+find_package(Qt5Positioning REQUIRED)
+find_package(Qt5TextToSpeech REQUIRED)
 find_package(Qt5MultimediaWidgets REQUIRED)
 
 ### Boost
@@ -64,4 +66,4 @@ ADD_SUBDIRECTORY(src)
 
 ### add the library
 add_library(${PROJECT_NAME} ${SRC_FILES})
-target_link_libraries(${PROJECT_NAME} ${Qt5Core_QTMAIN_LIBRARIES} ${Qt5Core_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES} ${Qt5Multimedia_LIBRARIES} ${Qt5MultimediaWidgets_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${Qt5Core_QTMAIN_LIBRARIES} ${Qt5Core_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES} ${Qt5Multimedia_LIBRARIES} ${Qt5MultimediaWidgets_LIBRARIES} ${Qt5Positioning_LIBRARIES} ${Qt5TextToSpeech_LIBRARIES})

@@ -1,9 +1,10 @@
 #include <QFile>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QApplication>
-#include <QAbstractButton>
 #include <QFileDialog>
+#include <QApplication>
+#include <QTextToSpeech>
+#include <QAbstractButton>
 
 #include "common/Log.hpp"
 #include "common/Configuration.hpp"
@@ -114,6 +115,35 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	// List the available engines.
+	QStringList engines = QTextToSpeech::availableEngines();
+	qDebug() << "Available engines:";
+	for ( auto engine : engines ) {
+		qDebug() << "  " << engine;
+	}
+	// Create an instance using the default engine/plugin.
+	QTextToSpeech* speech = new QTextToSpeech();
+	// List the available locales.
+	qDebug() << "Available locales:";
+	for ( auto locale : speech->availableLocales() ) {
+		qDebug() << "  " << locale;
+	}
+	// Set locale.
+	speech->setLocale(QLocale(QLocale::English, QLocale::LatinScript, QLocale::UnitedStates));
+	// List the available voices.
+	qDebug() << "Available voices:";
+	for ( auto voice : speech->availableVoices() ) {
+		qDebug() << "  " << voice.name();
+	}
+	// Display properties.
+	qDebug() << "Locale:" << speech->locale();
+	qDebug() << "Pitch:" << speech->pitch();
+	qDebug() << "Rate:" << speech->rate();
+	qDebug() << "Voice:" << speech->voice().name();
+	qDebug() << "Volume:" << speech->volume();
+	qDebug() << "State:" << speech->state();
+	// Say something.
+	speech->say("Hello, Stefan! QT Has a speech engine build in. What The Fuck. This if awesome. Now we can create speech songs!!!");
 
 	while ( true ) {
 		msgBox.exec();
