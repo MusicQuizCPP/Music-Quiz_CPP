@@ -29,6 +29,8 @@ HTTPSClient::HTTPSClient(std::string host) :
     // Set SNI Hostname (many hosts need this to handshake successfully)
     #pragma GCC diagnostic ignored "-Wold-style-cast" 
     #pragma GCC diagnostic ignored "-Wcast-qual"
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic push
     if(! SSL_set_tlsext_host_name(_stream.native_handle(), _host.c_str()))
     #pragma GCC diagnostic pop
     #pragma GCC diagnostic pop
