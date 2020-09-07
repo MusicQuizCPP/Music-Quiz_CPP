@@ -1,6 +1,3 @@
-os:
-- linux
-- windows
 addons:
   artifacts:
     paths:
@@ -8,54 +5,53 @@ addons:
 env:
   global:
   - QT_VERSION=5.12.9
+
 language: cpp
+
 services:
 - docker
+
+git:
+  autocrlf: input
+
 archlinux:
-  packages:
-  - python
-  - boost
-  - qt5
-  - gst-plugins-bad
-  - gst-plugins-bad-libs
-  - gst-plugins-base
-  - gst-plugins-base-libs
-  - gst-plugins-good
-  - gst-plugins-ugly
-  - cmake
-  - squashfuse
-  mount:
-  - "~/.pkg-cache:/var/cache/pacman/pkg"
   script:
-  - git submodule init && git submodule update
-  - cmake . -B out
-  - VERBOSE=1 cmake --build out --config Release -j2
-  - "./AppImageBuild/linuxdeploy-x86_64.AppImage --appimage-extract-and-run --appdir
-    AppDir --output appimage --create-desktop-file -e out/bin/MusicQuizGUI -i icons/MusicQuizGUI.png"
-  - "./AppImageBuild/linuxdeploy-plugin-qt-x86_64.AppImage --appdir AppDir"
-  - "./AppImageBuild/linuxdeploy-x86_64.AppImage --appdir AppDir --output appimage"
-  - mv MusicQuizGUI*.AppImage artifacts/MusicQuizGUI.AppImage
-script:
-- mkdir artifacts
-- if [ "$TRAVIS_OS_NAME" = "linux" ];   then curl -s https://raw.githubusercontent.com/mikkeloscar/arch-travis/master/arch-travis.sh | bash; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then git submodule init && git submodule update; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then curl -LO https://code.qt.io/cgit/qbs/qbs.git/plain/scripts/install-qt.sh; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then ./install-qt.sh   --version ${QT_VERSION} --toolchain win64_msvc2017_64 qtbase qtsvg qtmultimedia qttools; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install NuGet.CommandLine ; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then nuget install boost -OutputDirectory /c/boost; fi
+    - "./travis/build_common.sh"
+    - "./travis/dependencies_arch.sh"
+    - "SHOULD_PACKAGE=1 ./travis/build_linux.sh"
 
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then export "PATH=/c/Qt/${QT_VERSION}/msvc2017_64:/c/Qt/5.12.9/msvc2017_64/bin:$PATH"; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then export "BOOST_INCLUDEDIR=/c/boost\boost.1.72.0.0\lib\native\include"; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then export "BOOST_ROOT=/c/boost\boost.1.72.0.0\lib\native\include"; fi
+jobs:
+  include:
+    - stage: build
+      name: "Build Windows"
+      os: windows
+      script:
+        - "./travis/build_common.sh"
+        - "./travis/build_windows.sh"
 
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then cmake . -G "Visual Studio 15 2017 Win64" -B out; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then VERBOSE=1 cmake --build out --config Release -j2; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then curl -LO https://github.com/SerGreen/Appacker/releases/download/v1.3.6/Appacker.exe; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then chmod +x Appacker.exe; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then mkdir MusicQuizPackage; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then cp out/bin/Release/MusicQuizGUI.exe MusicQuizPackage/MusicQuizGUI.exe; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then cp -r installation/dlls/* MusicQuizPackage/; fi
-- if [ "$TRAVIS_OS_NAME" = "windows" ]; then ./Appacker.exe -s MusicQuizPackage/ -e MusicQuizGUI.exe -d artifacts/MusicQuizGUI.exe || true; fi
+    - stage: build
+      name: "Build Arch Linux"
+      os: linux
+      script:
+        - curl -s https://raw.githubusercontent.com/mikkeloscar/arch-travis/master/arch-travis.sh | bash
+    
+    - stage: build
+      name: "Build Ubuntu Focal"
+      os: linux
+      dist: focal
+      sudo: required
+      script:
+        - "./travis/build_common.sh"
+        - "./travis/dependencies_ubuntu.sh"
+        - "./travis/build_linux.sh"
+    - stage: build
+      name: "Build Mac OS"
+      os: osx
+      osx_image: xcode12
+      script:
+        - "./travis/build_common.sh"
+        - "./travis/dependencies_mac.sh"
+        - "./travis/build_mac.sh"
 
 before_deploy:
   if ! [[ $TRAVIS_TAG ]]; then

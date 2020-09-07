@@ -4,7 +4,7 @@ SET(SRC_FILES
 )
 
 if( BUILD_TESTS )
-	ADD_SUBDIRECTORY(tests)
+    ADD_SUBDIRECTORY(tests)
 endif()
 
 ADD_SUBDIRECTORY(util)

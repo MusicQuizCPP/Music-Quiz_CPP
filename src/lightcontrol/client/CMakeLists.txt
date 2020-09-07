@@ -5,4 +5,4 @@ SET ( SRC_FILES
         CACHE INTERNAL ""
 )
 
-ADD_SUBDIRECTORY(messages)
+ADD_SUBDIRECTORY("messages")
