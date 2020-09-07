@@ -8,7 +8,7 @@ using namespace LightControl;
 
 LightModeMessage::LightModeMessage(boost::asio::mutable_buffer& buffer)
 {
-    if ( buffer.size() < 8 ) {
+    if (buffer.size() < 8) {
         LOG_ERROR("Received Light Mode Message with invalid size: " + std::to_string(buffer.size()));
     }
 
@@ -31,7 +31,7 @@ LightModeMessage::LightModeMessage(boost::asio::mutable_buffer& buffer)
 std::shared_ptr<std::ostringstream> LightModeMessage::compose() const
 {
     std::shared_ptr<std::ostringstream> buf = std::make_shared<std::ostringstream>();
-    cereal::BinaryOutputArchive archive(*buf);
+    cereal::BinaryOutputArchive         archive(*buf);
 
     archive(static_cast<uint8_t>(PackageType::LIGHT_MODE), static_cast<uint8_t>(_mode), _strength, _r, _g, _b);
 

@@ -2,6 +2,8 @@
 set -e
 
 cmake . -B out
+cmake --build out --target format-check-branch
+
 cmake --build out --config Release -j2
 
 if [[ "${SHOULD_PACKAGE}" ]]; then

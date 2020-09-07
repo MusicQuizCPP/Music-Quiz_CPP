@@ -8,7 +8,6 @@ include(CheckSymbolExists)
 include(CMakePackageConfigHelpers)
 include(ExternalProject)
 
-
 project(MusicQuiz)
 
 ### Options
@@ -58,12 +57,12 @@ endif()
 
 
 ### Find Qt
-include("cmake/FindQt.cmake")
+include("cmake/modules/FindQt.cmake")
 find_package(Qt5Multimedia REQUIRED)
 find_package(Qt5MultimediaWidgets REQUIRED)
 
 ### Boost
-include("cmake/FindBoost.cmake")
+include("cmake/modules/FindBoost.cmake")
 
 INCLUDE_DIRECTORIES( src )
 
@@ -77,7 +76,13 @@ include_directories(SYSTEM submodules/cereal/include)
 include_directories(SYSTEM submodules/json/include)
 
 ### LibreSSL
-include("cmake/StaticOpenSSL.cmake")
+include("cmake/modules/StaticOpenSSL.cmake")
+
+
+### Clang Format
+set(CLANG_FORMAT_INCLUDE_PATTERNS src/ libraries/)
+include("cmake/modules/FindClangFormat.cmake")
+
 
 #Add libraries
 include_directories(libraries)

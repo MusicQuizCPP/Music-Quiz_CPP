@@ -3,15 +3,14 @@
 #include "common/Log.hpp"
 
 #include <cstring>
-#include <sstream>
 #include <iomanip>
-
+#include <sstream>
 
 using namespace LightControl;
 
 NodeInfoMessage::NodeInfoMessage(boost::asio::mutable_buffer& buffer)
 {
-    if ( buffer.size() < sizeof(uint32_t) ) {
+    if (buffer.size() < sizeof(uint32_t)) {
         LOG_ERROR("Received Node Info message with invalid size: " + std::to_string(buffer.size()));
     }
 
@@ -20,11 +19,11 @@ NodeInfoMessage::NodeInfoMessage(boost::asio::mutable_buffer& buffer)
     buffer += sizeof(nodeCnt);
 
     size_t expectedSize = nodeCnt * LightControlNode::getNodeChunkSize();
-    if ( buffer.size() != expectedSize ) {
+    if (buffer.size() != expectedSize) {
         LOG_ERROR("Received Node info message with unexpected size. Received " + std::to_string(buffer.size()) + ". Expected " + std::to_string(expectedSize));
     }
 
-    for ( size_t i = 0; i < nodeCnt; i++ ) {
+    for (size_t i = 0; i < nodeCnt; i++) {
         nodes.push_back(LightControlNode(buffer));
         buffer += LightControlNode::getNodeChunkSize();
     }
@@ -46,13 +45,13 @@ LightControlNode::LightControlNode(boost::asio::mutable_buffer& buffer)
 
     /** Name */
     uint8_t nameLen = *static_cast<uint8_t*>(buffer.data());
-    nameLen = nameLen <= 20 ? nameLen : 20;
+    nameLen         = nameLen <= 20 ? nameLen : 20;
 
     buffer += sizeof(nameLen);
     char nameBuf[21];
     memcpy(nameBuf, buffer.data(), nameLen);
     nameBuf[nameLen] = '\0';
-    this->name = std::string(nameBuf);
+    this->name       = std::string(nameBuf);
     buffer += 20;
 
     _boardType = static_cast<BoardType>(*static_cast<uint8_t*>(buffer.data()));
@@ -102,13 +101,13 @@ std::string LightControlNode::getString()
     std::ostringstream ss;
 
     ss << "MAC: " << std::hex << std::uppercase;
-    for ( size_t i = 0; i < sizeof(_macAddr); i++ ) {
+    for (size_t i = 0; i < sizeof(_macAddr); i++) {
         ss << std::setw(2) << static_cast<int>(_macAddr[i]);
     }
     ss << std::endl;
 
     ss << "Parent MAC: " << std::hex << std::uppercase << std::setfill('0');
-    for ( size_t i = 0; i < sizeof(_parentAddr); i++ ) {
+    for (size_t i = 0; i < sizeof(_parentAddr); i++) {
         ss << std::setw(2) << static_cast<int>(_parentAddr[i]);
     }
     ss << std::endl;

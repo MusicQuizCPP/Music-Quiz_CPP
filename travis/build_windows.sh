@@ -8,18 +8,25 @@ choco install NuGet.CommandLine
 nuget install boost -OutputDirectory /c/boost
 choco install nasm
 choco install strawberryperl
+choco install llvm
 
 #Set path and env variables
 export CC=CL.exe 
 export CXX=CL.exe 
 export "PATH=/c/Qt/${QT_VERSION}/msvc2017_64:/c/Qt/5.12.9/msvc2017_64/bin:$PATH"
 export "PATH=/c/Program Files/NASM:$PATH"
+export "PATH=/c/Program Files/LLVM/bin:$PATH"
 export "PATH=/c/Strawberry/perl/bin:$PATH"
 export "BOOST_INCLUDEDIR=/c/boost\boost.1.72.0.0\lib\native\include"
 export "BOOST_ROOT=/c/boost\boost.1.72.0.0\lib\native\include"
 
-#Compile
+#Cmake config
 cmake . -G "Visual Studio 15 2017 Win64" -B out
+
+#Check formatting
+cmake --build out --target format-check-branch
+
+#Compile
 cmake --build out --config Release -j2
 
 #package

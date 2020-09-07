@@ -1,36 +1,31 @@
-#include <thread>
 #include <chrono>
 #include <iostream>
+#include <thread>
 
-#include <QUrl>
-#include <QDialog>
-#include <QVBoxLayout>
 #include <QApplication>
-#include <QVideoWidget>
+#include <QDialog>
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
+#include <QUrl>
+#include <QVBoxLayout>
+#include <QVideoWidget>
 
 #include "common/Log.hpp"
 
-
 class VideoWidget : public QWidget {
 public:
-    VideoWidget(QWidget* parent = 0)
-        : QWidget(parent)
+    VideoWidget(QWidget* parent = 0) : QWidget(parent)
     {
         QVBoxLayout* layout = new QVBoxLayout(this);
-        player = new QMediaPlayer(this);
-        QVideoWidget* vw = new QVideoWidget;
+        player              = new QMediaPlayer(this);
+        QVideoWidget* vw    = new QVideoWidget;
         layout->addWidget(vw);
         player->setVideoOutput(vw);
         player->setMedia(QUrl::fromLocalFile("C:/Users/Ztaal/Desktop/video.mp4"));
         player->setVolume(100);
     }
 
-    void play()
-    {
-        player->play();
-    }
+    void play() { player->play(); }
 
     QMediaPlayer* player = nullptr;
 };
@@ -40,7 +35,7 @@ int main(int argc, char* argv[])
     std::cout << "Hello MusicQuiz World!" << std::endl;
 
     do {
-      std::cout << '\n' << "Press the Enter key to continue.";
+        std::cout << '\n' << "Press the Enter key to continue.";
     } while (std::cin.get() != '\n');
 
     /** Create QApplication */
@@ -52,7 +47,6 @@ int main(int argc, char* argv[])
     player->setVolume(50);
     player->setPosition(2000);
     player->play();*/
-
 
     /*QMediaPlaylist* playlist = new QMediaPlaylist;
     playlist->addMedia(QUrl("C:/Users/Ztaal/Desktop/video.mp4"));
@@ -68,8 +62,8 @@ int main(int argc, char* argv[])
     videoWidget->show();
     player->play();*/
 
-    QDialog* dialog = new QDialog;
-    QVBoxLayout* layout = new QVBoxLayout(dialog);
+    QDialog*     dialog      = new QDialog;
+    QVBoxLayout* layout      = new QVBoxLayout(dialog);
     VideoWidget* videoWidget = new VideoWidget;
     dialog->resize(400, 300);
     layout->addWidget(videoWidget);
@@ -83,8 +77,8 @@ int main(int argc, char* argv[])
 
     app.exec();
     do {
-      std::cout << '\n' << "Press the Enter key to continue.";
+        std::cout << '\n' << "Press the Enter key to continue.";
     } while (std::cin.get() != '\n');
-    
+
     return 0;
 }

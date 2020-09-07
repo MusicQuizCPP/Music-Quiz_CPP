@@ -10,4 +10,7 @@ export Qt5MultimediaWidgets_DIR=/usr/local/opt/qt/lib/cmake/Qt5MultimediaWidgets
 export Qt5OpenGL_DIR=/usr/local/opt/qt/lib/cmake/Qt5OpenGL
 
 cmake . -B out
+
+cmake --build out --target format-check-branch
+
 cmake --build out --config Release -j2

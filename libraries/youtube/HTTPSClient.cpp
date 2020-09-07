@@ -2,38 +2,33 @@
 
 #include "YoutubeDownloadException.hpp"
 
-#include <openssl/ssl.h>
-#include <iostream>
-#include <thread>
-#include <boost/beast/version.hpp>
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ssl/error.hpp>
+#include <boost/beast/version.hpp>
+#include <iostream>
+#include <openssl/ssl.h>
+#include <thread>
 
 namespace beast = boost::beast; // from <boost/beast.hpp>
-namespace http = beast::http;   // from <boost/beast/http.hpp>
-namespace net = boost::asio;    // from <boost/asio.hpp>
-namespace ssl = net::ssl;       // from <boost/asio/ssl.hpp>
-using tcp = net::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
+namespace http  = beast::http;  // from <boost/beast/http.hpp>
+namespace net   = boost::asio;  // from <boost/asio.hpp>
+namespace ssl   = net::ssl;     // from <boost/asio/ssl.hpp>
+using tcp       = net::ip::tcp; // from <boost/asio/ip/tcp.hpp>
 
 using namespace youtube;
 
-
-HTTPSClient::HTTPSClient(std::string host) :
-    _ctx(boost::asio::ssl::context::tlsv12_client), 
-    _resolver(_ioc), 
-    _stream(_ioc, _ctx),
-    _host(host)
+HTTPSClient::HTTPSClient(std::string host) : _ctx(boost::asio::ssl::context::tlsv12_client), _resolver(_ioc), _stream(_ioc, _ctx), _host(host)
 {
     _ctx.set_verify_mode(boost::asio::ssl::verify_none);
 
-    // Set SNI Hostname (many hosts need this to handshake successfully)
-    #pragma GCC diagnostic ignored "-Wold-style-cast" 
-    #pragma GCC diagnostic ignored "-Wcast-qual"
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic push
-    if(! SSL_set_tlsext_host_name(_stream.native_handle(), _host.c_str()))
-    #pragma GCC diagnostic pop
-    #pragma GCC diagnostic pop
+// Set SNI Hostname (many hosts need this to handshake successfully)
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wcast-qual"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic push
+    if (!SSL_set_tlsext_host_name(_stream.native_handle(), _host.c_str()))
+#pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
     {
         throw YoutubeDownloadException("Encountered error while setting SSL_set_tlsext_host_name");
     }
@@ -47,13 +42,14 @@ HTTPSClient::HTTPSClient(std::string host) :
 
         // Perform the SSL handshake
         _stream.handshake(ssl::stream_base::client);
-    } catch ( std::exception& e ) {
+    }
+    catch (std::exception& e) {
         throw YoutubeDownloadException("Unable to connect to host: " + host + " " + e.what());
     }
 }
 
 http::response<http::dynamic_body> HTTPSClient::getHttpResponse(std::string url)
-{ 
+{
     try {
         sendHttpRequest(url);
         // This buffer is used for reading and must be persisted
@@ -65,15 +61,15 @@ http::response<http::dynamic_body> HTTPSClient::getHttpResponse(std::string url)
         // Receive the HTTP response
         http::read(_stream, _readBuffer, res);
         return res;
-    } catch ( std::exception& e ) {
+    }
+    catch (std::exception& e) {
         throw YoutubeDownloadException("Unable to read HTTP response from " + url + " " + e.what());
     }
-} 
+}
 
 void HTTPSClient::sendHttpRequest(std::string url)
 {
-    try
-    {
+    try {
         // Set up an HTTP GET request message
         http::request<http::string_body> req{http::verb::get, url, 11};
         req.set(http::field::host, _host);
@@ -81,7 +77,8 @@ void HTTPSClient::sendHttpRequest(std::string url)
 
         // Send the HTTP request to the remote host
         http::write(_stream, req);
-    } catch ( std::exception& e ) {
+    }
+    catch (std::exception& e) {
         throw YoutubeDownloadException("Unable to send HTTP request to " + url + " " + e.what());
     }
 }
@@ -96,10 +93,9 @@ void HTTPSClient::startHttpStream(std::string url)
     _resp_parser.body_limit((std::numeric_limits<std::uint64_t>::max)());
 
     boost::system::error_code ec;
-    
+
     http::read_header(_stream, _readBuffer, _resp_parser, ec);
-    if(ec)
-    {
+    if (ec) {
         throw YoutubeDownloadException("Unable to start http stream from " + url + " " + ec.message());
     }
 }
@@ -110,12 +106,11 @@ int HTTPSClient::getHttpStreamChunck(void* buf, int size)
 
     _resp_parser.get().body().data = buf;
     _resp_parser.get().body().size = size;
-    size_t s = http::read_some(_stream, _readBuffer, _resp_parser, ec);
-    if(ec == http::error::need_buffer) {
+    size_t s                       = http::read_some(_stream, _readBuffer, _resp_parser, ec);
+    if (ec == http::error::need_buffer) {
         ec.assign(0, ec.category());
     }
-    if(ec)
-    {
+    if (ec) {
         throw YoutubeDownloadException(std::string("Encountered error while reading from stream: ") + ec.message());
     }
     return static_cast<int>(s);
@@ -124,9 +119,8 @@ int HTTPSClient::getHttpStreamChunck(void* buf, int size)
 std::string HTTPSClient::getHostFromUrl(std::string url)
 {
     auto host_start = url.find("://") + 3;
-    auto host_end = url.find("/", host_start);
-    if(host_start == std::string::npos || host_end == std::string::npos)
-    {
+    auto host_end   = url.find("/", host_start);
+    if (host_start == std::string::npos || host_end == std::string::npos) {
         throw YoutubeDownloadException("Unable to extract host from " + url);
     }
 
