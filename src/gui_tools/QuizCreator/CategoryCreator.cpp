@@ -10,9 +10,12 @@
 #include <QRegExpValidator>
 #include <QTableWidgetItem>
 
+#include "common/Log.hpp"
 #include "common/Configuration.hpp"
 
 #include "gui_tools/QuizCreator/EntryCreator.hpp"
+#include "gui_tools/QuizCreator/LoadQuizDialog.hpp"
+#include "gui_tools/QuizCreator/LoadCategoryDialog.hpp"
 
 
 MusicQuiz::CategoryCreator::CategoryCreator(const QString& name, const media::AudioPlayer::Ptr& audioPlayer, const common::Configuration& config, QWidget* parent) :
@@ -70,6 +73,13 @@ void MusicQuiz::CategoryCreator::createLayout()
 	_entriesTable->verticalHeader()->setDefaultSectionSize(40);
 	_entriesTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 	setupTabLayout->addWidget(_entriesTable, ++row, 0, 1, 2);
+
+	/** Load Category Button */
+	QPushButton* loadCategoryBtn = new QPushButton("Load Category");
+	loadCategoryBtn->setObjectName("quizCreatorLoadCategoryBtn");
+	loadCategoryBtn->setProperty("loadOption", "category");
+	connect(loadCategoryBtn, SIGNAL(released()), this, SLOT(openSelectQuizDialog()));
+	setupTabLayout->addWidget(loadCategoryBtn, ++row, 1, 1, 1, Qt::AlignRight);
 
 	/** Set Layout */
 	setLayout(mainlayout);
@@ -342,4 +352,69 @@ void MusicQuiz::CategoryCreator::clearEntries()
 
 	/** Clear Vector */
 	_entries.clear();
+}
+
+void MusicQuiz::CategoryCreator::openSelectQuizDialog()
+{
+	/** Create Dialog */
+	MusicQuiz::LoadQuizDialog* loadQuizDialog = new MusicQuiz::LoadQuizDialog(_config, this);
+	loadQuizDialog->setAttribute(Qt::WA_DeleteOnClose);
+
+	/** Connect Signal */
+	connect(loadQuizDialog, &MusicQuiz::LoadQuizDialog::loadSignal, this, &MusicQuiz::CategoryCreator::openSelectCategoryDialog);
+
+	/** Open Dialog */
+	loadQuizDialog->show();
+}
+
+void MusicQuiz::CategoryCreator::openSelectCategoryDialog(const std::string& quizName)
+{
+	/** Create Dialog */
+	MusicQuiz::LoadCategoryDialog* loadQuizDialog = new MusicQuiz::LoadCategoryDialog(quizName, _config, this);
+
+	/** Connect Signal */
+	connect(loadQuizDialog, &MusicQuiz::LoadCategoryDialog::loadSignal, this, &MusicQuiz::CategoryCreator::loadCategory);
+
+	/** Open Dialog */
+	loadQuizDialog->exec();
+}
+
+void MusicQuiz::CategoryCreator::loadCategory(const std::string& quizName, const std::string& categoryName)
+{
+	/** Sanity Check */
+	if ( quizName.empty() || categoryName.empty() ) {
+		return;
+	}
+
+	/** Popup to ensure the user wants to load the quiz */
+	QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Load Category?", "Are you sure you want to load the category? Any unsaved progress will be lost!",
+		QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
+	if ( resBtn == QMessageBox::No ) {
+		return;
+	}
+
+	/** Load Quiz */
+	LOG_INFO("Loading Category '" << categoryName << "' from quiz '" << quizName << "'.");
+	MusicQuiz::QuizCategory* categoryData;
+	try {
+		categoryData = MusicQuiz::util::QuizLoader::loadQuizCategory(quizName, categoryName, _audioPlayer, _videoPlayer, _config, this);
+	} catch ( const exception& err ) {
+		QMessageBox::warning(this, "Info", "Failed to load quiz. " + QString::fromStdString(err.what()));
+		return;
+	} catch ( ... ) {
+		QMessageBox::warning(this, "Info", "Failed to load quiz.");
+		return;
+	}
+
+	loadQuizCategory(const std::string & quizName, const std::string & categoryName, const media::AudioPlayer::Ptr & audioPlayer,
+		const media::VideoPlayer::Ptr & videoPlayer, const common::Configuration & config)
+
+
+	/** Remove Tabs */
+	while ( _tabWidget->count() > 1 ) {
+		_tabWidget->removeTab(1);
+	}
+
+	/** Clear Categories */
+
 }

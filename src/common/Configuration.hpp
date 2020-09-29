@@ -43,7 +43,6 @@ namespace common {
 		 */
 		std::string mediaPathToFullPath(std::string mediaPathStr) const;
 
-
     private:
         std::string _quizDataPath;
 	};

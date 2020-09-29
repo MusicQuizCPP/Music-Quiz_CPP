@@ -1,4 +1,4 @@
-#include "LoadQuizDialog.hpp"
+#include "LoadCategoryDialog.hpp"
 
 #include <algorithm>
 
@@ -9,13 +9,15 @@
 #include <QTableWidget>
 #include <QRadioButton>
 
+#include "common/Log.hpp"
 
-MusicQuiz::LoadQuizDialog::LoadQuizDialog(const common::Configuration& config, QWidget* parent) :
-	QDialog(parent), _config(config)
+
+MusicQuiz::LoadCategoryDialog::LoadCategoryDialog(const std::string& quizName, const common::Configuration& config, QWidget* parent) :
+	QDialog(parent), _quizName(quizName), _config(config)
 {
 	/** Set Parameters */
 	setModal(true);
-	setWindowTitle("Select Quiz");
+	setWindowTitle("Load Category");
 	setWindowFlags(windowFlags() | Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
@@ -35,7 +37,7 @@ MusicQuiz::LoadQuizDialog::LoadQuizDialog(const common::Configuration& config, Q
 	updateTable();
 }
 
-void MusicQuiz::LoadQuizDialog::makeWidgetLayout()
+void MusicQuiz::LoadCategoryDialog::makeWidgetLayout()
 {
 	/** Layouts */
 	QGridLayout* mainLayout = new QGridLayout;
@@ -43,19 +45,19 @@ void MusicQuiz::LoadQuizDialog::makeWidgetLayout()
 	mainLayout->setVerticalSpacing(15);
 
 	/** Jobs Table */
-	_quizTable = new QTableWidget(0, 1);
-	_quizTable->setStyleSheet("border: 0;");
-	_quizTable->setObjectName("quizCreatorLoaderTable");
-	_quizTable->setSelectionMode(QAbstractItemView::NoSelection);
-	_quizTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	_quizTable->setSelectionBehavior(QAbstractItemView::SelectItems);
+	_categoryTable = new QTableWidget(0, 1);
+	_categoryTable->setStyleSheet("border: 0;");
+	_categoryTable->setObjectName("quizCreatorLoaderTable");
+	_categoryTable->setSelectionMode(QAbstractItemView::NoSelection);
+	_categoryTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	_categoryTable->setSelectionBehavior(QAbstractItemView::SelectItems);
 
-	_quizTable->horizontalHeader()->setStretchLastSection(true);
-	_quizTable->horizontalHeader()->setVisible(false);
-	_quizTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-	_quizTable->verticalHeader()->setDefaultSectionSize(55);
-	_quizTable->verticalHeader()->setVisible(false);
-	mainLayout->addWidget(_quizTable, 0, 0, 1, 2);
+	_categoryTable->horizontalHeader()->setStretchLastSection(true);
+	_categoryTable->horizontalHeader()->setVisible(false);
+	_categoryTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+	_categoryTable->verticalHeader()->setDefaultSectionSize(55);
+	_categoryTable->verticalHeader()->setVisible(false);
+	mainLayout->addWidget(_categoryTable, 0, 0, 1, 2);
 
 	/** Button Group */
 	_buttonGroup = new QButtonGroup;
@@ -63,7 +65,7 @@ void MusicQuiz::LoadQuizDialog::makeWidgetLayout()
 	/** Load Button */
 	QPushButton* loadBtn = new QPushButton("Load");
 	loadBtn->setObjectName("quizCreatorBtn");
-	QObject::connect(loadBtn, SIGNAL(released()), this, SLOT(loadQuiz()));
+	QObject::connect(loadBtn, SIGNAL(released()), this, SLOT(loadCategory()));
 	mainLayout->addWidget(loadBtn, 1, 0);
 
 	/** Close Button */
@@ -76,35 +78,33 @@ void MusicQuiz::LoadQuizDialog::makeWidgetLayout()
 	setLayout(mainLayout);
 }
 
-void MusicQuiz::LoadQuizDialog::updateTable()
+void MusicQuiz::LoadCategoryDialog::updateTable()
 {
 	/** Sanity Check */
-	if ( _quizTable == nullptr ) {
+	if ( _categoryTable == nullptr ) {
 		return;
 	}
 
 	/** Clear table */
-	_quizTable->setRowCount(0);
+	_categoryTable->setRowCount(0);
 
-	/** Get List of Quizzes */
-	_quizList = MusicQuiz::util::QuizLoader::getListOfQuizzes(_config);
+	/** Get List of Categories */
+	_categoryList = MusicQuiz::util::QuizLoader::getListOfQuizCategories(_quizName, _config);
 
 	/** Update Table */
-	for ( unsigned int i = 0; i < _quizList.size(); ++i ) {
+	for ( unsigned int i = 0; i < _categoryList.size(); ++i ) {
 		/** Add Row */
-		const int row = _quizTable->rowCount();
-		_quizTable->insertRow(row);
+		const int row = _categoryTable->rowCount();
+		_categoryTable->insertRow(row);
 
-		/** Quiz Name */
-		std::string quizName = _quizList[i].substr(_quizList[i].find_last_of("\\") + 1);
-		const std::string fileExtension = ".quiz.xml";
-		quizName.erase(quizName.find(fileExtension), fileExtension.length());
+		/** Category Name */
+		std::string categoryName = _categoryList[i];
 
 		/** Radio Button */
 		QWidget* btnWidget = new QWidget(this);
 		QHBoxLayout* btnLayout = new QHBoxLayout(btnWidget);
 
-		QRadioButton* btn = new QRadioButton(QString::fromStdString(quizName));
+		QRadioButton* btn = new QRadioButton(QString::fromStdString(categoryName));
 		btn->setObjectName("quizCreatorRadioButton");
 		btn->setProperty("index", i);
 		if ( i == 0 ) {
@@ -115,11 +115,11 @@ void MusicQuiz::LoadQuizDialog::updateTable()
 		btnLayout->addWidget(btn, Qt::AlignCenter | Qt::AlignVCenter);
 		btnWidget->setLayout(btnLayout);
 		btnLayout->setAlignment(Qt::AlignCenter);
-		_quizTable->setCellWidget(row, 0, btnWidget);
+		_categoryTable->setCellWidget(row, 0, btnWidget);
 	}
 }
 
-void MusicQuiz::LoadQuizDialog::loadQuiz()
+void MusicQuiz::LoadCategoryDialog::loadCategory()
 {
 	/** Sanity Check */
 	if ( _buttonGroup == nullptr ) {
@@ -138,6 +138,5 @@ void MusicQuiz::LoadQuizDialog::loadQuiz()
 	close();
 
 	/** Emit Signal */
-	std::replace(_quizList[idx].begin(), _quizList[idx].end(), '\\', '/');
-	emit loadSignal(_quizList[idx]);
+	emit loadSignal(_quizName, _categoryList[idx]);
 }

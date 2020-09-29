@@ -199,6 +199,13 @@ QPushButton#quizCreatorBtn
 	min-height			: 40px;
 }
 
+QPushButton#quizCreatorLoadCategoryBtn
+{
+	font-size			: 18px;
+	min-height			: 25px;
+	min-width			: 190px;
+}
+
 QPushButton#settingsInfo
 {
 	background-color	: rgba(0, 0, 0, 0);

@@ -97,6 +97,24 @@ namespace MusicQuiz {
 		 */
 		void updateEntryTabName(const QString& str);
 
+		/**
+		 * @brief Opens a dialog to select which quiz to load a category from.
+		 */
+		void openSelectQuizDialog();
+
+		/**
+		 * @brief Opens a dialog to select which category to load.
+		 */
+		void openSelectCategoryDialog(const std::string& quizName);
+
+		/**
+		 * @brief Loads a category.
+		 *
+		 * param[in] quizName The quiz name to load the category from.
+		 * param[in] categoryName The category name to load.
+		 */
+		void loadCategory(const std::string& quizName, const std::string& categoryName);
+
 	private:
 		/**
 		 * @brief Creates the category layout.

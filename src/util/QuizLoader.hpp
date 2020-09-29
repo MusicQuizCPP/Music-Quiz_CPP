@@ -73,11 +73,23 @@ namespace MusicQuiz {
 			QuizLoader& operator=(const QuizLoader&) = delete;
 
 			/**
-			* @brief Returns a list of quizzez stored in the data folder.
+			* @brief Returns a list of quizzes stored in the data folder.
+			*
+			* @param[in] config The data configuration.
 			*
 			* @return The list of quizzes.
 			*/
 			static std::vector<std::string> getListOfQuizzes(const common::Configuration& config);
+
+			/**
+			* @brief Returns a list of categories in the specified quiz.
+			*
+			* @param[in] quizName The quiz name to load the categories from.
+			* @param[in] config The data configuration.
+			*
+			* @return The list of categories.
+			*/
+			static std::vector<std::string> getListOfQuizCategories(const std::string& quizName, const common::Configuration& config);
 
 			/**
 			* @brief Returns a quiz preview.
@@ -98,6 +110,20 @@ namespace MusicQuiz {
 			*/
 			static std::vector<MusicQuiz::QuizCategory*> loadQuizCategories(size_t idx, const std::shared_ptr< media::AudioPlayer >& audioPlayer,
 				const std::shared_ptr< media::VideoPlayer >& videoPlayer, const common::Configuration& config, std::string& err);
+
+			/**
+			* @brief Loads a singel category in a quiz.
+			*
+			* @param[in] quizName The name of a quiz to load the category from.
+			* @param[in] categoryName The category to load.
+			* @param[in] audioPlayer The audio player.
+			* @param[in] videoPlayer The video player.
+			* @param[in] config The data configuration.
+			*
+			* @return The quiz categories.
+			*/
+			static MusicQuiz::QuizCategory* loadQuizCategory(const std::string& quizName, const std::string& categoryName, const media::AudioPlayer::Ptr& audioPlayer,
+				const media::VideoPlayer::Ptr& videoPlayer, const common::Configuration& config);
 
 			/**
 			* @brief Returns a list of the row categories.

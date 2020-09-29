@@ -11,6 +11,7 @@
 #include "MusicQuizController.hpp"
 #include "gui_tools/QuizCreator/QuizCreator.hpp"
 
+
 static void errorMessage(const std::string& title, const std::string& errorMsg);
 static int runQuizCreator(QApplication& app, const common::Configuration& config);
 static int runMusicQuiz(QApplication& app, const common::Configuration& config);
@@ -76,7 +77,6 @@ int main(int argc, char* argv[])
 {
 	/** Create QApplication */
 	QApplication app(argc, argv);
-
 	common::Configuration config;
 
 	/** Set Stylesheet */

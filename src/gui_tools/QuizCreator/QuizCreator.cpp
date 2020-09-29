@@ -3,6 +3,7 @@
 #include <QList>
 #include <QLabel>
 #include <QString>
+#include <QScreen>
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QSpacerItem>
@@ -10,10 +11,9 @@
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QApplication>
+#include <QGuiApplication>
 #include <QTableWidgetItem>
 #include <QAbstractItemView>
-#include <QGuiApplication>
-#include <QScreen>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -29,6 +29,7 @@
 #include "gui_tools/QuizCreator/EntryCreator.hpp"
 #include "gui_tools/QuizCreator/LoadQuizDialog.hpp"
 #include "gui_tools/QuizCreator/CategoryCreator.hpp"
+
 
 using namespace std;
 
@@ -530,6 +531,7 @@ void MusicQuiz::QuizCreator::openLoadQuizDialog()
 {
 	/** Create Dialog */
 	MusicQuiz::LoadQuizDialog* loadQuizDialog = new MusicQuiz::LoadQuizDialog(_config, this);
+	loadQuizDialog->setAttribute(Qt::WA_DeleteOnClose);
 
 	/** Connect Signal */
 	connect(loadQuizDialog, &MusicQuiz::LoadQuizDialog::loadSignal, this, &MusicQuiz::QuizCreator::loadQuiz);
