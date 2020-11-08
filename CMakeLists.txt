@@ -38,24 +38,34 @@ SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/libs" CACHE PATH "Library directory" FORCE)
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/libs" CACHE PATH "Archive directory" FORCE)
 
+
 ### add extra definitions. c++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if( MSVC )
-	# Using c++17.
-	# -permissive- Forces C++ standards in the code.
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /permissive- ")
-	add_compile_definitions(BOOST_ASIO_DISABLE_CONCEPTS)
-	add_compile_definitions(_WIN32_WINNT=0x0A00) #Set target to WIN10
-	add_compile_definitions(WIN32_LEAN_AND_MEAN) #Disable complains about winsock.h includes
-	add_compile_definitions(BOOST_ALL_NO_LIB)    #Don't autolink boost libraries
-	add_compile_definitions(_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING) #shut up MSVC
-	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)                           #shut up MSVC
+    # Using c++17.
+    # -permissive- Forces C++ standards in the code.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /permissive- ")
+    add_compile_definitions(BOOST_ASIO_DISABLE_CONCEPTS)
+    add_compile_definitions(_WIN32_WINNT=0x0A00) #Set target to WIN10
+    add_compile_definitions(WIN32_LEAN_AND_MEAN) #Disable complains about winsock.h includes
+    add_compile_definitions(BOOST_ALL_NO_LIB)    #Don't autolink boost libraries
+    add_compile_definitions(_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING) #shut up MSVC
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)                           #shut up MSVC
 
 else()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wconversion -Wlogical-op -Werror -Wpointer-arith -Wcast-qual -Wall -Wextra -Wshadow -Wold-style-cast -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -pthread -g")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wconversion -Werror -Wpointer-arith -Wcast-qual -Wall -Wextra -Wshadow -Wold-style-cast -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -pthread -g")
+
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wlogical-op")
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-conversion")
+    endif()
 endif()
+
+
 
 
 ### find the files

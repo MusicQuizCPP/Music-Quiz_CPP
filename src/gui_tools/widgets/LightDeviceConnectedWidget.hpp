@@ -1,6 +1,6 @@
+#include <memory>
 #include <QTimer>
 #include <QPushButton> 
-
 
 namespace LightControl {
 	class LightControlClient;

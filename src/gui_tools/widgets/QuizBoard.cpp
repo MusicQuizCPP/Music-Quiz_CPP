@@ -181,7 +181,7 @@ void MusicQuiz::QuizBoard::handleAnswer(const size_t points)
 
 	/** Select which team guessed the entry / category */
 	QMessageBox msgBox(QMessageBox::Question, "Select Team", "Select Team", QMessageBox::NoButton, nullptr, Qt::WindowStaysOnTopHint);
-	msgBox.setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowStaysOnTopHint);
+	msgBox.setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
 
 	/** Add Buttons for Each Team */
 	std::vector< QAbstractButton* > teamButtons;

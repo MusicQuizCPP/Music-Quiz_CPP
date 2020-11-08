@@ -12,7 +12,7 @@ using namespace LightControl;
 NodeInfoMessage::NodeInfoMessage(boost::asio::mutable_buffer& buffer)
 {
 	if ( buffer.size() < sizeof(uint32_t) ) {
-		LOG_ERROR("Received Node Info message with invalid size: " + buffer.size());
+		LOG_ERROR("Received Node Info message with invalid size: " + std::to_string(buffer.size()));
 	}
 
 	uint32_t nodeCnt = *static_cast<uint32_t*>(buffer.data());

@@ -39,9 +39,9 @@ int main(int argc, char* argv[])
 {
 	std::cout << "Hello MusicQuiz World!" << std::endl;
 
-#if defined(_WIN32) || defined(WIN32)
-	system("pause");
-#endif
+    do {
+        std::cout << '\n' << "Press the Enter key to continue.";
+    } while (std::cin.get() != '\n');
 
 	/** Create QApplication */
 	QApplication app(argc, argv);
@@ -82,6 +82,10 @@ int main(int argc, char* argv[])
 	dialog->exec();
 
 	app.exec();
-	system("pause");
+
+    do {
+        std::cout << '\n' << "Press the Enter key to continue.";
+    } while (std::cin.get() != '\n');
+
 	return 0;
 }

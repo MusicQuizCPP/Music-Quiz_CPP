@@ -10,7 +10,7 @@ using namespace LightControl;
 RainbowMessage::RainbowMessage(boost::asio::mutable_buffer& buffer)
 {
 	if ( buffer.size() < sizeof(uint32_t) ) {
-		LOG_ERROR("Received Rainbow message with invalid size: " + buffer.size());
+		LOG_ERROR("Received Rainbow message with invalid size: " + std::to_string(buffer.size()));
 	}
 
 	_updateRate = std::chrono::milliseconds(*static_cast<uint32_t*>(buffer.data()));
