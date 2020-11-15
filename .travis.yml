@@ -18,7 +18,7 @@ archlinux:
   script:
     - "./travis/build_common.sh"
     - "./travis/dependencies_arch.sh"
-    - "APPIMAGE_POSTFIX=ARCH GSTREAMER_PLUGINS_DIR=/usr/lib/gstreamer-1.0/ SHOULD_PACKAGE=1 ./travis/build_linux.sh"
+    - "APPIMAGE_POSTFIX=ARCH GSTREAMER_PLUGINS_DIR=/usr/lib/gstreamer-1.0/ GSTREAMER_HELPERS_DIR=/usr/lib/gstreamer-1.0/ SHOULD_PACKAGE=1 ./travis/build_linux.sh"
 
 jobs:
   include:
