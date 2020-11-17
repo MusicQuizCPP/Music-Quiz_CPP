@@ -525,7 +525,7 @@ void MusicQuiz::EntryCreator::browseSong()
 	}
 
 	/** Open File Dialog */
-	const QString filePath = QFileDialog::getOpenFileName(this, "Select Audio File", _config.getQuizDataPath().c_str(), "Audio File (" + allowedAudioFormats + ");");
+	const QString filePath = QFileDialog::getOpenFileName(this, "Select Audio File", _config.getQuizDataPath().c_str(), "Audio File (" + allowedAudioFormats + ")");
 	if ( filePath.isEmpty() ) {
 		return;
 	}
