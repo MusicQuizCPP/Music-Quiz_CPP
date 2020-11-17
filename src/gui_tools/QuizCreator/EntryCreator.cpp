@@ -521,7 +521,7 @@ void MusicQuiz::EntryCreator::browseSong()
 	/** Get Allowed Audio Formats */
 	QString allowedAudioFormats = "";
 	for ( size_t i = 0; i < _validAudioFormats.size(); ++i ) {
-		allowedAudioFormats += "*" + _validAudioFormats[i] + "; ";
+		allowedAudioFormats += "*" + _validAudioFormats[i] + " ";
 	}
 
 	/** Open File Dialog */
