@@ -23,6 +23,24 @@ MusicQuiz::EntryCreator::EntryCreator(const QString& name, const int points, con
 	createLayout();
 }
 
+MusicQuiz::EntryCreator::EntryCreator(const boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, const common::Configuration& config, QWidget* parent) :
+	QWidget(parent), 
+	_points(tree.get<int>("Points")), 
+	_entryName(QString::fromStdString(tree.get<string>("<xmlattr>.name"))),
+	_audioPlayer(audioPlayer),
+	_config(config)
+
+{
+	createLayout();
+	const string type = tree.get<string>("<xmlattr>.type");
+	if(type == "song")
+	{
+		loadSongFromXml(tree);
+	} else if(type == "video") {
+		loadVideoFromXml(tree);
+	}
+}
+
 void MusicQuiz::EntryCreator::createLayout()
 {
 	/** Scroll Area */
@@ -668,7 +686,7 @@ void MusicQuiz::EntryCreator::checkVideoFiles()
 	}
 }
 
-bool MusicQuiz::EntryCreator::isSongFileValid(const QString& fileName)
+bool MusicQuiz::EntryCreator::isSongFileValid(const QString& fileName) const
 {
 	/** Check if file has a valid format */
 	bool validFormat = false;
@@ -691,7 +709,7 @@ bool MusicQuiz::EntryCreator::isSongFileValid(const QString& fileName)
 	return true;
 }
 
-bool MusicQuiz::EntryCreator::isVideoFileValid(const QString& fileName)
+bool MusicQuiz::EntryCreator::isVideoFileValid(const QString& fileName) const
 {
 	/** Check if file has a valid format */
 	bool validFormat = false;
@@ -714,12 +732,12 @@ bool MusicQuiz::EntryCreator::isVideoFileValid(const QString& fileName)
 	return true;
 }
 
-size_t MusicQuiz::EntryCreator::toMSec(const QTime& time)
+size_t MusicQuiz::EntryCreator::toMSec(const QTime& time) const
 {
 	return time.minute() * 60000 + time.second() * 1000;
 }
 
-QTime MusicQuiz::EntryCreator::fromMSec(size_t time)
+QTime MusicQuiz::EntryCreator::fromMSec(size_t time) const
 {
 	/** Hour */
 	const size_t minute = time / 60000;
@@ -867,7 +885,7 @@ void MusicQuiz::EntryCreator::setSongFile(const QString& file)
 	_songFileLineEdit->setText(file);
 }
 
-const QString MusicQuiz::EntryCreator::getSongFile()
+const QString MusicQuiz::EntryCreator::getSongFile() const
 {
 	/** Sanity Check */
 	if ( _songFileLineEdit == nullptr ) {
@@ -893,7 +911,7 @@ void MusicQuiz::EntryCreator::setVideoFile(const QString& file)
 	_videoFileLineEdit->setText(file);
 }
 
-const QString MusicQuiz::EntryCreator::getVideoFile()
+const QString MusicQuiz::EntryCreator::getVideoFile() const
 {
 	/** Sanity Check */
 	if ( _videoFileLineEdit == nullptr ) {
@@ -919,7 +937,7 @@ void MusicQuiz::EntryCreator::setVideoSongFile(const QString& file)
 	_videoSongFileLineEdit->setText(file);
 }
 
-const QString MusicQuiz::EntryCreator::getVideoSongFile()
+const QString MusicQuiz::EntryCreator::getVideoSongFile() const
 {
 	/** Sanity Check */
 	if ( _videoSongFileLineEdit == nullptr ) {
@@ -945,7 +963,7 @@ void MusicQuiz::EntryCreator::setSongStartTime(const size_t time)
 	_songStartTimeEdit->setTime(fromMSec(time));
 }
 
-size_t MusicQuiz::EntryCreator::getSongStartTime()
+size_t MusicQuiz::EntryCreator::getSongStartTime() const
 {
 	/** Sanity Check */
 	if ( _songStartTimeEdit == nullptr ) {
@@ -966,7 +984,7 @@ void MusicQuiz::EntryCreator::setAnswerStartTime(const size_t time)
 	_answerStartTimeEdit->setTime(fromMSec(time));
 }
 
-size_t MusicQuiz::EntryCreator::getAnswerStartTime()
+size_t MusicQuiz::EntryCreator::getAnswerStartTime() const
 {
 	/** Sanity Check */
 	if ( _answerStartTimeEdit == nullptr ) {
@@ -987,7 +1005,7 @@ void MusicQuiz::EntryCreator::setVideoStartTime(const size_t time)
 	_videoStartTimeEdit->setTime(fromMSec(time));
 }
 
-size_t MusicQuiz::EntryCreator::getVideoStartTime()
+size_t MusicQuiz::EntryCreator::getVideoStartTime() const
 {
 	/** Sanity Check */
 	if ( _videoStartTimeEdit == nullptr ) {
@@ -1008,7 +1026,7 @@ void MusicQuiz::EntryCreator::setVideoSongStartTime(const size_t time)
 	_videoSongStartTimeEdit->setTime(fromMSec(time));
 }
 
-size_t MusicQuiz::EntryCreator::getVideoSongStartTime()
+size_t MusicQuiz::EntryCreator::getVideoSongStartTime() const
 {
 	/** Sanity Check */
 	if ( _videoSongStartTimeEdit == nullptr ) {
@@ -1029,7 +1047,7 @@ void MusicQuiz::EntryCreator::setVideoAnswerStartTime(const size_t time)
 	_videoAnswerStartTimeEdit->setTime(fromMSec(time));
 }
 
-size_t MusicQuiz::EntryCreator::getVideoAnswerStartTime()
+size_t MusicQuiz::EntryCreator::getVideoAnswerStartTime() const
 {
 	/** Sanity Check */
 	if ( _videoAnswerStartTimeEdit == nullptr ) {
@@ -1037,4 +1055,123 @@ size_t MusicQuiz::EntryCreator::getVideoAnswerStartTime()
 	}
 
 	return toMSec(_videoAnswerStartTimeEdit->time());
+}
+
+void MusicQuiz::EntryCreator::loadSongFromXml(const boost::property_tree::ptree &tree)
+{
+	setType(MusicQuiz::EntryCreator::EntryType::Song);
+
+	try {
+		setSongStartTime(tree.get<size_t>("StartTime"));
+	} catch ( ... ) {}
+
+	try {
+		setAnswerStartTime(tree.get<size_t>("AnswerStartTime"));
+	} catch ( ... ) {}
+
+	try {
+		QString songFile = QString::fromStdString(_config.mediaPathToFullPath(tree.get<string>("Media.SongFile")));
+		replace(songFile.begin(), songFile.end(), '\\', '/');
+		setSongFile(songFile);
+	} catch ( ... ) {}
+}
+
+void MusicQuiz::EntryCreator::loadVideoFromXml(const boost::property_tree::ptree &tree)
+{
+	setType(MusicQuiz::EntryCreator::EntryType::Video);
+
+	try {
+		setVideoSongStartTime(tree.get<size_t>("VideoSongStartTime"));
+	} catch ( ... ) {}
+
+	try {
+		setVideoStartTime(tree.get<size_t>("StartTime"));
+	} catch ( ... ) {}
+
+	try {
+		setVideoAnswerStartTime(tree.get<size_t>("AnswerStartTime"));
+	} catch ( ... ) {}
+
+	try {
+		QString videoFile = QString::fromStdString(_config.mediaPathToFullPath(tree.get<string>("Media.VideoFile")));
+		replace(videoFile.begin(), videoFile.end(), '\\', '/');
+		setVideoFile(videoFile);
+	} catch ( ... ) {}
+
+	try {
+		QString songFile = QString::fromStdString(_config.mediaPathToFullPath(tree.get<string>("Media.SongFile")));
+		replace(songFile.begin(), songFile.end(), '\\', '/');
+		setVideoSongFile(songFile);
+	} catch ( ... ) {}
+}
+
+boost::property_tree::ptree MusicQuiz::EntryCreator::toXml(const std::string& savePath, const std::string xmlPath) const
+{
+	string name = getName().toStdString();
+	boost::property_tree::ptree tree;
+	tree.put("Answer", name);
+	tree.put("<xmlattr>.name", name);
+	tree.put("Points", getPoints());
+	switch(getType()) {
+		case MusicQuiz::EntryCreator::EntryType::Song:
+			saveSongToXml(tree, savePath + "/" + name, xmlPath + "/" + name);
+			break;
+		case MusicQuiz::EntryCreator::EntryType::Video:
+			saveVideoToXml(tree, savePath + "/" + name, xmlPath + "/" + name);
+			break;
+		default:
+			break;
+	}
+	return tree;
+}
+
+void MusicQuiz::EntryCreator::saveSongToXml(boost::property_tree::ptree& tree, const std::string& savePath, const std::string& xmlPath) const
+{
+	tree.put("<xmlattr>.type", "song");
+		/** Entry Song Start Time */
+	tree.put("StartTime", getSongStartTime());
+
+	/** Entry Song Answer Start Time */
+	tree.put("AnswerStartTime", getAnswerStartTime());
+
+	/** Media File */
+	const string songFile = getSongFile().toStdString();
+	if ( !songFile.empty() ) {
+		const string audioFileExtension = filesystem::path(songFile).extension().string();
+		boost::property_tree::ptree& media_tree = tree.add("Media", "");
+		media_tree.put("SongFile", filesystem::relative(xmlPath + audioFileExtension, _config.getQuizDataPath()).string());
+
+		/** Copy Media File */
+		filesystem::copy_file(songFile, savePath + audioFileExtension, filesystem::copy_options::overwrite_existing);
+	}
+}
+
+void MusicQuiz::EntryCreator::saveVideoToXml(boost::property_tree::ptree& tree, const std::string& savePath, const std::string& xmlPath) const
+{
+	tree.put("<xmlattr>.type", "video");
+	/** Entry Video Start Time */
+	tree.put("StartTime", getVideoStartTime());
+
+	/** Entry Video Song Start Time */
+	tree.put("VideoSongStartTime", getVideoSongStartTime());
+
+	/** Entry Video Answer Start Time */
+	tree.put("AnswerStartTime", getVideoAnswerStartTime());
+
+	/** Media File */
+	const string videoFile = getVideoFile().toStdString();
+	const string songFile = getVideoSongFile().toStdString();
+
+	if ( !videoFile.empty() && !songFile.empty() ) {
+		const string videoFileExtension = filesystem::path(videoFile).extension().string();
+		const string audioFileExtension = filesystem::path(songFile).extension().string();
+		boost::property_tree::ptree& media_tree = tree.add("Media", "");
+		media_tree.put("VideoFile", filesystem::relative(xmlPath + "_video" + videoFileExtension, _config.getQuizDataPath()).string());
+		media_tree.put("SongFile", filesystem::relative(xmlPath + "_song" + videoFileExtension, _config.getQuizDataPath()).string());
+
+		/** Copy Media File */
+		filesystem::copy_file(videoFile, savePath + "_video" + videoFileExtension, filesystem::copy_options::overwrite_existing);
+		filesystem::copy_file(songFile, savePath + "_song" + audioFileExtension, filesystem::copy_options::overwrite_existing);
+	}
+
 }

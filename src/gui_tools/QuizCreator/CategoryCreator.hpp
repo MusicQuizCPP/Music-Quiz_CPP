@@ -6,6 +6,8 @@
 #include <QLineEdit>
 #include <QTableWidget>
 
+#include <boost/property_tree/ptree.hpp>
+
 #include "media/AudioPlayer.hpp"
 #include "gui_tools/GuiUtil/QExtensions/QTabWidgetExtender.hpp"
 
@@ -25,10 +27,23 @@ namespace MusicQuiz {
 		 *
 		 * @param[in] name The category name.
 		 * @param[in] audioPlayer The audio player.
+		 * @param[in] config configuration.
 		 * @param[in] parent The parent widget.
 		 */
-		explicit CategoryCreator(const QString& name, const std::shared_ptr< media::AudioPlayer >& audioPlayer, const common::Configuration& config, QWidget* parent = nullptr);
+		explicit CategoryCreator(const QString& name, const std::shared_ptr< media::AudioPlayer >& audioPlayer, 
+			const common::Configuration& config, QWidget* parent = nullptr);
 
+		/**
+		 * @brief Constructor
+		 *
+		 * @param[in] tree property_tree to load category from.
+		 * @param[in] audioPlayer The audio player.
+		 * @param[in] config configuration.
+		 * @param[in] skipEntries whether entries loading should be skipped.
+		 * @param[in] parent The parent widget.
+		 */
+		explicit CategoryCreator(const boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, const common::Configuration& config, 
+			bool skipEntries = false, QWidget* parent = nullptr);
 		/**
 		 * @brief Default destructor
 		 */
@@ -70,9 +85,27 @@ namespace MusicQuiz {
 		const std::vector< MusicQuiz::EntryCreator* > getEntries() const;
 
 		/**
+		 * @brief Check if entries has unique names.
+		 *
+		 * @return if all entry names are unique.
+		 */
+		bool areEntryNamesUnique() const;
+
+		/**
 		 * @brief Clears the entries.
 		 */
 		void clearEntries();
+
+		/**
+		 * @brief serialize category into a boost property_tree
+		 *
+		 * @param[in] savePath path where the mediafiles should be saved.
+		 * @param[in] xmlPath path for the media files that should be written in the ptree.
+		 * 
+		 * @return the serialized ptree
+		 */
+
+		boost::property_tree::ptree saveToXml(const std::string savePath, const std::string& xmlPath);
 
 	private slots:
 		/**

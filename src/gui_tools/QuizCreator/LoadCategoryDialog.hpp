@@ -18,27 +18,27 @@ namespace common {
 
 namespace MusicQuiz {
 	/**
-	 * @brief Quiz Load Dialog.
+	 * @brief Category Load Dialog.
 	 */
-	class LoadQuizDialog : public LoadDialog {
+	class LoadCategoryDialog : public LoadDialog {
 		Q_OBJECT
 
 	public:
 		/**
 		 * @brief Constructor.
 		 */
-		explicit LoadQuizDialog(const common::Configuration& config, QWidget* parent = nullptr) : LoadDialog(parent), _config(config) {}
+		explicit LoadCategoryDialog(const common::Configuration& config, QWidget* parent = nullptr) : LoadDialog(parent), _config(config) {}
 
 		/**
 		 * @brief Default deconstructor.
 		 */
-		virtual ~LoadQuizDialog() = default;
+		virtual ~LoadCategoryDialog() = default;
 
 		/**
 		 * @brief Deleted the copy and assignment constructor.
 		 */
-		LoadQuizDialog(const LoadQuizDialog&) = delete;
-		LoadQuizDialog& operator=(const LoadQuizDialog&) = delete;
+		LoadCategoryDialog(const LoadCategoryDialog&) = delete;
+		LoadCategoryDialog& operator=(const LoadCategoryDialog&) = delete;
 
 		/**
 		 * @brief Updates the table.
@@ -54,11 +54,11 @@ namespace MusicQuiz {
 
 
 	signals:
-		void loadSignal(const std::string&);
+		void loadSignal(const std::string& quiz, const std::string& category);
 
 	private:
 
-		std::vector<std::string> _quizList;
+		std::vector<std::pair<std::string, std::string> > _categoryList;
 		const common::Configuration& _config;
 	};
 }

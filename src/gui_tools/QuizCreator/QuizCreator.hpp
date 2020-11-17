@@ -13,6 +13,8 @@
 
 #include "media/AudioPlayer.hpp"
 #include "media/VideoPlayer.hpp"
+#include "QuizData.hpp"
+
 
 namespace common {
 	class Configuration;
@@ -26,17 +28,6 @@ namespace MusicQuiz {
 	class QuizCreator : public QDialog {
 		Q_OBJECT
 	public:
-		struct QuizData {
-			QString quizName = "";
-			QString quizAuthor = "";
-			QString quizDescription = "";
-
-			bool guessTheCategory = false;
-			size_t guessTheCategoryPoints = 0;
-
-			std::vector< QString > quizRowCategories;
-			std::vector< MusicQuiz::CategoryCreator* > quizCategories;
-		};
 
 		/**
 		 * @brief Constructor
@@ -111,9 +102,46 @@ namespace MusicQuiz {
 		void loadQuiz(const std::string& quizName);
 
 		/**
+		 * @brief Loads a category.
+		 *
+		 * param[in] quizName name of quiz to load from.
+		 * param[in] categoryName name of category to load.
+		 */
+
+		void loadQuizCategory(const std::string& quizName, const std::string& categoryName);
+
+		/**
+		 * @brief Loads a quiz from quizdata.
+		 *
+		 * param[in] quizData to load quiz from.
+		 */
+
+		void loadQuizData(const MusicQuiz::QuizData& quizData);
+
+		/**
+		 * @brief Loads a category.
+		 *
+		 * param[in] category category to load.
+		 */
+		void loadCategory(MusicQuiz::CategoryCreator* category);
+
+		/**
+		 * @brief Loads a row category.
+		 *
+		 * param[in] rowCategory row category to load.
+		 */
+
+		void loadRowCategory(const std::string& rowCategory);
+
+		/**
 		 * @brief Opens a dialog to select which quiz to load.
 		 */
 		void openLoadQuizDialog();
+
+		/**
+		 * @brief Opens a dialog to select which quiz category to load.
+		 */
+		void openLoadCategoryDialog();
 
 		/**
 		 * @brief Previews the quiz.

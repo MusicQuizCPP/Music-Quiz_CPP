@@ -223,23 +223,33 @@ vector<QString> QuizLoader::loadQuizRowCategories(const size_t idx, const common
 {
 	/** Get List of Quizzes */
 	const vector<string> quizList = getListOfQuizzes(config);
+
 	if ( quizList.empty() ) {
 		throw runtime_error("No quizzes found in the data folder.");
 	}
 
 	/** Sanity Check */
 	if ( idx >= quizList.size() ) {
-		throw runtime_error("No quiz index requested does not exists.");
+		throw runtime_error("The quiz index requested does not exists.");
 	}
 
-	if ( !filesystem::exists(quizList[idx]) ) {
+	/** Sanity Check */
+	if ( idx >= quizList.size() ) {
+		throw runtime_error("No quiz index requested does not exists.");
+	}
+	return loadQuizRowCategories(quizList[idx]);
+}
+
+vector<QString> QuizLoader::loadQuizRowCategories(const std::string& xmlPath)
+{
+	if ( !filesystem::exists(xmlPath) ) {
 		throw runtime_error("Quiz file does not exists.");
 	}
 
 
 	/** Load Row Categories */
 	boost::property_tree::ptree tree;
-	boost::property_tree::read_xml(quizList[idx], tree, boost::property_tree::xml_parser::trim_whitespace);
+	boost::property_tree::read_xml(xmlPath, tree, boost::property_tree::xml_parser::trim_whitespace);
 	boost::property_tree::ptree sub_tree = tree.get_child("MusicQuiz");
 
 	vector<QString> rowCategories;

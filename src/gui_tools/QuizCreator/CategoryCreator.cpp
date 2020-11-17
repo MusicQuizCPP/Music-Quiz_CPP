@@ -1,5 +1,7 @@
 #include "CategoryCreator.hpp"
 
+#include <filesystem>
+
 #include <QLabel>
 #include <QRegExp>
 #include <QString>
@@ -20,6 +22,28 @@ MusicQuiz::CategoryCreator::CategoryCreator(const QString& name, const media::Au
 {
 	/** Create Layout */
 	createLayout();
+}
+
+MusicQuiz::CategoryCreator::CategoryCreator(const boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, 
+	const common::Configuration& config, bool skipEntries, QWidget* parent) :
+	QWidget(parent), 
+	_categoryName(QString::fromStdString(tree.get<std::string>("<xmlattr>.name"))),
+	_audioPlayer(audioPlayer),
+	_config(config)
+{
+	createLayout();
+	if(!skipEntries) {
+		std::vector< MusicQuiz::EntryCreator* > categorieEntries;
+		boost::property_tree::ptree::const_iterator it = tree.begin();
+		for ( ; it != tree.end(); ++it ) {
+			try {
+				if ( it->first == "QuizEntry" ) {
+					categorieEntries.push_back(new MusicQuiz::EntryCreator(it->second, _audioPlayer, _config, this));
+				}
+			} catch ( ... ) {}
+		}
+		setEntries(categorieEntries);
+	}
 }
 
 void MusicQuiz::CategoryCreator::createLayout()
@@ -330,6 +354,46 @@ void MusicQuiz::CategoryCreator::setEntries(const std::vector< MusicQuiz::EntryC
 const std::vector< MusicQuiz::EntryCreator* > MusicQuiz::CategoryCreator::getEntries() const
 {
 	return _entries;
+}
+
+bool MusicQuiz::CategoryCreator::areEntryNamesUnique() const
+{
+	for(size_t i = 0; i < _entries.size(); ++i) {
+		for ( size_t j = 0; j < _entries.size(); ++j ) {
+			if ( i != j && _entries[i]->getName().toStdString() == _entries[j]->getName().toStdString() ) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+boost::property_tree::ptree MusicQuiz::CategoryCreator::saveToXml(const std::string savePath, const std::string& xmlPath)
+{
+	const std::string name = getName().toStdString();
+	if ( name.empty() ) {
+		throw std::runtime_error("Failed to save quiz. All categories must have a name");
+	}
+	if(!areEntryNamesUnique()) {
+		throw std::runtime_error("Failed to save quiz. " + name + ": All entires in a category must have a unique name.");
+	}
+
+	boost::property_tree::ptree tree;
+	tree.put("<xmlattr>.name", name);
+
+	std::error_code filesystem_error;
+	std::filesystem::create_directory(savePath + "/" + name, filesystem_error);
+
+	if ( filesystem_error ) {
+		throw std::runtime_error("Failed to create directory to save the category files in.");
+	}
+	for ( auto entry : _entries) {
+		if(entry->getName().toStdString().empty()) {
+			throw std::runtime_error("Failed to save quiz. " + name + ": All entries needs to have a name.");
+		}
+		tree.add_child("QuizEntry", entry->toXml(savePath + "/" + name, xmlPath + "/" + name));
+	}
+	return tree;
 }
 
 void MusicQuiz::CategoryCreator::clearEntries()

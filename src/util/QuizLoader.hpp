@@ -103,10 +103,20 @@ namespace MusicQuiz {
 			* @brief Returns a list of the row categories.
 			*
 			* @param[in] idx The index of the quiz to load the categories from.
-			*
+			* @param[in] config quiz config.
+
 			* @return The quiz row categories.
 			*/
 			static std::vector<QString> loadQuizRowCategories(size_t idx, const common::Configuration& config);
+
+			/**
+			* @brief Returns a list of the row categories.
+			*
+			* @param[in] xmlPath the path to load the quizfile from.
+			*
+			* @return The quiz row categories.
+			*/
+			static std::vector<QString> loadQuizRowCategories(const std::string& xmlPath);
 
 
 		protected:
