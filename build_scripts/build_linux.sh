@@ -6,5 +6,5 @@ cmake --build out --config Release -j2
 
 if [[ "${SHOULD_PACKAGE}" ]]; then
     GSTREAMER_INCLUDE_BAD_PLUGINS=1 ./AppImageBuild/linuxdeploy-x86_64.AppImage  --appimage-extract-and-run --plugin gstreamer --plugin qt --appdir AppDir --output appimage --create-desktop-file -e out/bin/MusicQuizGUI -i icons/MusicQuizGUI.png
-    mv MusicQuizGUI*.AppImage artifacts/MusicQuizGUI_${APPIMAGE_POSTFIX}.AppImage
+    mv MusicQuizGUI*.AppImage artifacts/${APPIMAGE_NAME}
 fi 
