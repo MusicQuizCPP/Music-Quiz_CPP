@@ -1,0 +1,59 @@
+name: CMake build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:        
+  build:
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      matrix:
+        include:
+        - os: ubuntu
+          releasefile: MusicQuizGUI.AppImage
+          env: APPIMAGE_NAME=MusicQuizGUI.AppImage
+        - os: windows
+          releasefile: MusicQuizGUI.exe
+        - os: macos
+
+    steps:
+    - name: Dependencies
+      - if: matrix.os == 'ubuntu'
+        run: ./build_scripts/dependencies_ubuntu.sh
+      - if: matrix.os == 'windows'
+        run: QT_VERSION=5.12.9 ./build_scripts/dependencies_windows.sh
+      - if: matirx.os == "macos"
+        run: ./build_scripts/dependencies_mac.sh
+
+    - name: Build Common
+      run: ./build_scripts/build_common.sh
+
+    - name: Build
+      - if: matrix.os == 'ubuntu'
+        run: SHOULD_PACKAGE=1 ./build_scripts/build_linux.sh
+      - if: matrix.os == 'windows'
+        run: ./build_scripts/build_windows.sh
+      - if: matirx.os == "macos"
+        run: ./build_scripts/build_mac.sh
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.releasefile }}
+        path: ${{ matrix.releasefile }}
+
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      if: github.ref == 'refs/heads/master'
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: artifacts/${{ matrix.releasefile }}
+        asset_name: ${{ matrix.releasefile }}
+        tag: ${{ github.run_number }}
