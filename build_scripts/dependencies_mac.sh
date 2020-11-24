@@ -2,5 +2,5 @@
 set -e
 
 brew update >/dev/null
-brew install qt || true
+brew install qt boost || true
 brew update >/dev/null

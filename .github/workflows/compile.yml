@@ -12,42 +12,48 @@ defaults:
 
 jobs:        
   build:
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
-        - os: ubuntu
+        - os: ubuntu-20.04
           releasefile: MusicQuizGUI.AppImage
           env: APPIMAGE_NAME=MusicQuizGUI.AppImage
-        - os: windows
+        - os: windows-latest
           releasefile: MusicQuizGUI.exe
-        - os: macos
+        - os: macos-latest
 
     steps:
-    - name: Dependencies
-      - if: matrix.os == 'ubuntu'
-        run: ./build_scripts/dependencies_ubuntu.sh
-      - if: matrix.os == 'windows'
-        run: QT_VERSION=5.12.9 ./build_scripts/dependencies_windows.sh
-      - if: matirx.os == "macos"
-        run: ./build_scripts/dependencies_mac.sh
+    - uses: actions/checkout@v1
+
+    - name: Dependencies Ubuntu
+      if: startsWith(matrix.os, 'ubuntu')
+      run: ./build_scripts/dependencies_ubuntu.sh
+    - name: Dependencies Windows
+      if: startsWith(matrix.os, 'windows')
+      run: QT_VERSION=5.12.9 ./build_scripts/dependencies_windows.sh
+    - name: Dependencies MacOS
+      if: startsWith(matrix.os, 'macOS')
+      run: ./build_scripts/dependencies_mac.sh
 
     - name: Build Common
       run: ./build_scripts/build_common.sh
 
-    - name: Build
-      - if: matrix.os == 'ubuntu'
-        run: SHOULD_PACKAGE=1 ./build_scripts/build_linux.sh
-      - if: matrix.os == 'windows'
-        run: ./build_scripts/build_windows.sh
-      - if: matirx.os == "macos"
-        run: ./build_scripts/build_mac.sh
+    - name: Build Ubuntu
+      if: startsWith(matrix.os, 'ubuntu')
+      run: SHOULD_PACKAGE=1 ./build_scripts/build_linux.sh
+    - name: Build Windows
+      if: startsWith(matrix.os, 'windows')
+      run: ./build_scripts/build_windows.sh
+    - name: Build MacOS
+      if: startsWith(matrix.os, 'macOS')
+      run: ./build_scripts/build_mac.sh
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
         name: ${{ matrix.releasefile }}
-        path: ${{ matrix.releasefile }}
+        path: artifacts/${{ matrix.releasefile }}
 
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2

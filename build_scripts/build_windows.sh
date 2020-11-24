@@ -9,7 +9,7 @@ export "BOOST_INCLUDEDIR=/c/boost\boost.1.72.0.0\lib\native\include"
 export "BOOST_ROOT=/c/boost\boost.1.72.0.0\lib\native\include"
 
 #Cmake config
-cmake . -G "Visual Studio 15 2017 Win64" -B out
+cmake . -G "Visual Studio 16 2019" -A x64 -B out
 
 #Compile
 cmake --build out --config Release -j2
