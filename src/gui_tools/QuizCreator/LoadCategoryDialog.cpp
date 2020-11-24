@@ -29,9 +29,10 @@ void MusicQuiz::LoadCategoryDialog::updateTable()
     std::vector<std::string> quizList = MusicQuiz::util::QuizLoader::getListOfQuizzes(_config);
     for(auto& quizName : quizList) {
         try {
-            MusicQuiz::QuizData qdata(_config, quizName, nullptr, true, this);
+            MusicQuiz::QuizData qdata(_config, quizName, nullptr, this, true);
             for(auto &category : qdata.getCategories()) {
                 _categoryList.push_back(std::make_pair(quizName, category->getName().toStdString()));
+                category->deleteLater();
             }
         }
         catch ( const std::exception& err ) {

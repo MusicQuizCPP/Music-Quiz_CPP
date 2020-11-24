@@ -2,6 +2,7 @@
 
 #include <QString>
 #include <vector>
+#include <regex>
 
 #include "common/Configuration.hpp"
 #include "media/AudioPlayer.hpp"
@@ -25,14 +26,15 @@ namespace MusicQuiz {
             /**
              * @brief Constructor create quizdata from existing quiz on disk
              *
+             * @param[in] config configuration.
              * @param[in] name The quiz name.
              * @param[in] audioPlayer The audio player.
-             * @param[in] skipEntries skip loading entries.
-             * @param[in] config configuration.
              * @param[in] parent The parent widget.
+             * @param[in] skipEntries skip loading entries.
+             * @param[in] categoryNameRegex regex of which categories to load. Categories with a name matching the regex will be loaded.
              */
             QuizData(const common::Configuration& config, const std::string& name, const media::AudioPlayer::Ptr& audioPlayer, 
-                bool skipEntries = false, QWidget* parent = nullptr);
+                QWidget* parent = nullptr, bool skipEntries = false, std::regex categoryNameRegex = std::regex(".*"));
             
             /**
              * @brief Save quiz to disk
@@ -232,10 +234,11 @@ namespace MusicQuiz {
              * @param[in] tree tree to load the categories from
              * @param[in] audioPlayer Player the entries should use to play audio
              * @param[in] skipEntries whether to skip loading entries
+             * @param[in] categoryNameRegex regex of which categories to load. Categories with a name matching the regex will be loaded.
              * @param[in] parent widget to set as parent
              */
             std::vector< MusicQuiz::CategoryCreator* > loadCategories(boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, 
-                bool skipEntries, QWidget* parent) const;    
+                bool skipEntries, std::regex categoryNameRegex, QWidget* parent) const;    
     };
 }
 

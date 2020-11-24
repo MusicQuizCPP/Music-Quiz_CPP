@@ -24,7 +24,7 @@ using namespace std;
 static void deleteDirectory(const filesystem::path& dir);
 
 MusicQuiz::QuizData::QuizData(const common::Configuration& config, const string& name, const media::AudioPlayer::Ptr& audioPlayer, 
-     bool skipEntries, QWidget* parent) :
+     QWidget* parent, bool skipEntries, regex categoryNameRegex) :
     _config(config),
     _name(name)
 {
@@ -58,14 +58,16 @@ MusicQuiz::QuizData::QuizData(const common::Configuration& config, const string&
 
     setGuessTheCategory(ini_ctrl->second.get("QuizGuessTheCategory.<xmlattr>.enabled", false), 500);
 
-    setCategories(loadCategories(tree.get_child("MusicQuiz"), audioPlayer, skipEntries, parent));
+    setCategories(loadCategories(tree.get_child("MusicQuiz"), audioPlayer, skipEntries, categoryNameRegex, parent));
 
     setRowCategories(MusicQuiz::util::QuizLoader::loadQuizRowCategories(*quiz));
 
 }
 
-vector< MusicQuiz::CategoryCreator* > MusicQuiz::QuizData::loadCategories(boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, bool skipEntries, QWidget* parent) const
+vector< MusicQuiz::CategoryCreator* > MusicQuiz::QuizData::loadCategories(boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, bool skipEntries, regex categoryNameRegex, QWidget* parent) const
 {
+    (void)categoryNameRegex;
+
     vector< MusicQuiz::CategoryCreator* > categories;
     boost::property_tree::ptree::const_iterator ctrl = tree.begin();
     for ( ; ctrl != tree.end(); ++ctrl ) {
@@ -75,7 +77,11 @@ vector< MusicQuiz::CategoryCreator* > MusicQuiz::QuizData::loadCategories(boost:
             try {
                 for ( ; sub_ctrl != categoriesTree.end(); ++sub_ctrl ) {
                     if ( sub_ctrl->first == "Category" ) {
-                        categories.push_back(new MusicQuiz::CategoryCreator(sub_ctrl->second, audioPlayer, _config, skipEntries, parent));
+                        const boost::property_tree::ptree &category_tree = sub_ctrl->second;
+                        string name = category_tree.get<std::string>("<xmlattr>.name");
+                        if(std::regex_match(name, categoryNameRegex)) {
+                            categories.push_back(new MusicQuiz::CategoryCreator(category_tree, audioPlayer, _config, skipEntries, parent));
+                        }
                     }
                 }
             } catch ( const exception& err ) {

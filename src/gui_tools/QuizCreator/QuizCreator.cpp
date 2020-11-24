@@ -594,7 +594,7 @@ void MusicQuiz::QuizCreator::loadQuiz(const string& quizName)
 	/** Load Quiz */
 	LOG_INFO("Loading quiz '" << quizName << "'");
 	try {
-		loadQuizData(QuizData(_config, quizName, _audioPlayer, false, this));
+		loadQuizData(QuizData(_config, quizName, _audioPlayer, this));
 	} catch ( const exception& err ) {
 		QMessageBox::warning(this, "Info", "Failed to load quiz. " + QString::fromStdString(err.what()));
 		return;
@@ -615,9 +615,8 @@ void MusicQuiz::QuizCreator::loadQuizCategory(const string& quizName, const stri
 	/** Load Quiz */
 	LOG_INFO("Loading quiz '" << quizName << "'");
 	try {
-		QuizData quizData = QuizData(_config, quizName, _audioPlayer, false, this);
-		MusicQuiz::CategoryCreator* category = quizData.getCategory(categoryName);
-		if(category) {
+		QuizData quizData = QuizData(_config, quizName, _audioPlayer, this, false, regex("^" + categoryName + "$"));
+		for(auto &category : quizData.getCategories()) {
 			loadCategory(category);
 		}
 	} catch ( const exception& err ) {
