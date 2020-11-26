@@ -165,7 +165,7 @@ QPushButton#quizCreatorBrowseBtn
 {
 	min-height			: 40px;
 	min-width			: 40px;
-
+	border                         : 1px solid grey;
 	image				: url(:/imgs/browse_file_icon.png);
 }
 
@@ -173,7 +173,7 @@ QPushButton#quizCreatorPlayBtn
 {
 	min-height			: 40px;
 	min-width			: 40px;
-
+	border                         : 1px solid grey;
 	image				: url(:/imgs/play_icon.png);
 }
 
@@ -181,7 +181,7 @@ QPushButton#quizCreatorPauseBtn
 {
 	min-height			: 40px;
 	min-width			: 40px;
-
+	border                         : 1px solid grey;
 	image				: url(:/imgs/pause_icon.png);
 }
 
@@ -191,7 +191,7 @@ QPushButton#quizCreatorStopBtn
 
 	min-height			: 40px;
 	min-width			: 40px;
-
+	border                         : 1px solid grey;
 	image				: url(:/imgs/stop_icon.png);
 }
 
@@ -211,11 +211,13 @@ QPushButton#settingsInfo
 	max-width			: 25px;
 
 	image				: url(:/imgs/question_mark_yellow.png);
+	border				: none;
 }
 
 QPushButton#settingsInfo:disabled
 {
 	image				: url(:/imgs/question_mark_yellow_disabled.png);
+	border				: none;
 }
 
 
