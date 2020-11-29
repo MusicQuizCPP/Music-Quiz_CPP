@@ -672,8 +672,8 @@ void MusicQuiz::QuizCreator::loadQuizData(const QuizData& quizData)
 		_hiddenCategoriesCheckbox->setChecked(quizData.getGuessTheCategory());
 	}
 
-	/** Add Categories to Table */
-	_categories = quizData.getCategories();
+	/**Add Categories */
+	_categories.clear();
 	if ( _categoriesTable != nullptr ) {
 		for( auto& category : quizData.getCategories() ) {
 			loadCategory(category);
@@ -717,6 +717,8 @@ void MusicQuiz::QuizCreator::loadRowCategory(const std::string& rowCategory)
 
 void MusicQuiz::QuizCreator::loadCategory(MusicQuiz::CategoryCreator* category)
 {
+	_categories.push_back(category);
+
 	/** Get Number of Entries */
 	const unsigned int categoryCount = _categoriesTable->rowCount();
 

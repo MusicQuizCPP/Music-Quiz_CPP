@@ -31,7 +31,10 @@ void MusicQuiz::LoadQuizDialog::updateTable()
 		_table->insertRow(row);
 
 		/** Quiz Name */
-		std::string quizName = _quizList[i].substr(_quizList[i].find_last_of("\\") + 1);
+		std::replace(_quizList[i].begin(), _quizList[i].end(), '\\', '/');
+		std::string quizName = _quizList[i];
+
+		quizName = quizName.substr(quizName.find_last_of("/") + 1);
 		const std::string fileExtension = ".quiz.xml";
 		quizName.erase(quizName.find(fileExtension), fileExtension.length());
 
@@ -70,7 +73,6 @@ void MusicQuiz::LoadQuizDialog::load()
 	const size_t idx = btn->property("index").toInt();
 
 	/** Emit Signal */
-	std::replace(_quizList[idx].begin(), _quizList[idx].end(), '\\', '/');
 	emit loadSignal(_quizList[idx]);
 
 	/** Close Dialog */

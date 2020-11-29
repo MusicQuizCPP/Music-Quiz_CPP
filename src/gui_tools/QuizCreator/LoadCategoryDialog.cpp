@@ -29,6 +29,7 @@ void MusicQuiz::LoadCategoryDialog::updateTable()
     std::vector<std::string> quizList = MusicQuiz::util::QuizLoader::getListOfQuizzes(_config);
     for(auto& quizName : quizList) {
         try {
+            std::replace( quizName.begin(), quizName.end(), '\\', '/');
             MusicQuiz::QuizData qdata(_config, quizName, nullptr, this, true);
             for(auto &category : qdata.getCategories()) {
                 _categoryList.push_back(std::make_pair(quizName, category->getName().toStdString()));
@@ -49,7 +50,11 @@ void MusicQuiz::LoadCategoryDialog::updateTable()
         /** Add Row */
 
         /** Quiz Name */
-        std::string quizName = _categoryList[i].first.substr(_categoryList[i].first.find_last_of("\\") + 1);
+        std::replace(_categoryList[i].first.begin(), _categoryList[i].first.end(), '\\', '/');
+        std::string quizName = _categoryList[i].first;
+
+        quizName = quizName.substr(quizName.find_last_of("/") + 1);
+        
         const std::string fileExtension = ".quiz.xml";
         quizName.erase(quizName.find(fileExtension), fileExtension.length());
 
@@ -94,7 +99,6 @@ void MusicQuiz::LoadCategoryDialog::load()
     std::string quizName = _categoryList[idx].first;
     std::string categoryName = _categoryList[idx].second;
 
-    std::replace( quizName.begin(), quizName.end(), '\\', '/');
     emit loadSignal(quizName, categoryName);
 
     /** Close Dialog */

@@ -116,12 +116,12 @@ void MusicQuiz::QuizData::save() const
         throw runtime_error("The description needs to be set before saving.");
     }
     
+    createQuizDirectory();
     QTemporaryDir tmpMediaDir(QString::fromStdString(getQuizPath() + "/tmpXXXXXX"));
     if(!tmpMediaDir.isValid()) {
         throw runtime_error("Failed to create directory to save the media files in.");
     }
 
-    createQuizDirectory();
     boost::property_tree::ptree tree = constructPtree(tmpMediaDir.path().toStdString());
 
     //Move media from tmp path to final path
