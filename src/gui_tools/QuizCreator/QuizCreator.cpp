@@ -847,3 +847,15 @@ void MusicQuiz::QuizCreator::categoryOrderChanged(const int, const int, const in
 
 	// \todo write the code for chaning the order of the tabs and the vector.
 }
+
+void MusicQuiz::QuizCreator::keyPressEvent(QKeyEvent* event)
+{
+	switch ( event->key() ) {
+	case Qt::Key_Escape:
+		quitCreator();
+		break;
+	default:
+		QWidget::keyPressEvent(event);
+		break;
+	}
+}

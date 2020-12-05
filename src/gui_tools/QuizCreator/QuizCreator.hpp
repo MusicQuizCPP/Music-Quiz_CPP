@@ -160,6 +160,11 @@ namespace MusicQuiz {
 
 		void categoryOrderChanged(int, int, int);
 
+		/**
+		 * @brief handle keypresses.
+		 */
+		void keyPressEvent(QKeyEvent* event);
+
 	signals:
 
 	protected:
