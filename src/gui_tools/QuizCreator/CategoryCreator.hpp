@@ -111,7 +111,7 @@ namespace MusicQuiz {
 		/**
 		 * @brief Adds a entry to the category.
 		 */
-		void addEntry();
+		void addEntry(MusicQuiz::EntryCreator* entry = nullptr, int entryIndex = -1);
 
 		/**
 		 * @brief Goes to the entry tab.
@@ -120,8 +120,20 @@ namespace MusicQuiz {
 
 		/**
 		 * @brief Removes a entry.
+		 * @param[in] index index of entry to move. If not giving, obtain index from sender
 		 */
-		void removeEntry();
+		void removeEntry(int index = -1);
+
+		/**
+		 * @brief Moves an entry up.
+		 */
+		void moveEntryUp();
+
+		/**
+		 * @brief Update indices.
+		 * @param[in] deleteIndex Index of buttons to delete. If negative, don't remove anything
+		 */
+		void updateIndices(int deleteIndex = -1);
 
 		/**
 		 * @brief Updates the name of the tab.

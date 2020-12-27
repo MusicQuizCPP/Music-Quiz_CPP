@@ -151,6 +151,17 @@ QPushButton#quizCreatorEditBtn
 	image				: url(:/imgs/edit_icon_black.png);
 }
 
+QPushButton#quizCreatorUpBtn
+{
+	background-color	: rgba(0, 0, 0, 0);
+	border				: none;
+
+	min-height			: 25px;
+	min-width			: 25px;
+
+	image				: url(:/imgs/up.png);
+}
+
 QPushButton#quizCreatorAddBtn
 {
 	background-color	: rgba(0, 0, 0, 0);
