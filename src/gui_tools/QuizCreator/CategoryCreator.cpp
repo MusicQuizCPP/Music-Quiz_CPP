@@ -13,6 +13,7 @@
 #include <QTableWidgetItem>
 
 #include "common/Configuration.hpp"
+#include "common/Log.hpp"
 
 #include "gui_tools/QuizCreator/EntryCreator.hpp"
 
@@ -79,7 +80,7 @@ void MusicQuiz::CategoryCreator::createLayout()
 	connect(addEntryBtn, SIGNAL(released()), this, SLOT(addEntry()));
 	setupTabLayout->addWidget(addEntryBtn, row, 1, 1, 1, Qt::AlignRight);
 
-	_entriesTable = new QTableWidget(0, 4);
+	_entriesTable = new QTableWidget(0, 5);
 	_entriesTable->setObjectName("quizCreatorTable");
 	_entriesTable->setDragDropMode(QAbstractItemView::InternalMove);
 	_entriesTable->setSelectionMode(QAbstractItemView::NoSelection);
@@ -90,6 +91,7 @@ void MusicQuiz::CategoryCreator::createLayout()
 	_entriesTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 	_entriesTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 	_entriesTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
+	_entriesTable->horizontalHeader()->setSectionResizeMode(4, QHeaderView::ResizeToContents);
 	_entriesTable->verticalHeader()->setFixedWidth(40);
 	_entriesTable->verticalHeader()->setSectionsMovable(false); // \todo set this to true to enable dragging.
 	_entriesTable->verticalHeader()->setDefaultSectionSize(40);
@@ -135,50 +137,40 @@ void MusicQuiz::CategoryCreator::addEntry(MusicQuiz::EntryCreator* entry, int en
 	_entriesTable->setCellWidget(entryIndex, 0, entryName);
 
 	/** Add Edit Category Button */
-	QPushButton* editBtn = new QPushButton;
-	editBtn->setObjectName("quizCreatorEditBtn");
-	editBtn->setProperty("index", entryIndex);
-	connect(editBtn, SIGNAL(released()), this, SLOT(editEntry()));
-
-	QHBoxLayout* btnLayout = new QHBoxLayout;
-	btnLayout->addWidget(editBtn, Qt::AlignCenter);
-
-	QWidget* layoutWidget = new QWidget;
-	layoutWidget->setLayout(btnLayout);
-	_entriesTable->setCellWidget(entryIndex, 1, layoutWidget);
+	addButtonToTable("quizCreatorEditBtn", entryIndex, 1, &MusicQuiz::CategoryCreator::editEntry);
 
 	/** Add Remove Entry Button */
-	QPushButton* removeBtn = new QPushButton;
-	removeBtn->setObjectName("quizCreatorRemoveBtn");
-	removeBtn->setProperty("index", entryIndex);
-	connect(removeBtn, SIGNAL(released()), this, SLOT(removeEntry()));
-
-	btnLayout = new QHBoxLayout;
-	btnLayout->addWidget(removeBtn, Qt::AlignCenter);
-
-	layoutWidget = new QWidget;
-	layoutWidget->setLayout(btnLayout);
-	_entriesTable->setCellWidget(entryIndex, 2, layoutWidget);
+	addButtonToTable("quizCreatorRemoveBtn", entryIndex, 2, &MusicQuiz::CategoryCreator::removeEntry);
 
 	/** Add Move Up Button */
-	QPushButton* moveUpBtn = new QPushButton;
-	moveUpBtn->setObjectName("quizCreatorUpBtn");
-	moveUpBtn->setProperty("index", entryIndex);
-	connect(moveUpBtn, SIGNAL(released()), this, SLOT(moveEntryUp()));
+	addButtonToTable("quizCreatorUpBtn", entryIndex, 3, &MusicQuiz::CategoryCreator::moveEntryUp);
 
-	btnLayout = new QHBoxLayout;
-	btnLayout->addWidget(moveUpBtn, Qt::AlignCenter);
-
-	layoutWidget = new QWidget;
-	layoutWidget->setLayout(btnLayout);
-	_entriesTable->setCellWidget(entryIndex, 3, layoutWidget);
+	/** Add Move Down Button */
+	addButtonToTable("quizCreatorDownBtn", entryIndex, 4, &MusicQuiz::CategoryCreator::moveEntryDown);
 
 	/** Add Tab */
 	_entries.insert(_entries.begin() + entryIndex, entry);
 	_tabWidget->insertTab(entryIndex + 1, entry, entryNameStr);
 
 	updateIndices();
+}
 
+void MusicQuiz::CategoryCreator::addButtonToTable(const QString& objectName, int row, int column, void (MusicQuiz::CategoryCreator::*releasedCallback)(void))
+{
+	QPushButton* btn = new QPushButton;
+	btn->setObjectName(objectName);
+	btn->setProperty("index", row);
+
+	QHBoxLayout* btnLayout = new QHBoxLayout;
+	btnLayout->addWidget(btn, Qt::AlignCenter);
+
+	QWidget* layoutWidget = new QWidget;
+	layoutWidget->setLayout(btnLayout);
+	_entriesTable->setCellWidget(row, column, layoutWidget);
+
+	if(releasedCallback) {
+		connect(btn, &QPushButton::released, this, releasedCallback);
+	}
 }
 
 void MusicQuiz::CategoryCreator::editEntry()
@@ -188,16 +180,11 @@ void MusicQuiz::CategoryCreator::editEntry()
 		return;
 	}
 
-	QPushButton* button = qobject_cast<QPushButton*>(sender());
-	if ( button == nullptr ) {
-		return;
-	}
-
 	/** Get Number of Categories */
 	const int entryCount = _entriesTable->rowCount();
 
 	/** Get Index */
-	const int index = button->property("index").toInt();
+	const int index = getSenderIdx();
 	if ( index >= _tabWidget->count() || index >= entryCount ) {
 		return;
 	}
@@ -206,6 +193,31 @@ void MusicQuiz::CategoryCreator::editEntry()
 	_tabWidget->setCurrentIndex(index + 1);
 }
 
+void MusicQuiz::CategoryCreator::removeEntry()
+{
+	if ( _entriesTable == nullptr ) {
+		return;
+	}
+
+	const int index = getSenderIdx();
+	if(index >= _entriesTable->rowCount()) {
+		return;
+	}
+
+	QLineEdit* lineEdit = qobject_cast<QLineEdit*>(_entriesTable->cellWidget(index, 0));
+	if ( lineEdit == nullptr ) {
+		return;
+	}
+
+	/** Popup to ensure the user wants to delete the entry */
+	QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Delete Entry?", "Are you sure you want to delete entry '" + lineEdit->text() + "'?",
+		QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
+	if ( resBtn != QMessageBox::Yes ) {
+		return;
+	}
+
+	removeEntry(index);
+}
 void MusicQuiz::CategoryCreator::removeEntry(int index)
 {
 	/** Sanity Check */
@@ -213,36 +225,8 @@ void MusicQuiz::CategoryCreator::removeEntry(int index)
 		return;
 	}
 
-
-	/** Get Number of Entries */
-	const int entryCount = _entriesTable->rowCount();
-	bool ask = false;
-	/** Get Index */
-	if(index < 0) {
-		ask = true;
-		QPushButton* button = qobject_cast<QPushButton*>(sender());
-		if ( button == nullptr ) {
-			return;
-		}
-		index = button->property("index").toInt();
-	}
-	if ( index >= _tabWidget->count() || index >= entryCount ) {
+	if ( index >= _tabWidget->count() || index >= _entriesTable->rowCount() || index < 0) {
 		return;
-	}
-
-	/** Get Entry Name */
-	QLineEdit* lineEdit = qobject_cast<QLineEdit*>(_entriesTable->cellWidget(index, 0));
-	if ( lineEdit == nullptr ) {
-		return;
-	}
-
-	/** Popup to ensure the user wants to delete the entry */
-	if(ask) {
-		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Delete Entry?", "Are you sure you want to delete entry '" + lineEdit->text() + "'?",
-			QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
-		if ( resBtn != QMessageBox::Yes ) {
-			return;
-		}
 	}
 
 	/** Delete Entry in table */
@@ -283,35 +267,57 @@ void MusicQuiz::CategoryCreator::updateIndices(int deleteIndex)
 
 void MusicQuiz::CategoryCreator::moveEntryUp()
 {
+	const int idx = getSenderIdx();
+	swapEntries(idx, idx -1);
+}
+
+void MusicQuiz::CategoryCreator::moveEntryDown()
+{
+	const int idx = getSenderIdx();
+	swapEntries(idx, idx + 1);
+}
+
+
+int MusicQuiz::CategoryCreator::getSenderIdx() const
+{
+	const QPushButton* const button = qobject_cast<QPushButton*>(sender());
+	if ( button == nullptr ) {
+		return -1;
+	}
+
+	return button->property("index").toInt();
+}
+
+void MusicQuiz::CategoryCreator::swapEntries(int firstIdx, int secondIdx)
+{
 	/** Sanity Check */
 	if ( _entriesTable == nullptr ) {
 		return;
 	}
 
-	QPushButton* button = qobject_cast<QPushButton*>(sender());
-	if ( button == nullptr ) {
+	std::vector<int> indexes {firstIdx, secondIdx};
+	for(auto idx : indexes) {
+		if ( idx < 0                          ||
+			 idx >= _tabWidget->count()       || 
+			 idx >= _entriesTable->rowCount() || 
+			 idx >= static_cast<int>(_entries.size()) ) {
+			return; 
+		}
+	}
+	if(firstIdx == secondIdx) {
 		return;
 	}
-
-	/** Get Index */
-	const int index = button->property("index").toInt();
-	if ( index >= _tabWidget->count() || index >= _entriesTable->rowCount() || index >= static_cast<int>(_entries.size()) ) {
-		return;
+	if(firstIdx > secondIdx) {
+		std::swap(firstIdx, secondIdx);
 	}
 
-	// Do nothing if this is the only entry
-	if(index <= 0) {
-		return;
-	}
+	auto firstEntry = _entries[firstIdx];
+	auto secondEntry = _entries[secondIdx];
 
-	//Swap with entry above
-	auto firstEntry = _entries[index];
-	auto secondEntry = _entries[index -1];
-
-	removeEntry(index);
-	removeEntry(index - 1);
-	addEntry(secondEntry, index - 1);
-	addEntry(firstEntry, index - 1);
+	removeEntry(secondIdx);
+	removeEntry(firstIdx);
+	addEntry(secondEntry, firstIdx);
+	addEntry(firstEntry, secondIdx);
 }
 
 void MusicQuiz::CategoryCreator::updateEntryTabName(const QString& str)

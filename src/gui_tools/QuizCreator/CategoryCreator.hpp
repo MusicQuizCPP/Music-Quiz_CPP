@@ -119,15 +119,33 @@ namespace MusicQuiz {
 		void editEntry();
 
 		/**
-		 * @brief Removes a entry.
-		 * @param[in] index index of entry to move. If not giving, obtain index from sender
+		 * @brief Removes a entry. Index is obtained by sender
 		 */
-		void removeEntry(int index = -1);
+		void removeEntry();
+
+		/**
+		 * @brief Removes a entry.
+		 * @param[in] index index of entry to remove.
+		 */
+		void removeEntry(int index);
 
 		/**
 		 * @brief Moves an entry up.
 		 */
 		void moveEntryUp();
+
+		/**
+		 * @brief Moves an entry down.
+		 */
+		void moveEntryDown();
+
+		/**
+		 * @brief Swap Entries.
+		 * @param[in] firstIdx index of first entry
+		 * @param[in] secondIdx index of second entry
+		 */
+
+		void swapEntries(int firstIdx, int secondIdx);
 
 		/**
 		 * @brief Update indices.
@@ -138,7 +156,7 @@ namespace MusicQuiz {
 		/**
 		 * @brief Updates the name of the tab.
 		 *
-		 * param[in] str The new name.
+		 * @param[in] str The new name.
 		 */
 		void updateEntryTabName(const QString& str);
 
@@ -147,6 +165,22 @@ namespace MusicQuiz {
 		 * @brief Creates the category layout.
 		 */
 		void createLayout();
+
+		/**
+		 * @brief Get index of sender which triggered a slot.
+		 */
+		int getSenderIdx() const;
+
+		/**
+		 * @brief Add a button to the entry table.
+		 * @param[in] objectName the name of the object to insert.
+		 * @param[in] row row to insert at.
+		 * @param[in] column column to insert at.
+		 * @param[in] releasedCallback function to call when button is released.
+
+		 */
+
+		void addButtonToTable(const QString& objectName, int row, int column, void (MusicQuiz::CategoryCreator::*releasedCallback)(void));
 
 		/** Variables */
 		QString _categoryName = "";
