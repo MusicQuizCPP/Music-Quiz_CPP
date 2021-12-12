@@ -19,18 +19,40 @@ NodeInfoMessage::NodeInfoMessage(boost::asio::mutable_buffer& buffer)
 
 	buffer += sizeof(nodeCnt);
 
-	size_t expectedSize = nodeCnt * LightControlNode::getNodeChunkSize();
-	if ( buffer.size() != expectedSize ) {
-		LOG_ERROR("Received Node info message with unexpected size. Received " + std::to_string(buffer.size()) + ". Expected " + std::to_string(expectedSize));
+	size_t expectedSizeV0 = nodeCnt * LightControlNode::getNodeChunkSizeV0();
+	size_t expectedSizeV1 = nodeCnt * LightControlNode::getNodeChunkSizeV1();
+	int version = 0;
+
+	if ( buffer.size() == expectedSizeV0 ) {
+		version = 0;
+	}
+	else if(buffer.size() == expectedSizeV1)
+	{
+		version = 1;
 	}
 
+	else {
+		LOG_ERROR("Received Node info message with unexpected size. Received " + std::to_string(buffer.size()) + ". Expected " + \
+			std::to_string(expectedSizeV0) + " or " + std::to_string(expectedSizeV1));
+		return;
+	}
 	for ( size_t i = 0; i < nodeCnt; i++ ) {
-		nodes.push_back(LightControlNode(buffer));
-		buffer += LightControlNode::getNodeChunkSize();
+		nodes.push_back(LightControlNode(buffer, version));
+		switch(version)
+		{
+			case 0:
+				buffer += LightControlNode::getNodeChunkSizeV0();
+				break;
+			case 1:
+				buffer += LightControlNode::getNodeChunkSizeV1();
+				break;
+		}
+		
 	}
 }
 
-LightControlNode::LightControlNode(boost::asio::mutable_buffer& buffer)
+
+LightControlNode::LightControlNode(boost::asio::mutable_buffer& buffer, int version)
 {
 	memcpy(_macAddr, buffer.data(), sizeof(_macAddr));
 	buffer += sizeof(_macAddr);
@@ -64,8 +86,11 @@ LightControlNode::LightControlNode(boost::asio::mutable_buffer& buffer)
 	/** Skip left length */
 	buffer += 2;
 
-	/** Skip right length */
-	buffer += 2;
+	if(version == 0)
+	{
+		/** Skip right length */
+		buffer += 2;
+	}
 
 	_localMode = static_cast<LightMode>(*static_cast<uint8_t*>(buffer.data()));
 	buffer += 1;
@@ -82,17 +107,23 @@ LightControlNode::LightControlNode(boost::asio::mutable_buffer& buffer)
 	/** Skip left panel width */
 	buffer += 1;
 
-	/** Skip right panel height */
-	buffer += 1;
+	if(version == 0)
+	{
+		/** Skip right panel height */
+		buffer += 1;
 
-	/** Skip right panel width */
-	buffer += 1;
+		/** Skip right panel width */
+		buffer += 1;
+	}
 
 	/** Skip left ring settings */
 	buffer += 20;
 
-	/** Skip right ring settings */
-	buffer += 20;
+	if(version == 0)
+	{
+		/** Skip right ring settings */
+		buffer += 20;
+	}
 
 	_lightType = static_cast<LightType>(*static_cast<uint8_t*>(buffer.data()));
 }

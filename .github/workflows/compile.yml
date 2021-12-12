@@ -21,7 +21,6 @@ jobs:
           env: APPIMAGE_NAME=MusicQuizGUI.AppImage
         - os: windows-latest
           releasefile: MusicQuizGUI.exe
-        - os: macos-latest
 
     steps:
     - uses: actions/checkout@v1
