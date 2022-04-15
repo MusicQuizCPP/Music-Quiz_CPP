@@ -10,7 +10,7 @@ using namespace LightControl;
 OnBoardLEDStrength::OnBoardLEDStrength(boost::asio::mutable_buffer& buffer)
 {
 	if ( buffer.size() < sizeof(float) ) {
-		LOG_ERROR("Received Onboard LED message with invalid size: " + buffer.size());
+		LOG_ERROR("Received Onboard LED message with invalid size: " + std::to_string(buffer.size()));
 	}
 
 	_strength = *static_cast<uint8_t*>(buffer.data());

@@ -10,7 +10,7 @@ using namespace LightControl;
 PulseMessage::PulseMessage(boost::asio::mutable_buffer& buffer)
 {
 	if ( buffer.size() < 6 ) {
-		LOG_ERROR("Received Pulse Message with invalid size: " + buffer.size());
+		LOG_ERROR("Received Pulse Message with invalid size: " + std::to_string(buffer.size()));
 	}
 
 	_pulseTime = std::chrono::milliseconds(*static_cast<uint32_t*>(buffer.data()));

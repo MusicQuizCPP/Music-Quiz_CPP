@@ -105,6 +105,24 @@ namespace MusicQuiz {
 		 */
 		void setTeamNumbers();
 
+		/**
+		 * @brief Get row number of the given team name
+		 * @param[in] teamName name of team
+		 * 
+		 * @return row number of team, -1 if not found
+		 */
+		int getTeamRow(const QVariant& teamName);
+
+		/**
+		 * @brief Make it possible for the user to add more teams
+		 */
+		void allowMoreTeams();
+
+		/**
+		 * @brief Disable the possibility for the user to add more teams
+		 */
+		void disallowMoreTeams();
+
 		/** Variables */
 		bool _quizClosed = false;
 		const size_t _maximumsNumberOfTeams = 6;

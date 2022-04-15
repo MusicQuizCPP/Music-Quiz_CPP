@@ -10,7 +10,7 @@ using namespace LightControl;
 RunningSectionsMessage::RunningSectionsMessage(boost::asio::mutable_buffer& buffer)
 {
 	if ( buffer.size() < 12 ) {
-		LOG_ERROR("Received Running Sections message with invalid size: " + buffer.size());
+		LOG_ERROR("Received Running Sections message with invalid size: " + std::to_string(buffer.size()));
 	}
 
 	_updateRate = std::chrono::milliseconds(*static_cast<uint32_t*>(buffer.data()));

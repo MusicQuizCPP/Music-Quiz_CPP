@@ -10,7 +10,7 @@ using namespace LightControl;
 GlitterMessage::GlitterMessage(boost::asio::mutable_buffer& buffer)
 {
 	if ( buffer.size() < 9 ) {
-		LOG_ERROR("Received Glitter Message with invalid size: " + buffer.size());
+		LOG_ERROR("Received Glitter Message with invalid size: " + std::to_string(buffer.size()));
 	}
 
 	_updateRate = std::chrono::microseconds(*static_cast<uint32_t*>(buffer.data()));

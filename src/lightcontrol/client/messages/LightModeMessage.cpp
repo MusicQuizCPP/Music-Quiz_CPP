@@ -9,7 +9,7 @@ using namespace LightControl;
 LightModeMessage::LightModeMessage(boost::asio::mutable_buffer& buffer)
 {
 	if ( buffer.size() < 8 ) {
-		LOG_ERROR("Received Light Mode Message with invalid size: " + buffer.size());
+		LOG_ERROR("Received Light Mode Message with invalid size: " + std::to_string(buffer.size()));
 	}
 
 	_mode = static_cast<LightMode>(*static_cast<uint8_t*>(buffer.data()));

@@ -32,12 +32,13 @@ namespace LightControl {
 		 *
 		 * @param[in] buffer containing data for node.
 		 */
-		LightControlNode(boost::asio::mutable_buffer& buffer);
+		LightControlNode(boost::asio::mutable_buffer& buffer, int version);
 
 		/**
 		 * @brief Get expected chucksize per node.
 		 */
-		static size_t getNodeChunkSize() { return 113; }
+		static size_t getNodeChunkSizeV0() { return 113; }
+		static size_t getNodeChunkSizeV1() { return 88; }
 
 		/**
 		 * @brief Get string representation of node info.

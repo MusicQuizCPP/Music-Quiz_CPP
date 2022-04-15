@@ -132,6 +132,7 @@ QPushButton#removeBtn
 QPushButton#quizCreatorRemoveBtn
 {
 	background-color	: rgba(0, 0, 0, 0);
+	border				: none;
 
 	min-height			: 22px;
 	min-width			: 22px;
@@ -142,6 +143,7 @@ QPushButton#quizCreatorRemoveBtn
 QPushButton#quizCreatorEditBtn
 {
 	background-color	: rgba(0, 0, 0, 0);
+	border				: none;
 
 	min-height			: 25px;
 	min-width			: 25px;
@@ -149,10 +151,32 @@ QPushButton#quizCreatorEditBtn
 	image				: url(:/imgs/edit_icon_black.png);
 }
 
+QPushButton#quizCreatorUpBtn
+{
+	background-color	: rgba(0, 0, 0, 0);
+	border				: none;
+
+	min-height			: 25px;
+	min-width			: 25px;
+
+	image				: url(:/imgs/up.png);
+}
+
+QPushButton#quizCreatorDownBtn
+{
+	background-color	: rgba(0, 0, 0, 0);
+	border				: none;
+
+	min-height			: 25px;
+	min-width			: 25px;
+
+	image				: url(:/imgs/down.png);
+}
+
 QPushButton#quizCreatorAddBtn
 {
 	background-color	: rgba(0, 0, 0, 0);
-
+	border				: none;
 	min-height			: 18px;
 	min-width			: 18px;
 
@@ -163,7 +187,7 @@ QPushButton#quizCreatorBrowseBtn
 {
 	min-height			: 40px;
 	min-width			: 40px;
-
+	border                         : 1px solid grey;
 	image				: url(:/imgs/browse_file_icon.png);
 }
 
@@ -171,7 +195,7 @@ QPushButton#quizCreatorPlayBtn
 {
 	min-height			: 40px;
 	min-width			: 40px;
-
+	border                         : 1px solid grey;
 	image				: url(:/imgs/play_icon.png);
 }
 
@@ -179,7 +203,7 @@ QPushButton#quizCreatorPauseBtn
 {
 	min-height			: 40px;
 	min-width			: 40px;
-
+	border                         : 1px solid grey;
 	image				: url(:/imgs/pause_icon.png);
 }
 
@@ -189,7 +213,7 @@ QPushButton#quizCreatorStopBtn
 
 	min-height			: 40px;
 	min-width			: 40px;
-
+	border                         : 1px solid grey;
 	image				: url(:/imgs/stop_icon.png);
 }
 
@@ -209,11 +233,13 @@ QPushButton#settingsInfo
 	max-width			: 25px;
 
 	image				: url(:/imgs/question_mark_yellow.png);
+	border				: none;
 }
 
 QPushButton#settingsInfo:disabled
 {
 	image				: url(:/imgs/question_mark_yellow_disabled.png);
+	border				: none;
 }
 
 

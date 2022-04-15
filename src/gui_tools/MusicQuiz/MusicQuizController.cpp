@@ -31,7 +31,7 @@ MusicQuiz::MusicQuizController::MusicQuizController(const common::Configuration&
 
 	/** Create Video Player */
 	_videoPlayer = std::make_shared<media::VideoPlayer>();
-	_videoPlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint | Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint);
+	_videoPlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint | Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
 
 	/** Set Video Player Size */
 	const QRect screenRec = QGuiApplication::primaryScreen()->geometry();
