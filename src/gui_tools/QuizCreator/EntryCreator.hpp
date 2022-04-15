@@ -420,5 +420,8 @@ namespace MusicQuiz {
 		const std::vector< QString > _validVideoFormats = { ".mp4" };
 
 		const common::Configuration& _config;
+
+		QWidget* _songLayout = nullptr;
+		QWidget* _videoLayout = nullptr;
 	};
 }
