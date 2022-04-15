@@ -18,8 +18,8 @@
 #include "gui_tools/QuizCreator/EntryCreator.hpp"
 
 
-MusicQuiz::CategoryCreator::CategoryCreator(const QString& name, const media::AudioPlayer::Ptr& audioPlayer, const common::Configuration& config, QWidget* parent) :
-	QWidget(parent), _categoryName(name), _audioPlayer(audioPlayer), _config(config)
+MusicQuiz::CategoryCreator::CategoryCreator(const QString& name, const media::AudioPlayer::Ptr& audioPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, QWidget* parent) :
+	QWidget(parent), _categoryName(name), _audioPlayer(audioPlayer), _textToSpeechPlayer(textToSpeechPlayer), _config(config)
 {
 	/** Create Layout */
 	createLayout();
@@ -39,7 +39,7 @@ MusicQuiz::CategoryCreator::CategoryCreator(const boost::property_tree::ptree &t
 		for ( ; it != tree.end(); ++it ) {
 			try {
 				if ( it->first == "QuizEntry" ) {
-					categorieEntries.push_back(new MusicQuiz::EntryCreator(it->second, _audioPlayer, _config, this));
+					categorieEntries.push_back(new MusicQuiz::EntryCreator(it->second, _audioPlayer, _textToSpeechPlayer, _config, this));
 				}
 			} catch ( ... ) {}
 		}
@@ -114,7 +114,7 @@ void MusicQuiz::CategoryCreator::addEntry(MusicQuiz::EntryCreator* entry, int en
 	if(entry == nullptr) {
 		entryNameStr = "Entry " + QString::number(entryIndex + 1);
 		const int points = (entryIndex + 1) * 100;
-		entry = new MusicQuiz::EntryCreator(entryNameStr, points, _audioPlayer, _config, this);
+		entry = new MusicQuiz::EntryCreator(entryNameStr, points, _audioPlayer, _textToSpeechPlayer, _config, this);
 	} else {
 		entryNameStr = entry->getName();
 	}

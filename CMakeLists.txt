@@ -70,8 +70,6 @@ else()
 endif()
 
 
-
-
 ### find the files
 SET(SRC_FILES CACHE INTERNAL "" FORCE)
 ADD_SUBDIRECTORY(src)

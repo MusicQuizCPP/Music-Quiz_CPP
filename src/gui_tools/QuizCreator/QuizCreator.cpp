@@ -68,6 +68,9 @@ MusicQuiz::QuizCreator::QuizCreator(const common::Configuration& config, QWidget
 	_videoPlayer->setMinimumSize(QSize(screenRec.width() / 4, screenRec.height() / 4));
 	_videoPlayer->resize(QSize(screenRec.width() / 4, screenRec.height() / 4));
 
+	/** Create Text To Speech Player */
+	_textToSpeechPlayer = make_shared<media::TextToSpeechPlayer>();
+
 	/** Create Layout */
 	createLayout();
 }
@@ -263,7 +266,7 @@ void MusicQuiz::QuizCreator::addCategory()
 	_categoriesTable->setCellWidget(categoryCount, 2, layoutWidget);
 
 	/** Add Tab */
-	MusicQuiz::CategoryCreator* category = new MusicQuiz::CategoryCreator(categoryNameStr, _audioPlayer, _config);
+	MusicQuiz::CategoryCreator* category = new MusicQuiz::CategoryCreator(categoryNameStr, _audioPlayer, _textToSpeechPlayer, _config);
 	_categories.push_back(category);
 	_tabWidget->addTab(category, categoryNameStr);
 }
@@ -767,6 +770,7 @@ void MusicQuiz::QuizCreator::previewQuiz()
 	/** Stop Song */
 	_audioPlayer->stop();
 	_videoPlayer->stop();
+	_textToSpeechPlayer->stop();
 
 	/** Check that quiz have been saved */
 	const string quizName = _quizNameLineEdit->text().toStdString();
@@ -782,7 +786,7 @@ void MusicQuiz::QuizCreator::previewQuiz()
 
 	/** Create Quiz Preview */
 	try {
-		_previewQuizBoard = MusicQuiz::QuizFactory::createQuiz(quizPath, settings, _audioPlayer, _videoPlayer, _config, {}, true, this);
+		_previewQuizBoard = MusicQuiz::QuizFactory::createQuiz(quizPath, settings, _audioPlayer, _videoPlayer, _textToSpeechPlayer, _config, {}, true, this);
 		if ( _previewQuizBoard == nullptr ) {
 			QMessageBox::warning(this, "Info", "Failed to preview quiz.");
 			return;
@@ -818,6 +822,11 @@ void MusicQuiz::QuizCreator::stopQuizPreview()
 	if ( _videoPlayer != nullptr ) {
 		_videoPlayer->stop();
 		_videoPlayer->hide();
+	}
+
+	/** Stop Text to Speech */
+	if ( _textToSpeechPlayer != nullptr ) {
+		_textToSpeechPlayer->stop();
 	}
 
 	/** Stop Quiz */

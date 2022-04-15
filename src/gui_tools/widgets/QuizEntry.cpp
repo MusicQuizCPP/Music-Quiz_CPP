@@ -33,9 +33,6 @@ MusicQuiz::QuizEntry::QuizEntry(const QString& audioFile, const QString& answer,
 
 	/** Set Entry Type */
 	_type = EntryType::Song;
-
-	/** Set Start Width */
-	//_startWidth = width();
 }
 
 MusicQuiz::QuizEntry::QuizEntry(const QString& audioFile, const QString& videoFile, const QString& answer, size_t points, size_t songStartTime, size_t videoStartTime, size_t answerStartTime,
@@ -70,6 +67,30 @@ MusicQuiz::QuizEntry::QuizEntry(const QString& audioFile, const QString& videoFi
 
 	/** Create Callback Function */
 	_mouseEventCallback = std::bind(&MusicQuiz::QuizEntry::handleMouseEvent, this, std::placeholders::_1);
+}
+
+MusicQuiz::QuizEntry::QuizEntry(const QString& string, const QString& answer, const size_t points, const size_t answerStartCharacter, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, QWidget* parent) :
+	QPushButton(parent), _points(points), _speechString(string), _answerStartCharacter(answerStartCharacter), _answer(answer), _textToSpeech(textToSpeechPlayer)
+{
+	/** Sanity Check */
+	if ( _textToSpeech == nullptr ) {
+		throw std::runtime_error("Failed to create quiz entry. Invalid text to speech player.");
+	}
+
+	/** Set Button Text */
+	setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
+
+	/** Set Start State */
+	_state = EntryState::IDLE;
+
+	/** Set Object Name */
+	setObjectName("QuizEntry");
+
+	/** Set Size Policy */
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+	/** Set Entry Type */
+	_type = EntryType::TextToSpeech;
 }
 
 void MusicQuiz::QuizEntry::mouseReleaseEvent(QMouseEvent* event)

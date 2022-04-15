@@ -117,7 +117,7 @@ QuizLoader::QuizPreview QuizLoader::getQuizPreview(size_t idx, const common::Con
 }
 
 vector<MusicQuiz::QuizCategory*> QuizLoader::loadQuizCategories(const size_t idx, const media::AudioPlayer::Ptr& audioPlayer,
-	const media::VideoPlayer::Ptr& videoPlayer, const common::Configuration& config, string& err)
+	const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, string& err)
 {
 	/** Get List of Quizzes */
 	const vector<string> quizList = getListOfQuizzes(config);

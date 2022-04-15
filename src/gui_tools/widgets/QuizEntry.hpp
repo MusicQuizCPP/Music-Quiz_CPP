@@ -11,6 +11,7 @@
 
 #include "media/AudioPlayer.hpp"
 #include "media/VideoPlayer.hpp"
+#include "media/TextToSpeechPlayer.hpp"
 
 #include "common/Log.hpp"
 class QMouseEvent;
@@ -23,13 +24,13 @@ namespace MusicQuiz {
 		/**
 		 * @brief Entry Type Song Constructor
 		 *
-		 * @param[in] audioFile The audio file to play.
-		 * @param[in] answer The entry anwser.
-		 * @param[in] points The number of points obtained by guessing the entry.
-		 * @param[in] startTime The start time of the media in [ms].
+		 * @param[in] audioFile       The audio file to play.
+		 * @param[in] answer          The entry anwser.
+		 * @param[in] points          The number of points obtained by guessing the entry.
+		 * @param[in] startTime       The start time of the media in [ms].
 		 * @param[in] answerStartTime The answer media start time in [ms].
-		 * @param[in] audioPlayer The audio player.
-		 * @param[in] parent The parent widget.
+		 * @param[in] audioPlayer     The audio player.
+		 * @param[in] parent          The parent widget.
 		 */
 		explicit QuizEntry(const QString& audioFile, const QString& answer, size_t points, size_t startTime, size_t answerStartTime,
 			const std::shared_ptr< media::AudioPlayer >& audioPlayer, QWidget* parent = nullptr);
@@ -37,19 +38,33 @@ namespace MusicQuiz {
 		/**
 		 * @brief Entry Type Video Constructor
 		 *
-		 * @param[in] audioFile The audio file to play.
-		 * @param[in] videoFile The audio file to play.
-		 * @param[in] answer The entry anwser.
-		 * @param[in] points The number of points obtained by guessing the entry.
-		 * @param[in] songStartTime The start time of the media in [ms].
-		 * @param[in] videoStartTime The start time of the media in [ms].
+		 * @param[in] audioFile       The audio file to play.
+		 * @param[in] videoFile       The audio file to play.
+		 * @param[in] answer          The entry anwser.
+		 * @param[in] points          The number of points obtained by guessing the entry.
+		 * @param[in] songStartTime   The start time of the media in [ms].
+		 * @param[in] videoStartTime  The start time of the media in [ms].
 		 * @param[in] answerStartTime The answer media start time in [ms].
-		 * @param[in] audioPlayer The audio player.
-		 * @param[in] videoPlayer The video player.
-		 * @param[in] parent The parent widget.
+		 * @param[in] audioPlayer     The audio player.
+		 * @param[in] videoPlayer     The video player.
+		 * @param[in] parent          The parent widget.
 		 */
 		explicit QuizEntry(const QString& audioFile, const QString& videoFile, const QString& answer, size_t points, size_t songStartTime, size_t videoStartTime, size_t answerStartTime,
 			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer, QWidget* parent = nullptr);
+
+
+		/**
+		 * @brief Entry Type Text to Speech Constructor
+		 *
+		 * @param[in] string               The string to say.
+		 * @param[in] answer               The entry anwser.
+		 * @param[in] points               The number of points obtained by guessing the entry.
+		 * @param[in] answerStartCharacter The index of the start character of the answer.
+		 * @param[in] textToSpeechPlayer   The audio player.
+		 * @param[in] parent               The parent widget.
+		 */
+		explicit QuizEntry(const QString& string, const QString& answer, size_t points, size_t answerStartCharacter,
+			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Default Destructor
@@ -71,7 +86,7 @@ namespace MusicQuiz {
 		};
 
 		enum class EntryType {
-			Song = 0, Video = 1
+			Song = 0, Video = 1, TextToSpeech = 2
 		};
 
 		/**
@@ -157,18 +172,22 @@ namespace MusicQuiz {
 		size_t _videoStartTime = 0;
 		size_t _answerStartTime = 0;
 
+		size_t _answerStartCharacter = 0;
+
 		QString _answer = "";
 		bool _entryAnswered = false;
 		QColor _answeredColor = QColor(0, 0, 120);
 
 		QString _audioFile = "";
 		QString _videoFile = "";
+		QString _speechString = "";
 
 		EntryType _type = EntryType::Song;
 		EntryState _state = EntryState::IDLE;
 
 		std::shared_ptr< media::AudioPlayer > _audioPlayer = nullptr;
-		std::shared_ptr < media::VideoPlayer > _videoPlayer = nullptr;
+		std::shared_ptr< media::VideoPlayer > _videoPlayer = nullptr;
+		std::shared_ptr< media::TextToSpeechPlayer > _textToSpeech = nullptr;
 
 		std::function< void(QMouseEvent*) > _mouseEventCallback;
 

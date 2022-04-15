@@ -27,7 +27,7 @@
 using namespace std;
 
 MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const string& quizName, const QuizSettings& settings, const media::AudioPlayer::Ptr& audioPlayer,
-	const media::VideoPlayer::Ptr& videoPlayer, const common::Configuration& config, const vector<MusicQuiz::QuizTeam*>& teams, bool preview, QWidget* parent)
+	const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, const vector<MusicQuiz::QuizTeam*>& teams, bool preview, QWidget* parent)
 {
 	/** Get List of Quizzes */
 	vector<string> quizList = MusicQuiz::util::QuizLoader::getListOfQuizzes(config);
@@ -53,11 +53,11 @@ MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const string& quizName,
 	}
 
 	/** Create Quiz */
-	return createQuiz(idx, settings, audioPlayer, videoPlayer, config, teams, preview, parent);
+	return createQuiz(idx, settings, audioPlayer, videoPlayer, textToSpeechPlayer, config, teams, preview, parent);
 }
 
 MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const size_t idx, const QuizSettings& settings, const media::AudioPlayer::Ptr& audioPlayer,
-	const media::VideoPlayer::Ptr& videoPlayer, const common::Configuration& config, const vector<MusicQuiz::QuizTeam*>& teams, bool preview, QWidget* parent)
+	const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, const vector<MusicQuiz::QuizTeam*>& teams, bool preview, QWidget* parent)
 {
 	/** Seed Rand */
 	srand(static_cast<unsigned int>(time(NULL)));
@@ -67,7 +67,7 @@ MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const size_t idx, const
 
 	/** Load Categories */
 	string loadError;
-	vector<MusicQuiz::QuizCategory*> categories = MusicQuiz::util::QuizLoader::loadQuizCategories(idx, audioPlayer, videoPlayer, config, loadError);
+	vector<MusicQuiz::QuizCategory*> categories = MusicQuiz::util::QuizLoader::loadQuizCategories(idx, audioPlayer, videoPlayer, textToSpeechPlayer, config, loadError);
 	if ( !loadError.empty() ) {
 		QMessageBox::information(nullptr, "Info", "Incomplete Quiz:\n\n" + QString::fromStdString(loadError));
 	}

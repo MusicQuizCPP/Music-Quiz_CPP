@@ -9,7 +9,10 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include "media/AudioPlayer.hpp"
+#include "media/TextToSpeechPlayer.hpp"
+
 #include "gui_tools/GuiUtil/QExtensions/QTabWidgetExtender.hpp"
+
 
 namespace common {
 	class Configuration;
@@ -30,7 +33,7 @@ namespace MusicQuiz {
 		 * @param[in] config configuration.
 		 * @param[in] parent The parent widget.
 		 */
-		explicit CategoryCreator(const QString& name, const std::shared_ptr< media::AudioPlayer >& audioPlayer, 
+		explicit CategoryCreator(const QString& name, const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer,
 			const common::Configuration& config, QWidget* parent = nullptr);
 
 		/**
@@ -104,7 +107,6 @@ namespace MusicQuiz {
 		 * 
 		 * @return the serialized ptree
 		 */
-
 		boost::property_tree::ptree saveToXml(const std::string savePath, const std::string& xmlPath);
 
 	private slots:
@@ -177,9 +179,7 @@ namespace MusicQuiz {
 		 * @param[in] row row to insert at.
 		 * @param[in] column column to insert at.
 		 * @param[in] releasedCallback function to call when button is released.
-
 		 */
-
 		void addButtonToTable(const QString& objectName, int row, int column, void (MusicQuiz::CategoryCreator::*releasedCallback)(void));
 
 		/** Variables */
@@ -192,6 +192,7 @@ namespace MusicQuiz {
 		std::vector< MusicQuiz::EntryCreator* > _entries;
 
 		std::shared_ptr< media::AudioPlayer > _audioPlayer = nullptr;
+		std::shared_ptr< media::TextToSpeechPlayer > _textToSpeechPlayer = nullptr;
 
 		const common::Configuration& _config;
 	};

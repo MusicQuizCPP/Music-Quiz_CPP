@@ -5,14 +5,14 @@
 #include <QString>
 #include <QWidget>
 #include <QObject>
-#include <QMediaPlayer>
+#include <QTextToSpeech>
 
 
 namespace media {
-	class AudioPlayer : public QWidget {
+	class TextToSpeechPlayer : public QWidget {
 		Q_OBJECT
 	public:
-		enum class AudioPlayState {
+		enum class TextToSpeechPlayState {
 			IDLE = 1,		// Default
 			PLAYING = 2,
 			PAUSED = 3
@@ -23,31 +23,31 @@ namespace media {
 		 *
 		 * @param[in] parent The parent widget.
 		 */
-		explicit AudioPlayer(QWidget* parent = nullptr);
+		explicit TextToSpeechPlayer(QWidget* parent = nullptr);
 
 		/**
 		 * @brief destructor
 		 */
-		virtual ~AudioPlayer();
+		virtual ~TextToSpeechPlayer();
 
 		/**
 		 * @brief Shared Pointer
 		 */
-		typedef std::shared_ptr< AudioPlayer > Ptr;
+		typedef std::shared_ptr< TextToSpeechPlayer > Ptr;
 
 		/**
 		 * @brief Deleted the copy and assignment constructor.
 		 */
-		AudioPlayer(const AudioPlayer&) = delete;
-		AudioPlayer& operator=(const AudioPlayer&) = delete;
+		TextToSpeechPlayer(const TextToSpeechPlayer&) = delete;
+		TextToSpeechPlayer& operator=(const TextToSpeechPlayer&) = delete;
 
 		/**
-		 * @brief Plays a song.
+		 * @brief Says a string.
 		 *
-		 * @param[in] audioFile The name of the audio file to play.
-		 * @param[in] startTime The time at which to start playing the audio file from.
+		 * @param[in] string    The string to say.
+		 * @param[in] startCharacter The character to start from.
 		 */
-		void play(const QString& audioFile, size_t startTime = 0);
+		void play(const QString& string, size_t startCharacter = 0);
 
 		/**
 		 * @brief Pauses the audio that is currently playing.
@@ -68,11 +68,11 @@ namespace media {
 		/**
 		 * @brief Handles media status changes
 		 */
-		void handleMediaStatus(QMediaPlayer::MediaStatus status);
+		void handleMediaStatus(QTextToSpeech::State status);
 
 	protected:
 		/** Variables */
-		QMediaPlayer* _player = nullptr;
-		AudioPlayState _state = AudioPlayState::IDLE;
+		QTextToSpeech* _textToSpeech = nullptr;
+		TextToSpeechPlayState _state = TextToSpeechPlayState::IDLE;
 	};
 }

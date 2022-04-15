@@ -15,20 +15,15 @@
 #include "common/Configuration.hpp"
 
 
-MusicQuiz::EntryCreator::EntryCreator(const QString& name, const int points, const media::AudioPlayer::Ptr& audioPlayer, const common::Configuration& config, QWidget* parent) :
-	QWidget(parent), _points(points), _entryName(name), _audioPlayer(audioPlayer), _config(config)
+MusicQuiz::EntryCreator::EntryCreator(const QString& name, const int points, const media::AudioPlayer::Ptr& audioPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, QWidget* parent) :
+	QWidget(parent), _points(points), _entryName(name), _audioPlayer(audioPlayer), _textToSpeechPlayer(textToSpeechPlayer), _config(config)
 {
 	/** Create Layout */
 	createLayout();
 }
 
-MusicQuiz::EntryCreator::EntryCreator(const boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, const common::Configuration& config, QWidget* parent) :
-	QWidget(parent), 
-	_points(tree.get<int>("Points")), 
-	_entryName(QString::fromStdString(tree.get<std::string>("<xmlattr>.name"))),
-	_audioPlayer(audioPlayer),
-	_config(config)
-
+MusicQuiz::EntryCreator::EntryCreator(const boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, QWidget* parent) :
+	QWidget(parent), _points(tree.get<int>("Points")), _entryName(QString::fromStdString(tree.get<std::string>("<xmlattr>.name"))),	_audioPlayer(audioPlayer),	_textToSpeechPlayer(textToSpeechPlayer), _config(config)
 {
 	createLayout();
 	const std::string type = tree.get<std::string>("<xmlattr>.type");
@@ -88,15 +83,19 @@ void MusicQuiz::EntryCreator::createLayout()
 	_buttonGroup = new QButtonGroup;
 	QRadioButton* songBtn = new QRadioButton("Song");
 	QRadioButton* videoBtn = new QRadioButton("Video");
+	QRadioButton* textToSpeechBtn = new QRadioButton("Text to Speech");
 	songBtn->setObjectName("quizCreatorRadioButton");
 	videoBtn->setObjectName("quizCreatorRadioButton");
+	textToSpeechBtn->setObjectName("quizCreatorRadioButton");
 	_buttonGroup->addButton(songBtn, 0);
 	_buttonGroup->addButton(videoBtn, 1);
+	_buttonGroup->addButton(textToSpeechBtn, 2);
 	connect(_buttonGroup, SIGNAL(buttonClicked(int)), this, SLOT(setEntryType(int)));
 	songBtn->setChecked(true);
 
 	typeLayout->addWidget(songBtn);
 	typeLayout->addWidget(videoBtn);
+	typeLayout->addWidget(textToSpeechBtn);
 	mainlayout->addItem(typeLayout, ++row, 0, 1, 2);
 
 	/** Song File Layout */
@@ -104,10 +103,15 @@ void MusicQuiz::EntryCreator::createLayout()
 	_songLayout->setLayout(createSongFileLayout());
 	mainlayout->addWidget(_songLayout, ++row, 0, 1, 2);
 
-	/** Video - File */
+	/** Video File Layout */
 	_videoLayout = new QWidget;
 	_videoLayout->setLayout(createVideoFileLayout());
 	mainlayout->addWidget(_videoLayout, ++row, 0, 1, 2);
+
+	/** Text to Speech Layout */
+	_textToSpeechLayout = new QWidget;
+	_textToSpeechLayout->setLayout(createTextToSpeechLayout());
+	mainlayout->addWidget(_textToSpeechLayout, ++row, 0, 1, 2);
 
 	/** Set Type to song */
 	setEntryType(0);
@@ -386,6 +390,88 @@ QGridLayout* MusicQuiz::EntryCreator::createVideoFileLayout()
 	return mainlayout;
 }
 
+QGridLayout* MusicQuiz::EntryCreator::createTextToSpeechLayout()
+{
+	/** Layout */
+	QGridLayout* mainlayout = new QGridLayout;
+	QHBoxLayout* textToSpeechLayout = new QHBoxLayout;
+	QGridLayout* textToSpeechSettingsLayout = new QGridLayout;
+	textToSpeechSettingsLayout->setHorizontalSpacing(5);
+	textToSpeechSettingsLayout->setVerticalSpacing(10);
+	mainlayout->setVerticalSpacing(10);
+	int row = 0;
+
+	/** Song - Lyrics */
+	QLabel* label = new QLabel("Song Lyrics:");
+	label->setObjectName("quizCreatorLabel");
+	mainlayout->addWidget(label, ++row, 0);
+
+	textToSpeechLayout->setSpacing(10);
+	_textToSpeechTextEdit = new QTextEdit;
+	_textToSpeechTextEdit->setObjectName("quizCreatorTextEdit");
+	_textToSpeechTextEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	//connect(_songFileLineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(checkSongFileName()));
+	textToSpeechLayout->addWidget(_textToSpeechTextEdit);
+	mainlayout->addItem(textToSpeechLayout, ++row, 0, 1, 2);
+
+	/** Video - Set Video Start */
+	label = new QLabel("Start:");
+	label->setObjectName("quizCreatorLabel");
+	textToSpeechSettingsLayout->addWidget(label, 0, 0, 1, 1);
+
+	/** Text to Speech Buttons - Play */
+	QPushButton* btn = new QPushButton;
+	btn->setProperty("type", "textToSpeech");
+	btn->setObjectName("quizCreatorPlayBtn");
+	connect(btn, SIGNAL(released()), this, SLOT(playText()));
+	textToSpeechSettingsLayout->addWidget(btn, 0, 2, 1, 1);
+
+	/** Text to Speech Buttons - Pause */
+	btn = new QPushButton;
+	btn->setObjectName("quizCreatorPauseBtn");
+	connect(btn, SIGNAL(released()), this, SLOT(pause()));
+	textToSpeechSettingsLayout->addWidget(btn, 0, 3, 1, 1);
+
+	/** Text to Speech Buttons - Stop */
+	btn = new QPushButton;
+	btn->setObjectName("quizCreatorStopBtn");
+	connect(btn, SIGNAL(released()), this, SLOT(stop()));
+	textToSpeechSettingsLayout->addWidget(btn, 0, 4, 1, 1);
+
+	/** Video - Set Video Start */
+	label = new QLabel("Answer:");
+	label->setObjectName("quizCreatorLabel");
+	textToSpeechSettingsLayout->addWidget(label, 1, 0, 1, 1);
+
+	/** Answer Text to Speech Buttons - Play */
+	btn = new QPushButton;
+	btn->setProperty("type", "textToSpeechAnswer");
+	btn->setObjectName("quizCreatorPlayBtn");
+	connect(btn, SIGNAL(released()), this, SLOT(playText()));
+	textToSpeechSettingsLayout->addWidget(btn, 1, 2, 1, 1);
+
+	/** Answer Text to Speech Buttons - Pause */
+	btn = new QPushButton;
+	btn->setObjectName("quizCreatorPauseBtn");
+	connect(btn, SIGNAL(released()), this, SLOT(pause()));
+	textToSpeechSettingsLayout->addWidget(btn, 1, 3, 1, 1);
+
+	/** Answer Text to Speech Buttons - Stop */
+	btn = new QPushButton;
+	btn->setObjectName("quizCreatorStopBtn");
+	connect(btn, SIGNAL(released()), this, SLOT(stop()));
+	textToSpeechSettingsLayout->addWidget(btn, 1, 4, 1, 1);
+
+	/** Add layout to settings widget */
+	_textToSpeechSettings = new QWidget;
+	_textToSpeechSettings->setEnabled(true);
+	_textToSpeechSettings->setLayout(textToSpeechSettingsLayout);
+	mainlayout->addWidget(_textToSpeechSettings, ++row, 0, 1, 2);
+
+	/** Set Layout */
+	return mainlayout;
+}
+
 void MusicQuiz::EntryCreator::playSong()
 {
 	/** Sanity Check */
@@ -443,32 +529,6 @@ void MusicQuiz::EntryCreator::playSong()
 
 	/** Play Song */
 	_audioPlayer->play(fileName, startTime);
-}
-
-void MusicQuiz::EntryCreator::pause()
-{
-	/** Pause Audio */
-	if ( _audioPlayer != nullptr ) {
-		_audioPlayer->pause();
-	}
-
-	/** Pause Video */
-	if ( _videoPlayer != nullptr ) {
-		_videoPlayer->pause();
-	}
-}
-
-void MusicQuiz::EntryCreator::stop()
-{
-	/** Stop Audio */
-	if ( _audioPlayer != nullptr ) {
-		_audioPlayer->stop();
-	}
-
-	/** Stop Video */
-	if ( _videoPlayer != nullptr ) {
-		_videoPlayer->stop();
-	}
 }
 
 void MusicQuiz::EntryCreator::playVideo()
@@ -529,6 +589,66 @@ void MusicQuiz::EntryCreator::playVideo()
 		/** Play Video */
 		_videoPlayer->play(videoFileName, videoStartTime);
 		_videoPlayer->show();
+	}
+}
+
+void MusicQuiz::EntryCreator::playText()
+{
+	/** Sanity Check */
+	QPushButton* button = qobject_cast<QPushButton*>(sender());
+	if ( button == nullptr || _textToSpeechPlayer == nullptr || _textToSpeechTextEdit == nullptr ) {
+		return;
+	}
+
+	/** Stop Media */
+	stop();
+
+	/** Get Type */
+	size_t startTime = 0;
+	QString string = _textToSpeechTextEdit->toPlainText();
+	const QString type = button->property("type").toString();
+	if ( type == "textToSpeechAnswer" ) {
+		/** Get Answer Start */
+		//startTime = toMSec(_answerStartTimeEdit->time());
+	}
+
+	/** Play Song */
+	_textToSpeechPlayer->play(string);
+}
+
+void MusicQuiz::EntryCreator::pause()
+{
+	/** Pause Audio */
+	if ( _audioPlayer != nullptr ) {
+		_audioPlayer->pause();
+	}
+
+	/** Pause Video */
+	if ( _videoPlayer != nullptr ) {
+		_videoPlayer->pause();
+	}
+
+	/** Pause Text to Speech */
+	if ( _textToSpeechPlayer != nullptr ) {
+		_textToSpeechPlayer->pause();
+	}
+}
+
+void MusicQuiz::EntryCreator::stop()
+{
+	/** Stop Audio */
+	if ( _audioPlayer != nullptr ) {
+		_audioPlayer->stop();
+	}
+
+	/** Stop Video */
+	if ( _videoPlayer != nullptr ) {
+		_videoPlayer->stop();
+	}
+
+	/** Stop Text to Speech */
+	if ( _textToSpeechPlayer != nullptr ) {
+		_textToSpeechPlayer->stop();
 	}
 }
 
@@ -765,25 +885,10 @@ void MusicQuiz::EntryCreator::setEntryType(int index)
 		/** Set Type */
 		_entryType = EntryType::Song;
 
-		/** Set Video Minimum Size */
-		_videoPlayer->setMinimumSize(QSize(0, 0));
-		_videoPlayer->resize(QSize(0, 0));
-
-		/** Enable Song Settings */
-		_songSettings->setEnabled(true);
-		_browseSongBtn->setEnabled(true);
-		_songFileLineEdit->setEnabled(true);
-
-		/** Disable Video Widgets */
-		_videoSettings->setEnabled(false);
-		_browseVideoBtn->setEnabled(false);
-		_browseVideoSongBtn->setEnabled(false);
-		_videoFileLineEdit->setEnabled(false);
-		_videoSongFileLineEdit->setEnabled(false);
-
 		/** Show / hide layouts */
 		_songLayout->show();
 		_videoLayout->hide();
+		_textToSpeechLayout->hide();
 	} else if ( index == 1 ) { // video
 		/** Set Type */
 		_entryType = EntryType::Video;
@@ -801,21 +906,18 @@ void MusicQuiz::EntryCreator::setEntryType(int index)
 		_videoPlayer->setMinimumSize(QSize(width / 2, height / 2));
 		_videoPlayer->resize(QSize(width / 2, height / 2));
 
-		/** Disable Song Settings */
-		_songSettings->setEnabled(false);
-		_browseSongBtn->setEnabled(false);
-		_songFileLineEdit->setEnabled(false);
-
-		/** Enable Video Widgets */
-		_videoSettings->setEnabled(true);
-		_browseVideoBtn->setEnabled(true);
-		_browseVideoSongBtn->setEnabled(true);
-		_videoFileLineEdit->setEnabled(true);
-		_videoSongFileLineEdit->setEnabled(true);
-
 		/** Show / hide layouts */
 		_videoLayout->show();
 		_songLayout->hide();
+		_textToSpeechLayout->hide();
+	} else if ( index == 2 ) { // text to speech
+		/** Set Type */
+		_entryType = EntryType::TextToSpeech;
+
+		/** Show / hide layouts */
+		_textToSpeechLayout->show();
+		_songLayout->hide();
+		_videoLayout->hide();
 	}
 
 	checkVideoFiles();

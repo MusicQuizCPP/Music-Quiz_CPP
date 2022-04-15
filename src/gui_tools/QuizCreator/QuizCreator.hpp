@@ -13,6 +13,8 @@
 
 #include "media/AudioPlayer.hpp"
 #include "media/VideoPlayer.hpp"
+#include "media/TextToSpeechPlayer.hpp"
+
 #include "QuizData.hpp"
 
 
@@ -192,6 +194,7 @@ namespace MusicQuiz {
 		/** Audio Player */
 		std::shared_ptr<media::AudioPlayer> _audioPlayer = nullptr;
 		std::shared_ptr<media::VideoPlayer> _videoPlayer = nullptr;
+		std::shared_ptr<media::TextToSpeechPlayer> _textToSpeechPlayer = nullptr;
 
 		/** Preview Quiz Board */
 		MusicQuiz::QuizBoard* _previewQuizBoard = nullptr;
