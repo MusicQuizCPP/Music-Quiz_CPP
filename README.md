@@ -6,10 +6,8 @@
   <a href="#coding-guidelines">Coding Guidelines</a>
 </p>
 
-
 <div align="center">
 
- 
 <img src="https://img.shields.io/badge/OS-linux%20%7C%20windows-009fe3??style=flat&labelColor=363D44" alt="Operating systems"/>[]() 
 [![Build](https://github.com/MusicQuizCPP/Music-Quiz_CPP/actions/workflows/compile.yml/badge.svg)](https://github.com/MusicQuizCPP/Music-Quiz_CPP/actions/workflows/compile.yml)
 [![GitHub branches](https://badgen.net/github/branches/MusicQuizCPP/Music-Quiz_CPP)](https://github.com/MusicQuizCPP/Music-Quiz_CPP)
@@ -17,8 +15,6 @@
 [![GitHub issues](https://img.shields.io/github/issues/MusicQuizCPP/Music-Quiz_CPP.svg)](https://GitHub.com/MusicQuizCPP/Music-Quiz_CPP/issues/)
 
 </div>
-
-
 
 ## About 
 
