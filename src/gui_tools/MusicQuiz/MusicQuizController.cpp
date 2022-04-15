@@ -94,7 +94,6 @@ MusicQuiz::MusicQuizController::~MusicQuizController()
 	if ( _quizWinningScreen != nullptr ) {
 		_quizWinningScreen->close();
 		_quizWinningScreen = nullptr;
-
 	}
 }
 
