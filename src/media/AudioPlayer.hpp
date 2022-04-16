@@ -12,12 +12,6 @@ namespace media {
 	class AudioPlayer : public QWidget {
 		Q_OBJECT
 	public:
-		enum class AudioPlayState {
-			IDLE = 1,		// Default
-			PLAYING = 2,
-			PAUSED = 3
-		};
-
 		/**
 		 * @brief Constructor
 		 *
@@ -71,6 +65,13 @@ namespace media {
 		void handleMediaStatus(QMediaPlayer::MediaStatus status);
 
 	protected:
+		/** Audio Play State */
+		enum class AudioPlayState {
+			IDLE = 1,		// Default
+			PLAYING = 2,
+			PAUSED = 3
+		};
+
 		/** Variables */
 		QMediaPlayer* _player = nullptr;
 		AudioPlayState _state = AudioPlayState::IDLE;

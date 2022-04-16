@@ -1,18 +1,25 @@
 #include "EntryCreator.hpp"
 
+#include <math.h>
+#include <functional>
 #include <filesystem>
 
 #include <QTime>
+#include <QVoice>
 #include <QLabel>
 #include <QString>
+#include <QVector>
 #include <QScrollArea>
 #include <QFileDialog>
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QRadioButton>
 #include <QMediaContent>
+#include <QTextToSpeech>
 
 #include "common/Configuration.hpp"
+
+#include "gui_tools/GuiUtil/QExtensions/QSliderWidget.hpp"
 
 
 MusicQuiz::EntryCreator::EntryCreator(const QString& name, const int points, const media::AudioPlayer::Ptr& audioPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, QWidget* parent) :
@@ -27,11 +34,12 @@ MusicQuiz::EntryCreator::EntryCreator(const boost::property_tree::ptree &tree, c
 {
 	createLayout();
 	const std::string type = tree.get<std::string>("<xmlattr>.type");
-	if(type == "song")
-	{
+	if ( type == "song" ) {
 		loadSongFromXml(tree);
-	} else if(type == "video") {
+	} else if ( type == "video" ) {
 		loadVideoFromXml(tree);
+	} else if ( type == "textToSpeech" ) {
+		loadTextToSpeechFromXml(tree);
 	}
 }
 
@@ -396,8 +404,7 @@ QGridLayout* MusicQuiz::EntryCreator::createTextToSpeechLayout()
 	QGridLayout* mainlayout = new QGridLayout;
 	QHBoxLayout* textToSpeechLayout = new QHBoxLayout;
 	QGridLayout* textToSpeechSettingsLayout = new QGridLayout;
-	textToSpeechSettingsLayout->setHorizontalSpacing(5);
-	textToSpeechSettingsLayout->setVerticalSpacing(10);
+	QGridLayout* textToSpeechAnswerSettingsLayout = new QGridLayout;
 	mainlayout->setVerticalSpacing(10);
 	int row = 0;
 
@@ -408,13 +415,19 @@ QGridLayout* MusicQuiz::EntryCreator::createTextToSpeechLayout()
 
 	textToSpeechLayout->setSpacing(10);
 	_textToSpeechTextEdit = new QTextEdit;
-	_textToSpeechTextEdit->setObjectName("quizCreatorTextEdit");
+	_textToSpeechTextEdit->setAcceptRichText(false);
+	_textToSpeechTextEdit->setObjectName("quizCreatorTextToSpeechTextEdit");
 	_textToSpeechTextEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	//connect(_songFileLineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(checkSongFileName()));
+	connect(_textToSpeechTextEdit, SIGNAL(textChanged()), this, SLOT(checkTextToSpeechLyrics()));
 	textToSpeechLayout->addWidget(_textToSpeechTextEdit);
 	mainlayout->addItem(textToSpeechLayout, ++row, 0, 1, 2);
 
-	/** Video - Set Video Start */
+	/** Answer Explanation Label */
+	label = new QLabel("Use '*' to mark the position of the answer (only one '*' is allowed).");
+	label->setObjectName("quizCreatorInformationLabel");
+	mainlayout->addWidget(label, ++row, 0, 1, 2);
+
+	/** Start */
 	label = new QLabel("Start:");
 	label->setObjectName("quizCreatorLabel");
 	textToSpeechSettingsLayout->addWidget(label, 0, 0, 1, 1);
@@ -438,35 +451,79 @@ QGridLayout* MusicQuiz::EntryCreator::createTextToSpeechLayout()
 	connect(btn, SIGNAL(released()), this, SLOT(stop()));
 	textToSpeechSettingsLayout->addWidget(btn, 0, 4, 1, 1);
 
-	/** Video - Set Video Start */
+	/** Add layout to settings widget */
+	_textToSpeechSettings = new QWidget;
+	_textToSpeechSettings->setEnabled(false);
+	_textToSpeechSettings->setLayout(textToSpeechSettingsLayout);
+	mainlayout->addWidget(_textToSpeechSettings, ++row, 0, 1, 2);
+
+	/** Answer */
 	label = new QLabel("Answer:");
 	label->setObjectName("quizCreatorLabel");
-	textToSpeechSettingsLayout->addWidget(label, 1, 0, 1, 1);
+	textToSpeechAnswerSettingsLayout->addWidget(label, 0, 0, 1, 1);
 
 	/** Answer Text to Speech Buttons - Play */
 	btn = new QPushButton;
 	btn->setProperty("type", "textToSpeechAnswer");
 	btn->setObjectName("quizCreatorPlayBtn");
 	connect(btn, SIGNAL(released()), this, SLOT(playText()));
-	textToSpeechSettingsLayout->addWidget(btn, 1, 2, 1, 1);
+	textToSpeechAnswerSettingsLayout->addWidget(btn, 0, 2, 1, 1);
 
 	/** Answer Text to Speech Buttons - Pause */
 	btn = new QPushButton;
 	btn->setObjectName("quizCreatorPauseBtn");
 	connect(btn, SIGNAL(released()), this, SLOT(pause()));
-	textToSpeechSettingsLayout->addWidget(btn, 1, 3, 1, 1);
+	textToSpeechAnswerSettingsLayout->addWidget(btn, 0, 3, 1, 1);
 
 	/** Answer Text to Speech Buttons - Stop */
 	btn = new QPushButton;
 	btn->setObjectName("quizCreatorStopBtn");
 	connect(btn, SIGNAL(released()), this, SLOT(stop()));
-	textToSpeechSettingsLayout->addWidget(btn, 1, 4, 1, 1);
+	textToSpeechAnswerSettingsLayout->addWidget(btn, 0, 4, 1, 1);
 
-	/** Add layout to settings widget */
-	_textToSpeechSettings = new QWidget;
-	_textToSpeechSettings->setEnabled(true);
-	_textToSpeechSettings->setLayout(textToSpeechSettingsLayout);
-	mainlayout->addWidget(_textToSpeechSettings, ++row, 0, 1, 2);
+	/** Add layout to answer settings widget */
+	_textToSpeechAnswerSettings = new QWidget;
+	_textToSpeechAnswerSettings->setEnabled(false);
+	_textToSpeechAnswerSettings->setLayout(textToSpeechAnswerSettingsLayout);
+	mainlayout->addWidget(_textToSpeechAnswerSettings, ++row, 0, 1, 2);
+
+	/** Pitch */
+	_pitchSlider = new gui_tools::GuiUtil::QSliderWidget("Pitch", -1.0, 1.0, 21, "", "", 1);
+	_pitchSlider->setValue(0.0);
+	mainlayout->addWidget(_pitchSlider, ++row, 0, 1, 2);
+
+	/** Rate */
+	_rateSlider = new gui_tools::GuiUtil::QSliderWidget("Playback Rate", -1.0, 1.0, 21, "", "", 1);
+	_rateSlider->setValue(0.0);
+	mainlayout->addWidget(_rateSlider, ++row, 0, 1, 2);
+
+	/** Voices - Label */
+	label = new QLabel("Voices:");
+	label->setObjectName("quizCreatorLabel");
+	mainlayout->addWidget(label, ++row, 0, 1, 2);
+
+	/** Voices - Set avaliable voices */
+	QGridLayout* voicesLayout = new QGridLayout;
+	_voiceButtonGroup = new QButtonGroup;
+	QVector< QVoice > availableVoices = _textToSpeechPlayer->availableVoices();
+	for ( size_t i = 0; i < availableVoices.size(); ++i ) {
+		/** Get Name */
+		const QString voiceName = availableVoices[i].name() + " (" + QVoice::genderName(availableVoices[i].gender()) + ", " + QVoice::ageName(availableVoices[i].age()) + ")";
+
+		/** Create Button */
+		QRadioButton* btn = new QRadioButton(voiceName);
+		btn->setObjectName("quizCreatorRadioButtonVoices");
+		btn->setProperty("voiceName", availableVoices[i].name());
+		if ( i == 0 ) {
+			btn->setChecked(true);
+		}
+		_voiceButtonGroup->addButton(btn, i);
+
+		/** Add button to layout */
+		voicesLayout->addWidget(btn, std::floor(i / 2), i % 2);
+	}
+
+	mainlayout->addItem(voicesLayout, ++row, 0, 1, 2);
 
 	/** Set Layout */
 	return mainlayout;
@@ -596,24 +653,42 @@ void MusicQuiz::EntryCreator::playText()
 {
 	/** Sanity Check */
 	QPushButton* button = qobject_cast<QPushButton*>(sender());
-	if ( button == nullptr || _textToSpeechPlayer == nullptr || _textToSpeechTextEdit == nullptr ) {
+	if ( button == nullptr || _textToSpeechPlayer == nullptr || _textToSpeechTextEdit == nullptr || _pitchSlider == nullptr || _rateSlider == nullptr ) {
 		return;
 	}
 
 	/** Stop Media */
 	stop();
 
-	/** Get Type */
-	size_t startTime = 0;
+	/** Get String */
 	QString string = _textToSpeechTextEdit->toPlainText();
-	const QString type = button->property("type").toString();
-	if ( type == "textToSpeechAnswer" ) {
-		/** Get Answer Start */
-		//startTime = toMSec(_answerStartTimeEdit->time());
+	if ( string.isEmpty() ) {
+		return;
+	}
+
+	/** Get Answer String */
+	const bool playAnswer = (button->property("type").toString() == "textToSpeechAnswer");
+
+	/** Get Settings */
+	media::TextToSpeechPlayer::TextToSpeechSettings settings;
+	settings._pitch = _pitchSlider->getValue();
+	settings._rate = _rateSlider->getValue();
+
+	/** Get Voice */
+	QAbstractButton* selectedButton = _voiceButtonGroup->checkedButton();
+	if ( selectedButton != nullptr ) {
+		const QString selectedVoice = selectedButton->property("voiceName").toString();
+		const QVector< QVoice > availableVoices = _textToSpeechPlayer->availableVoices();
+		for ( size_t i = 0; i < availableVoices.size(); ++i ) {
+			if ( selectedVoice == availableVoices[i].name() ) {
+				settings._voice = availableVoices[i];
+				break;
+			}
+		}	
 	}
 
 	/** Play Song */
-	_textToSpeechPlayer->play(string);
+	_textToSpeechPlayer->play(string, settings, playAnswer);
 }
 
 void MusicQuiz::EntryCreator::pause()
@@ -809,6 +884,48 @@ void MusicQuiz::EntryCreator::checkVideoFiles()
 	}
 }
 
+void MusicQuiz::EntryCreator::checkTextToSpeechLyrics()
+{
+	/** Sanity Check */
+	if ( _textToSpeechTextEdit == nullptr ) {
+		return;
+	}
+
+	/** Get string */
+	const QString string = _textToSpeechTextEdit->toPlainText();
+
+	/** Check if lyrics are valid */
+	bool textValid = true;
+	bool answerValid = true;
+
+	if ( string.isEmpty() ) {
+		textValid = false;
+		answerValid = false;
+	}
+
+	if ( string.count("*") != 1 ) {
+		answerValid = false;
+	}
+
+	/** Get text color */
+	QColor textColor = QColor(0, 0, 0);
+	if ( !textValid || !answerValid ) {
+		textColor = QColor(255, 0, 0);
+	}
+
+	/** Set Text Edit Color */
+	_textToSpeechTextEdit->setStyleSheet("color: rgb(" + QString::number(textColor.red()) + "," + QString::number(textColor.green()) + "," + QString::number(textColor.blue()) + ");");
+
+	/** Set Widget enabled / disabled */
+	if ( textValid != _textToSpeechSettings->isEnabled() ) {
+		_textToSpeechSettings->setEnabled(textValid);
+	}
+
+	if ( answerValid != _textToSpeechAnswerSettings->isEnabled() ) {
+		_textToSpeechAnswerSettings->setEnabled(answerValid);
+	}
+}
+
 bool MusicQuiz::EntryCreator::isSongFileValid(const QString& fileName) const
 {
 	/** Check if file has a valid format */
@@ -979,6 +1096,9 @@ void MusicQuiz::EntryCreator::setType(const EntryType& type)
 	} else if ( _entryType == EntryType::Video ) {
 		_buttonGroup->button(1)->setChecked(true);
 		setEntryType(1);
+	} else if ( _entryType == EntryType::TextToSpeech ) {
+		_buttonGroup->button(2)->setChecked(true);
+		setEntryType(2);
 	}
 }
 
@@ -1170,18 +1290,142 @@ size_t MusicQuiz::EntryCreator::getVideoAnswerStartTime() const
 	return toMSec(_videoAnswerStartTimeEdit->time());
 }
 
+void MusicQuiz::EntryCreator::setTextToSpeechString(const QString& textToSpeechString)
+{
+	/** Sanity Check */
+	if ( _textToSpeechTextEdit == nullptr ) {
+		return;
+	}
+
+	/** Set Text to Speech String */
+	_textToSpeechTextEdit->setAcceptRichText(true);
+	_textToSpeechTextEdit->setText(textToSpeechString);
+	_textToSpeechTextEdit->setAcceptRichText(false);
+}
+
+QString MusicQuiz::EntryCreator::getTextToSpeechString() const
+{
+	/** Sanity Check */
+	if ( _textToSpeechTextEdit == nullptr ) {
+		return "";
+	}
+
+	return _textToSpeechTextEdit->toPlainText();
+}
+
+void MusicQuiz::EntryCreator::setPitch(double pitch)
+{
+	/** Sanity Check */
+	if ( _pitchSlider == nullptr ) {
+		return;
+	}
+
+	if ( pitch < -1.0 || pitch > 1.0 ) {
+		return;
+	}
+
+	_pitchSlider->setValue(pitch);
+}
+
+double MusicQuiz::EntryCreator::getPitch() const
+{
+	/** Sanity Check */
+	if ( _pitchSlider == nullptr ) {
+		return 0.0;
+	}
+
+	return _pitchSlider->getValue();
+}
+
+void MusicQuiz::EntryCreator::setRate(double rate)
+{
+	/** Sanity Check */
+	if ( _rateSlider == nullptr ) {
+		return;
+	}
+
+	if ( rate < -1.0 || rate > 1.0 ) {
+		return;
+	}
+
+	_rateSlider->setValue(rate);
+}
+
+double MusicQuiz::EntryCreator::getRate() const
+{
+	/** Sanity Check */
+	if ( _rateSlider == nullptr ) {
+		return 0.0;
+	}
+
+	return _rateSlider->getValue();
+}
+
+void MusicQuiz::EntryCreator::setVoice(const QString& voiceName)
+{
+	/** Sanity Check */
+	if ( _voiceButtonGroup == nullptr || _textToSpeechPlayer == nullptr ) {
+		return;
+	}
+
+	/** Check voice exists */
+	bool voiceExists = false;
+	const QVector< QVoice > availableVoices = _textToSpeechPlayer->availableVoices();
+	for ( size_t i = 0; i < availableVoices.size(); ++i ) {
+		if ( voiceName == availableVoices[i].name() ) {
+			voiceExists = true;
+			break;
+		}
+	}
+
+	if ( !voiceExists ) {
+		return;
+	}
+
+	/** Find button with correct name */
+	for ( size_t i = 0; i < _voiceButtonGroup->buttons().size(); ++i ) {
+		QAbstractButton* btn = _voiceButtonGroup->button(i);
+		if ( btn != nullptr ) {
+			if ( btn->property("voiceName").toString() == voiceName ) {
+				btn->setChecked(true);
+				return;
+			}
+		}
+	}
+}
+
+QString MusicQuiz::EntryCreator::getVoiceName() const
+{
+	/** Sanity Check */
+	if ( _voiceButtonGroup == nullptr ) {
+		return "";
+	}
+
+	/** Get voice name */
+	QAbstractButton* selectedButton = _voiceButtonGroup->checkedButton();
+	if ( selectedButton != nullptr ) {
+		return selectedButton->property("voiceName").toString();
+	}
+	
+	return "";
+}
+
 void MusicQuiz::EntryCreator::loadSongFromXml(const boost::property_tree::ptree &tree)
 {
+	/** Set Type */
 	setType(MusicQuiz::EntryCreator::EntryType::Song);
 
+	/** Set Song Start Time */
 	try {
 		setSongStartTime(tree.get<size_t>("StartTime"));
 	} catch ( ... ) {}
 
+	/** Set Answer Start Time */
 	try {
 		setAnswerStartTime(tree.get<size_t>("AnswerStartTime"));
 	} catch ( ... ) {}
 
+	/** Set Song File */
 	try {
 		QString songFile = QString::fromStdString(_config.mediaPathToFullPath(tree.get<std::string>("Media.SongFile")));
 		std::replace(songFile.begin(), songFile.end(), '\\', '/');
@@ -1191,30 +1435,62 @@ void MusicQuiz::EntryCreator::loadSongFromXml(const boost::property_tree::ptree 
 
 void MusicQuiz::EntryCreator::loadVideoFromXml(const boost::property_tree::ptree &tree)
 {
+	/** Set Type */
 	setType(MusicQuiz::EntryCreator::EntryType::Video);
 
+	/** Set Song Start Time */
 	try {
 		setVideoSongStartTime(tree.get<size_t>("VideoSongStartTime"));
 	} catch ( ... ) {}
 
+	/** Set Video Start Time */
 	try {
 		setVideoStartTime(tree.get<size_t>("StartTime"));
 	} catch ( ... ) {}
 
+	/** Set Video Answer Start Time */
 	try {
 		setVideoAnswerStartTime(tree.get<size_t>("AnswerStartTime"));
 	} catch ( ... ) {}
 
+	/** Set Video File */
 	try {
 		QString videoFile = QString::fromStdString(_config.mediaPathToFullPath(tree.get<std::string>("Media.VideoFile")));
 		std::replace(videoFile.begin(), videoFile.end(), '\\', '/');
 		setVideoFile(videoFile);
 	} catch ( ... ) {}
 
+	/** Set Song File */
 	try {
 		QString songFile = QString::fromStdString(_config.mediaPathToFullPath(tree.get<std::string>("Media.SongFile")));
 		std::replace(songFile.begin(), songFile.end(), '\\', '/');
 		setVideoSongFile(songFile);
+	} catch ( ... ) {}
+}
+
+void MusicQuiz::EntryCreator::loadTextToSpeechFromXml(const boost::property_tree::ptree& tree)
+{
+	/** Set Type */
+	setType(MusicQuiz::EntryCreator::EntryType::TextToSpeech);
+
+	/** Set Text to Speech String */
+	try {
+		setTextToSpeechString(QString::fromStdString(tree.get<std::string>("Media.TextToSpeechString")));
+	} catch ( ... ) {}
+
+	/** Set Pitch */
+	try {
+		setPitch(tree.get<double>("Media.Pitch", 0.0));
+	} catch ( ... ) {}
+
+	/** Set Rate */
+	try {
+		setRate(tree.get<double>("Media.Rate", 0.0));
+	} catch ( ... ) {}
+
+	/** Set Voice */
+	try {
+		setVoice(QString::fromStdString(tree.get<std::string>("Media.VoiceName", "")));
 	} catch ( ... ) {}
 }
 
@@ -1232,6 +1508,9 @@ boost::property_tree::ptree MusicQuiz::EntryCreator::toXml(const std::string& sa
 		case MusicQuiz::EntryCreator::EntryType::Video:
 			saveVideoToXml(tree, savePath + "/" + name, xmlPath + "/" + name);
 			break;
+		case MusicQuiz::EntryCreator::EntryType::TextToSpeech:
+			saveTextToSpeechToXml(tree, savePath + "/" + name, xmlPath + "/" + name);
+			break;
 		default:
 			break;
 	}
@@ -1240,8 +1519,10 @@ boost::property_tree::ptree MusicQuiz::EntryCreator::toXml(const std::string& sa
 
 void MusicQuiz::EntryCreator::saveSongToXml(boost::property_tree::ptree& tree, const std::string& savePath, const std::string& xmlPath) const
 {
+	/** Entry Type */
 	tree.put("<xmlattr>.type", "song");
-		/** Entry Song Start Time */
+
+	/** Entry Song Start Time */
 	tree.put("StartTime", getSongStartTime());
 
 	/** Entry Song Answer Start Time */
@@ -1261,7 +1542,9 @@ void MusicQuiz::EntryCreator::saveSongToXml(boost::property_tree::ptree& tree, c
 
 void MusicQuiz::EntryCreator::saveVideoToXml(boost::property_tree::ptree& tree, const std::string& savePath, const std::string& xmlPath) const
 {
+	/** Entry Type */
 	tree.put("<xmlattr>.type", "video");
+
 	/** Entry Video Start Time */
 	tree.put("StartTime", getVideoStartTime());
 
@@ -1285,5 +1568,24 @@ void MusicQuiz::EntryCreator::saveVideoToXml(boost::property_tree::ptree& tree, 
 		/** Copy Media File */
 		std::filesystem::copy_file(videoFile, savePath + "_video" + videoFileExtension, std::filesystem::copy_options::overwrite_existing);
 		std::filesystem::copy_file(songFile, savePath + "_song" + audioFileExtension, std::filesystem::copy_options::overwrite_existing);
+	}
+}
+
+void MusicQuiz::EntryCreator::saveTextToSpeechToXml(boost::property_tree::ptree& tree, const std::string& savePath, const std::string& xmlPath) const
+{
+	/** Entry Type */
+	tree.put("<xmlattr>.type", "textToSpeech");
+
+	/** Entry Text to Speech Answer Start Character */
+	tree.put("AnswerStartCharacter", getAnswerStartTime());
+
+	/** Media File */
+	const std::string textToSpeechString = getTextToSpeechString().toStdString();
+	if ( !textToSpeechString.empty() ) {
+		boost::property_tree::ptree& media_tree = tree.add("Media", "");
+		media_tree.put("TextToSpeechString", textToSpeechString);
+		media_tree.put("Pitch", getPitch());
+		media_tree.put("Rate", getRate());
+		media_tree.put("VoiceName", getVoiceName().toStdString());
 	}
 }

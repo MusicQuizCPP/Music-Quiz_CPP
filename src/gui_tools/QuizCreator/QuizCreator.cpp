@@ -119,6 +119,7 @@ void MusicQuiz::QuizCreator::createLayout()
 	setupTabLayout->addWidget(label, ++row, 0, 1, 2, Qt::AlignLeft);
 
 	_quizDescriptionTextEdit = new QTextEdit;
+	_quizDescriptionTextEdit->setAcceptRichText(false);
 	_quizDescriptionTextEdit->setObjectName("quizCreatorTextEdit");
 	setupTabLayout->addWidget(_quizDescriptionTextEdit, ++row, 0, 1, 2);
 
@@ -153,10 +154,8 @@ void MusicQuiz::QuizCreator::createLayout()
 	_categoriesTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 	_categoriesTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 	_categoriesTable->verticalHeader()->setFixedWidth(40);
-	_categoriesTable->verticalHeader()->setSectionsMovable(false); // \todo set this to true to enable dragging.
 	_categoriesTable->verticalHeader()->setDefaultSectionSize(40);
 	_categoriesTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-	connect(_categoriesTable->verticalHeader(), SIGNAL(sectionMoved(int, int, int)), this, SLOT(categoryOrderChanged(int, int, int)));
 	setupTabLayout->addWidget(_categoriesTable, ++row, 0, 1, 2);
 
 	/** Setup Tab - Row Categories */
@@ -180,7 +179,6 @@ void MusicQuiz::QuizCreator::createLayout()
 	_rowCategoriesTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
 	_rowCategoriesTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 	_rowCategoriesTable->verticalHeader()->setFixedWidth(40);
-	_rowCategoriesTable->verticalHeader()->setSectionsMovable(false); // \todo set this to true to enable dragging.
 	_rowCategoriesTable->verticalHeader()->setDefaultSectionSize(40);
 	_rowCategoriesTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 	setupTabLayout->addWidget(_rowCategoriesTable, ++row, 0, 1, 2);
@@ -597,7 +595,7 @@ void MusicQuiz::QuizCreator::loadQuiz(const string& quizName)
 	/** Load Quiz */
 	LOG_INFO("Loading quiz '" << quizName << "'");
 	try {
-		loadQuizData(QuizData(_config, quizName, _audioPlayer, this));
+		loadQuizData(QuizData(_config, quizName, _audioPlayer, _textToSpeechPlayer, this));
 	} catch ( const exception& err ) {
 		QMessageBox::warning(this, "Info", "Failed to load quiz. " + QString::fromStdString(err.what()));
 		return;
@@ -618,7 +616,7 @@ void MusicQuiz::QuizCreator::loadQuizCategory(const string& quizName, const stri
 	/** Load Quiz */
 	LOG_INFO("Loading quiz '" << quizName << "'");
 	try {
-		QuizData quizData = QuizData(_config, quizName, _audioPlayer, this, false, regex("^" + categoryName + "$"));
+		QuizData quizData = QuizData(_config, quizName, _audioPlayer, _textToSpeechPlayer, this, false, regex("^" + categoryName + "$"));
 		for(auto &category : quizData.getCategories()) {
 			loadCategory(category);
 		}
@@ -845,16 +843,6 @@ void MusicQuiz::QuizCreator::quitCreator()
 		/** Call Destructor */
 		QApplication::quit();
 	}
-}
-
-void MusicQuiz::QuizCreator::categoryOrderChanged(const int, const int, const int)
-{
-	/** Sanity Check */
-	if ( _categoriesTable == nullptr || _tabWidget == nullptr ) {
-		return;
-	}
-
-	// \todo write the code for chaning the order of the tabs and the vector.
 }
 
 void MusicQuiz::QuizCreator::keyPressEvent(QKeyEvent* event)

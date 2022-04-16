@@ -30,7 +30,6 @@ namespace MusicQuiz {
 	class QuizCreator : public QDialog {
 		Q_OBJECT
 	public:
-
 		/**
 		 * @brief Constructor
 		 *
@@ -48,8 +47,6 @@ namespace MusicQuiz {
 		 */
 		QuizCreator(const QuizCreator&) = delete;
 		QuizCreator& operator=(const QuizCreator&) = delete;
-
-	public slots:
 
 	private slots:
 		/**
@@ -160,14 +157,10 @@ namespace MusicQuiz {
 		 */
 		void quitCreator();
 
-		void categoryOrderChanged(int, int, int);
-
 		/**
 		 * @brief handle keypresses.
 		 */
 		void keyPressEvent(QKeyEvent* event);
-
-	signals:
 
 	protected:
 		/**

@@ -7,10 +7,13 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
+#include <QVoice>
+
 #include "common/Log.hpp"
 #include "common/Configuration.hpp"
 
 #include "gui_tools/widgets/QuizEntry.hpp"
+
 
 using namespace MusicQuiz::util;
 using namespace std;
@@ -96,6 +99,8 @@ QuizLoader::QuizPreview QuizLoader::getQuizPreview(size_t idx, const common::Con
 									quizPreview.includeSongs = true;
 								} else if ( it->second.get<string>("<xmlattr>.type") == "video" && !quizPreview.includeVideos ) {
 									quizPreview.includeVideos = true;
+								} else if ( it->second.get<string>("<xmlattr>.type") == "textToSpeech" && !quizPreview.includeVideos ) {
+									quizPreview.includeTextToSpeech = true;
 								}
 							}
 						}
@@ -161,17 +166,16 @@ vector<MusicQuiz::QuizCategory*> QuizLoader::loadQuizCategories(const size_t idx
 						boost::property_tree::ptree::const_iterator it = entryTree.begin();
 						for ( ; it != entryTree.end(); ++it ) {
 							if ( it->first == "QuizEntry" ) {
-
 								/** Settings */
 								const QString answer = QString::fromStdString(it->second.get<string>("Answer"));
 								const size_t points = it->second.get<size_t>("Points");
-								const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
 
 								/** Media Type */
 								const string type = it->second.get<string>("<xmlattr>.type");
 								if ( type == "song" ) { // Song
 									QString songFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get<string>("Media.SongFile")));
 									const size_t audioStartTime = it->second.get<size_t>("StartTime");
+									const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
 									replace(songFile.begin(), songFile.end(), '\\', '/');
 
 									/** Check if file exsists */
@@ -180,7 +184,7 @@ vector<MusicQuiz::QuizCategory*> QuizLoader::loadQuizCategories(const size_t idx
 									}
 
 									/** Push Back Song Entry */
-									categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, answer, points, audioStartTime, answerStartTime, audioPlayer));
+									categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, answer, points, audioStartTime, answerStartTime, audioPlayer, videoPlayer, textToSpeechPlayer));
 								} else if ( type == "video" ) { // Video
 									QString songFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get<string>("Media.SongFile")));
 									QString videoFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get<string>("Media.VideoFile")));
@@ -188,6 +192,7 @@ vector<MusicQuiz::QuizCategory*> QuizLoader::loadQuizCategories(const size_t idx
 									replace(videoFile.begin(), videoFile.end(), '\\', '/');
 									const size_t videoStartTime = it->second.get<size_t>("StartTime");
 									const size_t videoSongStartTime = it->second.get<size_t>("VideoSongStartTime");
+									const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
 
 									/** Check if files exsists */
 									if ( !filesystem::exists(songFile.toStdString()) ) {
@@ -199,7 +204,30 @@ vector<MusicQuiz::QuizCategory*> QuizLoader::loadQuizCategories(const size_t idx
 									}
 
 									/** Push Back Video Entry */
-									categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, videoFile, answer, points, videoSongStartTime, videoStartTime, answerStartTime, audioPlayer, videoPlayer));
+									categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, videoFile, answer, points, videoSongStartTime, videoStartTime, answerStartTime, audioPlayer, videoPlayer, textToSpeechPlayer));
+								} else if ( type == "textToSpeech" ) {// text to speech
+									/** Get Speech String */
+									const QString textToSpeechString = QString::fromStdString(it->second.get<std::string>("Media.TextToSpeechString"));
+
+									/** Get Settings */
+									media::TextToSpeechPlayer::TextToSpeechSettings settings;
+									settings._pitch = it->second.get<double>("Media.Pitch", 0.0);
+									settings._rate = it->second.get<double>("Media.Rate", 0.0);
+									const QString voiceName = QString::fromStdString(it->second.get<std::string>("Media.VoiceName", ""));
+									const QVector< QVoice > avaliableVoices = textToSpeechPlayer->availableVoices();
+									for ( size_t i = 0; i < avaliableVoices.size(); ++i ) {
+										if ( voiceName == avaliableVoices[i].name() ) {
+											settings._voice = avaliableVoices[i];
+										}
+									}
+
+									/** Check if string has been set */
+									if ( textToSpeechString.isEmpty() ) {
+										err += "Text to speech string is empty\n";
+									}
+
+									/** Push Back Video Entry */
+									categorieEntries.push_back(new MusicQuiz::QuizEntry(textToSpeechString, answer, points, 0, audioPlayer, videoPlayer, textToSpeechPlayer, settings));
 								}
 							}
 						}

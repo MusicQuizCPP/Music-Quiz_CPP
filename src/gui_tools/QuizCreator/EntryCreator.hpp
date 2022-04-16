@@ -26,6 +26,12 @@ namespace common {
 	class Configuration;
 }
 
+namespace gui_tools {
+	namespace GuiUtil {
+		class QSliderWidget;
+	}
+}
+
 namespace MusicQuiz {
 
 	class EntryCreator : public QWidget {
@@ -228,6 +234,62 @@ namespace MusicQuiz {
 		size_t getVideoAnswerStartTime() const;
 
 		/**
+		 * @brief Sets the text to speech string.
+		 *
+		 * @param[in] textToSpeechString The text to speech string.
+		 */
+		void setTextToSpeechString(const QString& textToSpeechString);
+
+		/**
+		 * @brief Gets the text to speech string.
+		 *
+		 * @return The text to speech string.
+		 */
+		QString getTextToSpeechString() const;
+
+		/**
+		 * @brief Sets the pitch.
+		 *
+		 * @param[in] pitch The pitch.
+		 */
+		void setPitch(double pitch);
+
+		/**
+		 * @brief Gets the pitch.
+		 *
+		 * @return The pitch.
+		 */
+		double getPitch() const;
+
+		/**
+		 * @brief Sets the text to speech rate.
+		 *
+		 * @param[in] rate The text to speech rate.
+		 */
+		void setRate(double pitch);
+
+		/**
+		 * @brief Gets the text to speech rate.
+		 *
+		 * @return  The text to speech rate.
+		 */
+		double getRate() const;
+
+		/**
+		 * @brief Sets the voice.
+		 *
+		 * @param[in] voiceName The name of the voice to set.
+		 */
+		void setVoice(const QString& voiceName);
+
+		/**
+		 * @brief Gets the name of the voice.
+		 *
+		 * @return The name of the set voice.
+		 */
+		QString getVoiceName() const;
+
+		/**
 		 * @brief Stops the audio and video playing.
 		 */
 		void stop();
@@ -244,26 +306,31 @@ namespace MusicQuiz {
 		boost::property_tree::ptree toXml(const std::string& savePath, const std::string xmlPath) const;
 
 		/**
-		 * @brief serialize song media into the boost property_tree
+		 * @brief Serialize song media into the boost property_tree
 		 *
-		 * @param[out] tree tree to serialize into.
-		 * @param[in] savePath path where the mediafiles should be saved.
-		 * @param[in] xmlPath path for the media files that should be written in the ptree.
-		 * 
-		 * @return the serialized ptree
+		 * @param[out] tree    tree to serialize into.
+		 * @param[in] savePath path where the media files should be saved.
+		 * @param[in] xmlPath  path for the media files that should be written in the ptree.
 		 */
 		void saveSongToXml(boost::property_tree::ptree& tree, const std::string& savePath, const std::string& xmlPath) const;
 
 		/**
-		 * @brief serialize video media into the boost property_tree
+		 * @brief Serialize video media into the boost property_tree
 		 *
-		 * @param[out] tree tree to serialize into.
-		 * @param[in] savePath path where the mediafiles should be saved.
-		 * @param[in] xmlPath path for the media files that should be written in the ptree.
-		 * 
-		 * @return the serialized ptree
+		 * @param[out] tree    tree to serialize into.
+		 * @param[in] savePath path where the media files should be saved.
+		 * @param[in] xmlPath  path for the media files that should be written in the ptree.
 		 */
 		void saveVideoToXml(boost::property_tree::ptree& tree, const std::string& savePath, const std::string& xmlPath) const;
+
+		/**
+		 * @brief Serialize text to speech media into the boost property_tree
+		 *
+		 * @param[out] tree    tree to serialize into.
+		 * @param[in] savePath path where the media files should be saved.
+		 * @param[in] xmlPath  path for the media files that should be written in the ptree.
+		 */
+		void saveTextToSpeechToXml(boost::property_tree::ptree& tree, const std::string& savePath, const std::string& xmlPath) const;
 
 	private slots:
 		/**
@@ -290,6 +357,11 @@ namespace MusicQuiz {
 		 * @brief Check if the video file names is valid and enables / disables widgets.
 		 */
 		void checkVideoFiles();
+
+		/**
+		 * @brief Check if the text to speech lyrics are valid and enables / disables widgets.
+		 */
+		void checkTextToSpeechLyrics();
 
 		/**
 		 * @brief Plays the song file from the start position defined in the start QTimeEdit.
@@ -385,18 +457,25 @@ namespace MusicQuiz {
 		QTime fromMSec(size_t time) const;
 
 		/**
-		 * @brief load song media from boost property_tree
+		 * @brief Load song media from boost property_tree
 		 *
-		 * @param[out] tree tree to load from.
+		 * @param[out] tree The tree to load from.
 		 */
 		void loadSongFromXml(const boost::property_tree::ptree &tree);
 
 		/**
-		 * @brief load video media from boost property_tree
+		 * @brief Load video media from boost property_tree
 		 *
-		 * @param[out] tree tree to load from.
+		 * @param[out] tree The tree to load from.
 		 */
 		void loadVideoFromXml(const boost::property_tree::ptree &tree);
+
+		/**
+		 * @brief Load text to speech media from boost property_tree
+		 *
+		 * @param[out] tree The tree to load from.
+		 */
+		void loadTextToSpeechFromXml(const boost::property_tree::ptree& tree);
 
 		/** Variables */
 		int _points = 0;
@@ -425,10 +504,14 @@ namespace MusicQuiz {
 		QTimeEdit* _videoAnswerStartTimeEdit = nullptr;
 
 		QTextEdit* _textToSpeechTextEdit = nullptr;
+		gui_tools::GuiUtil::QSliderWidget* _pitchSlider = nullptr;
+		gui_tools::GuiUtil::QSliderWidget* _rateSlider = nullptr;
+		QButtonGroup* _voiceButtonGroup = nullptr;
 
 		QWidget* _songSettings = nullptr;
 		QWidget* _videoSettings = nullptr;
 		QWidget* _textToSpeechSettings = nullptr;
+		QWidget* _textToSpeechAnswerSettings = nullptr;
 		QPushButton* _browseSongBtn = nullptr;
 		QPushButton* _browseVideoBtn = nullptr;
 		QPushButton* _browseVideoSongBtn = nullptr;

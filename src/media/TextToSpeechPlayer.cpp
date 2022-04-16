@@ -2,8 +2,6 @@
 
 #include <stdexcept>
 
-#include <QVoice>
-
 #include "common/Log.hpp"
 
 
@@ -14,7 +12,6 @@ media::TextToSpeechPlayer::TextToSpeechPlayer(QWidget* parent) :
 	_textToSpeech = new QTextToSpeech(this);
 	_textToSpeech->setLocale(QLocale(QLocale::English, QLocale::LatinScript, QLocale::UnitedStates));
 	_textToSpeech->setVolume(100);
-	connect(_textToSpeech, &QTextToSpeech::stateChanged, this, &media::TextToSpeechPlayer::handleMediaStatus);
 }
 
 media::TextToSpeechPlayer::~TextToSpeechPlayer()
@@ -24,7 +21,7 @@ media::TextToSpeechPlayer::~TextToSpeechPlayer()
 	delete _textToSpeech;
 }
 
-void media::TextToSpeechPlayer::play(const QString& string, const size_t startCharacter)
+void media::TextToSpeechPlayer::play(const QString& string, const TextToSpeechSettings& settings, bool playAnswer)
 {
 	/** Sanity Check */
 	if ( string.isEmpty() ) {
@@ -34,67 +31,44 @@ void media::TextToSpeechPlayer::play(const QString& string, const size_t startCh
 	/** Stop audio if any is playing and close file */
 	stop();
 
-	/** Set Audio File */
-	_textToSpeech->say(string);
-	//_textToSpeech->setMedia(QUrl::fromLocalFile(audioFile));
+	/** Set Voice */
+	_textToSpeech->setVoice(settings._voice);
 
-	/** Set Start Time */
-	//_textToSpeech->setPosition(startTime);
+	/** Set Pitch */
+	_textToSpeech->setPitch(settings._pitch);
 
-	/** Pause Audio */
-	_textToSpeech->pause();
+	/** Set Rate */
+	_textToSpeech->setRate(settings._rate);
 
-	/** Set State */
-	_state = TextToSpeechPlayState::PAUSED;
+	/** Get which part of the string should be played dependent on if it is an answer or not */
+	QString speechString = string;
+	if ( playAnswer ) {
+		speechString = string.section('*', 1);
+	}
 
-	//The playback will be started in handleMediaStatus when file has been loaded.
+	/** Remove "*" (if any remains or it is not the answer playing) */
+	speechString.remove("*");
+
+	/** Play Text */
+	_textToSpeech->say(speechString);
 }
 
 void media::TextToSpeechPlayer::pause()
 {
-	/** Check State */
-	if ( _state != TextToSpeechPlayState::PLAYING ) {
-		return;
-	}
-
-	/** Pause */
 	_textToSpeech->pause();
-
-	/** Set State */
-	_state = TextToSpeechPlayState::PAUSED;
 }
 
 void media::TextToSpeechPlayer::resume()
 {
-	/** Check State */
-	if ( _state != TextToSpeechPlayState::PAUSED ) {
-		return;
-	}
-
-	/** Resume Audio */
 	_textToSpeech->resume();
-
-	/** Set State */
-	_state = TextToSpeechPlayState::PLAYING;
 }
 
 void media::TextToSpeechPlayer::stop()
 {
-	/** Stop */
 	_textToSpeech->stop();
-
-	/** Set State */
-	_state = TextToSpeechPlayState::IDLE;
 }
 
-void media::TextToSpeechPlayer::handleMediaStatus(QTextToSpeech::State status)
+QVector< QVoice > media::TextToSpeechPlayer::availableVoices() const
 {
-	/** Check State */
-	if ( _state != TextToSpeechPlayState::PAUSED ) {
-		return;
-	}
-
-	if ( status == QTextToSpeech::State::Ready ) {
-		this->resume();
-	}
+	return _textToSpeech->availableVoices();
 }

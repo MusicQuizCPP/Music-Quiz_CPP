@@ -25,12 +25,9 @@ MusicQuiz::CategoryCreator::CategoryCreator(const QString& name, const media::Au
 	createLayout();
 }
 
-MusicQuiz::CategoryCreator::CategoryCreator(const boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, 
-	const common::Configuration& config, bool skipEntries, QWidget* parent) :
-	QWidget(parent), 
-	_categoryName(QString::fromStdString(tree.get<std::string>("<xmlattr>.name"))),
-	_audioPlayer(audioPlayer),
-	_config(config)
+MusicQuiz::CategoryCreator::CategoryCreator(const boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer,
+	const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, bool skipEntries, QWidget* parent) :
+	QWidget(parent), _categoryName(QString::fromStdString(tree.get<std::string>("<xmlattr>.name"))), _audioPlayer(audioPlayer), _textToSpeechPlayer(textToSpeechPlayer), _config(config)
 {
 	createLayout();
 	if(!skipEntries) {
@@ -43,6 +40,7 @@ MusicQuiz::CategoryCreator::CategoryCreator(const boost::property_tree::ptree &t
 				}
 			} catch ( ... ) {}
 		}
+
 		setEntries(categorieEntries);
 	}
 }
@@ -93,7 +91,6 @@ void MusicQuiz::CategoryCreator::createLayout()
 	_entriesTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
 	_entriesTable->horizontalHeader()->setSectionResizeMode(4, QHeaderView::ResizeToContents);
 	_entriesTable->verticalHeader()->setFixedWidth(40);
-	_entriesTable->verticalHeader()->setSectionsMovable(false); // \todo set this to true to enable dragging.
 	_entriesTable->verticalHeader()->setDefaultSectionSize(40);
 	_entriesTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 	setupTabLayout->addWidget(_entriesTable, ++row, 0, 1, 2);
@@ -405,7 +402,8 @@ boost::property_tree::ptree MusicQuiz::CategoryCreator::saveToXml(const std::str
 	if ( name.empty() ) {
 		throw std::runtime_error("Failed to save quiz. All categories must have a name");
 	}
-	if(!areEntryNamesUnique()) {
+
+	if( !areEntryNamesUnique() ) {
 		throw std::runtime_error("Failed to save quiz. " + name + ": All entires in a category must have a unique name.");
 	}
 
@@ -418,12 +416,15 @@ boost::property_tree::ptree MusicQuiz::CategoryCreator::saveToXml(const std::str
 	if ( filesystem_error ) {
 		throw std::runtime_error("Failed to create directory to save the category files in.");
 	}
+
 	for ( auto entry : _entries) {
 		if(entry->getName().toStdString().empty()) {
 			throw std::runtime_error("Failed to save quiz. " + name + ": All entries needs to have a name.");
 		}
+
 		tree.add_child("QuizEntry", entry->toXml(savePath + "/" + name, xmlPath + "/" + name));
 	}
+
 	return tree;
 }
 

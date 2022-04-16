@@ -24,33 +24,38 @@ namespace MusicQuiz {
 		/**
 		 * @brief Entry Type Song Constructor
 		 *
-		 * @param[in] audioFile       The audio file to play.
-		 * @param[in] answer          The entry anwser.
-		 * @param[in] points          The number of points obtained by guessing the entry.
-		 * @param[in] startTime       The start time of the media in [ms].
-		 * @param[in] answerStartTime The answer media start time in [ms].
-		 * @param[in] audioPlayer     The audio player.
-		 * @param[in] parent          The parent widget.
+		 * @param[in] audioFile          The audio file to play.
+		 * @param[in] answer             The entry anwser.
+		 * @param[in] points             The number of points obtained by guessing the entry.
+		 * @param[in] startTime          The start time of the media in [ms].
+		 * @param[in] answerStartTime    The answer media start time in [ms].
+		 * @param[in] audioPlayer        The audio player.
+		 * @param[in] videoPlayer        The video player.
+		 * @param[in] textToSpeechPlayer The text to speech player.
+		 * @param[in] parent             The parent widget.
 		 */
 		explicit QuizEntry(const QString& audioFile, const QString& answer, size_t points, size_t startTime, size_t answerStartTime,
-			const std::shared_ptr< media::AudioPlayer >& audioPlayer, QWidget* parent = nullptr);
+			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
+			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Entry Type Video Constructor
 		 *
-		 * @param[in] audioFile       The audio file to play.
-		 * @param[in] videoFile       The audio file to play.
-		 * @param[in] answer          The entry anwser.
-		 * @param[in] points          The number of points obtained by guessing the entry.
-		 * @param[in] songStartTime   The start time of the media in [ms].
-		 * @param[in] videoStartTime  The start time of the media in [ms].
-		 * @param[in] answerStartTime The answer media start time in [ms].
-		 * @param[in] audioPlayer     The audio player.
-		 * @param[in] videoPlayer     The video player.
-		 * @param[in] parent          The parent widget.
+		 * @param[in] audioFile          The audio file to play.
+		 * @param[in] videoFile          The audio file to play.
+		 * @param[in] answer             The entry anwser.
+		 * @param[in] points             The number of points obtained by guessing the entry.
+		 * @param[in] songStartTime      The start time of the media in [ms].
+		 * @param[in] videoStartTime     The start time of the media in [ms].
+		 * @param[in] answerStartTime    The answer media start time in [ms].
+		 * @param[in] audioPlayer        The audio player.
+		 * @param[in] videoPlayer        The video player.
+		 * @param[in] textToSpeechPlayer The text to speech player.
+		 * @param[in] parent             The parent widget.
 		 */
 		explicit QuizEntry(const QString& audioFile, const QString& videoFile, const QString& answer, size_t points, size_t songStartTime, size_t videoStartTime, size_t answerStartTime,
-			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer, QWidget* parent = nullptr);
+			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
+			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, QWidget* parent = nullptr);
 
 
 		/**
@@ -60,11 +65,15 @@ namespace MusicQuiz {
 		 * @param[in] answer               The entry anwser.
 		 * @param[in] points               The number of points obtained by guessing the entry.
 		 * @param[in] answerStartCharacter The index of the start character of the answer.
-		 * @param[in] textToSpeechPlayer   The audio player.
+		 * @param[in] audioPlayer          The audio player.
+		 * @param[in] videoPlayer          The video player.
+		 * @param[in] textToSpeechPlayer   The text to speech player.
+		 * @param[in] textToSpeechSettings The text to speech settings.
 		 * @param[in] parent               The parent widget.
 		 */
 		explicit QuizEntry(const QString& string, const QString& answer, size_t points, size_t answerStartCharacter,
-			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, QWidget* parent = nullptr);
+			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
+			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const media::TextToSpeechPlayer::TextToSpeechSettings& textToSpeechSettings, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Default Destructor
@@ -187,7 +196,8 @@ namespace MusicQuiz {
 
 		std::shared_ptr< media::AudioPlayer > _audioPlayer = nullptr;
 		std::shared_ptr< media::VideoPlayer > _videoPlayer = nullptr;
-		std::shared_ptr< media::TextToSpeechPlayer > _textToSpeech = nullptr;
+		std::shared_ptr< media::TextToSpeechPlayer > _textToSpeechPlayer = nullptr;
+		const media::TextToSpeechPlayer::TextToSpeechSettings _textToSpeechSettings;
 
 		std::function< void(QMouseEvent*) > _mouseEventCallback;
 

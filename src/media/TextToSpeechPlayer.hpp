@@ -2,9 +2,11 @@
 
 #include <memory>
 
+#include <QVoice>
 #include <QString>
 #include <QWidget>
 #include <QObject>
+#include <QVector>
 #include <QTextToSpeech>
 
 
@@ -12,10 +14,16 @@ namespace media {
 	class TextToSpeechPlayer : public QWidget {
 		Q_OBJECT
 	public:
-		enum class TextToSpeechPlayState {
-			IDLE = 1,		// Default
-			PLAYING = 2,
-			PAUSED = 3
+		/** The text to speech settings */
+		struct TextToSpeechSettings {
+			/** Voice */
+			QVoice _voice = QVoice();
+
+			/** Voice pitch [-1.0, 1.0] */
+			double _pitch = 0.0;
+
+			/** Speec rate [-1.0, 1.0] */
+			double _rate = 0.0;
 		};
 
 		/**
@@ -44,10 +52,11 @@ namespace media {
 		/**
 		 * @brief Says a string.
 		 *
-		 * @param[in] string    The string to say.
-		 * @param[in] startCharacter The character to start from.
+		 * @param[in] string     The string to say.
+		 * @param[in] settings   The text to speech settings.
+		 * @param[in] playAnswer Set to true to play the answer part of the string.
 		 */
-		void play(const QString& string, size_t startCharacter = 0);
+		void play(const QString& string, const TextToSpeechSettings& settings, bool playAnswer = false);
 
 		/**
 		 * @brief Pauses the audio that is currently playing.
@@ -64,15 +73,16 @@ namespace media {
 		 */
 		void stop();
 
-	private slots:
+
 		/**
-		 * @brief Handles media status changes
+		 * @brief Returns the list of available voices.
+		 *
+		 * @return The list of avaliable voices.
 		 */
-		void handleMediaStatus(QTextToSpeech::State status);
+		QVector< QVoice > availableVoices() const;
 
 	protected:
-		/** Variables */
+		/** Text to Speeh Widget */
 		QTextToSpeech* _textToSpeech = nullptr;
-		TextToSpeechPlayState _state = TextToSpeechPlayState::IDLE;
 	};
 }

@@ -45,7 +45,7 @@ void media::AudioPlayer::play(const QString& audioFile, const size_t startTime)
 	/** Set State */
 	_state = AudioPlayState::PAUSED;
 
-	//The playback will be started in handleMediaStatus when file has been loaded.
+	// The playback will be started in handleMediaStatus when file has been loaded.
 }
 
 void media::AudioPlayer::pause()

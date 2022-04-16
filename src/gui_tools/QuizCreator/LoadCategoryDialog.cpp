@@ -30,13 +30,12 @@ void MusicQuiz::LoadCategoryDialog::updateTable()
     for(auto& quizName : quizList) {
         try {
             std::replace( quizName.begin(), quizName.end(), '\\', '/');
-            MusicQuiz::QuizData qdata(_config, quizName, nullptr, this, true);
+            MusicQuiz::QuizData qdata(_config, quizName, nullptr, nullptr, this, true);
             for(auto &category : qdata.getCategories()) {
                 _categoryList.push_back(std::make_pair(quizName, category->getName().toStdString()));
                 category->deleteLater();
             }
-        }
-        catch ( const std::exception& err ) {
+        } catch ( const std::exception& err ) {
             LOG_ERROR("Failed to load quiz. " + quizName + " " + err.what());
             return;
         } catch ( ... ) {
@@ -93,6 +92,7 @@ void MusicQuiz::LoadCategoryDialog::load()
         close();
         return;
     }
+
     const size_t idx = btn->property("index").toInt();
 
     /** Emit Signal */

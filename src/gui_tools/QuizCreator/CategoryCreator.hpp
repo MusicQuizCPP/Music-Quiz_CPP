@@ -28,10 +28,11 @@ namespace MusicQuiz {
 		/**
 		 * @brief Constructor
 		 *
-		 * @param[in] name The category name.
-		 * @param[in] audioPlayer The audio player.
-		 * @param[in] config configuration.
-		 * @param[in] parent The parent widget.
+		 * @param[in] name               The category name.
+		 * @param[in] audioPlayer        The audio player.
+		 * @param[in] textToSpeechPlayer The text to speech player.
+		 * @param[in] config             The configuration.
+		 * @param[in] parent             The parent widget.
 		 */
 		explicit CategoryCreator(const QString& name, const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer,
 			const common::Configuration& config, QWidget* parent = nullptr);
@@ -39,14 +40,16 @@ namespace MusicQuiz {
 		/**
 		 * @brief Constructor
 		 *
-		 * @param[in] tree property_tree to load category from.
-		 * @param[in] audioPlayer The audio player.
-		 * @param[in] config configuration.
-		 * @param[in] skipEntries whether entries loading should be skipped.
-		 * @param[in] parent The parent widget.
+		 * @param[in] tree               The property_tree to load category from.
+		 * @param[in] audioPlayer        The audio player.
+		 * @param[in] textToSpeechPlayer The text to speech player.
+		 * @param[in] config             The configuration.
+		 * @param[in] skipEntries        Flag to determine whether entries loading should be skipped.
+		 * @param[in] parent             The parent widget.
 		 */
-		explicit CategoryCreator(const boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, const common::Configuration& config, 
-			bool skipEntries = false, QWidget* parent = nullptr);
+		explicit CategoryCreator(const boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer,
+			const common::Configuration& config, bool skipEntries = false, QWidget* parent = nullptr);
+
 		/**
 		 * @brief Default destructor
 		 */

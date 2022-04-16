@@ -1,34 +1,32 @@
 #include "QuizData.hpp"
 
+#include <fstream>
+#include <algorithm>
 #include <exception>
 #include <filesystem>
 #include <system_error>
-#include <fstream>
-#include <algorithm>
 
 #include <QTemporaryDir> 
 
 #include <boost/property_tree/xml_parser.hpp>
 
-#include "common/TimeUtil.hpp"
 #include "common/Log.hpp"
+#include "common/TimeUtil.hpp"
 
 #include "util/QuizLoader.hpp"
 
-#include "CategoryCreator.hpp"
 #include "EntryCreator.hpp"
+#include "CategoryCreator.hpp"
 
 
 using namespace std;
 
 static void deleteDirectory(const filesystem::path& dir);
 
-MusicQuiz::QuizData::QuizData(const common::Configuration& config, const string& name, const media::AudioPlayer::Ptr& audioPlayer, 
-     QWidget* parent, bool skipEntries, regex categoryNameRegex) :
-    _config(config),
-    _name(name)
+MusicQuiz::QuizData::QuizData(const common::Configuration& config, const string& name, const media::AudioPlayer::Ptr& audioPlayer,
+    const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, QWidget* parent, bool skipEntries, regex categoryNameRegex) : 
+    _config(config), _name(name)
 {
-
     /** Get List of Quizzes */
     vector<string> quizList = MusicQuiz::util::QuizLoader::getListOfQuizzes(config);
     if ( quizList.empty() ) {
@@ -58,13 +56,14 @@ MusicQuiz::QuizData::QuizData(const common::Configuration& config, const string&
 
     setGuessTheCategory(ini_ctrl->second.get("QuizGuessTheCategory.<xmlattr>.enabled", false), 500);
 
-    setCategories(loadCategories(tree.get_child("MusicQuiz"), audioPlayer, skipEntries, categoryNameRegex, parent));
+    setCategories(loadCategories(tree.get_child("MusicQuiz"), audioPlayer, textToSpeechPlayer, skipEntries, categoryNameRegex, parent));
 
     setRowCategories(MusicQuiz::util::QuizLoader::loadQuizRowCategories(*quiz));
 
 }
 
-vector< MusicQuiz::CategoryCreator* > MusicQuiz::QuizData::loadCategories(boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, bool skipEntries, regex categoryNameRegex, QWidget* parent) const
+vector< MusicQuiz::CategoryCreator* > MusicQuiz::QuizData::loadCategories(boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer,
+    const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, bool skipEntries, regex categoryNameRegex, QWidget* parent) const
 {
     (void)categoryNameRegex;
 
@@ -80,7 +79,7 @@ vector< MusicQuiz::CategoryCreator* > MusicQuiz::QuizData::loadCategories(boost:
                         const boost::property_tree::ptree &category_tree = sub_ctrl->second;
                         string name = category_tree.get<std::string>("<xmlattr>.name");
                         if(std::regex_match(name, categoryNameRegex)) {
-                            categories.push_back(new MusicQuiz::CategoryCreator(category_tree, audioPlayer, _config, skipEntries, parent));
+                            categories.push_back(new MusicQuiz::CategoryCreator(category_tree, audioPlayer, textToSpeechPlayer, _config, skipEntries, parent));
                         }
                     }
                 }
@@ -91,6 +90,7 @@ vector< MusicQuiz::CategoryCreator* > MusicQuiz::QuizData::loadCategories(boost:
             }
         }
     }
+
     return categories;
 }
 
@@ -103,6 +103,7 @@ bool MusicQuiz::QuizData::areCategoryNamesUnique() const
             }
         }
     }
+
     return true;
 }
 
@@ -124,11 +125,11 @@ void MusicQuiz::QuizData::save() const
 
     boost::property_tree::ptree tree = constructPtree(tmpMediaDir.path().toStdString());
 
-    //Move media from tmp path to final path
+    /** Move media from tmp path to final path */
     deleteDirectory(getMediaPath());
     filesystem::rename(tmpMediaDir.path().toStdString(), getMediaPath());
 
-    //Save ptree to XML
+    /** Save ptree to XML */
     boost::property_tree::xml_writer_settings<string> settings('\t', 1);
     boost::property_tree::write_xml(getQuizPath() + "/" + _name + ".quiz.xml", tree, locale(), settings);
 
@@ -184,6 +185,7 @@ void MusicQuiz::QuizData::saveCheatSheet(const string &path) const
                 cheatSheet << "\n#" << i++ << " - " << entry->getPoints() << " - " << entry->getName().toStdString();
             }
         }
+
         cheatSheet.close();
     }
 }
@@ -230,6 +232,7 @@ void MusicQuiz::QuizData::setRowCategories(vector < QString > rowCategories)
     for(auto rowQString : rowCategories) {
         stringVec.push_back(rowQString.toStdString());
     }
+
     setRowCategories(stringVec);
 }
 
@@ -240,6 +243,7 @@ MusicQuiz::CategoryCreator* MusicQuiz::QuizData::getCategory(const string& categ
             return category;
         }
     }
+
     return nullptr;
 }
 
@@ -250,6 +254,7 @@ void deleteDirectory(const filesystem::path& dir)
         for ( ; file != end; ++file ) {
             filesystem::remove_all(file->path());
         }
+
         filesystem::remove_all(dir);
     }
 }
