@@ -4,11 +4,12 @@
 #include <time.h>
 #include <vector>
 #include <string>
+#include <random>
 #include <fstream>
 #include <stdlib.h>
 #include <stdexcept>
-#include <system_error>
 #include <exception>
+#include <system_error>
 
 #include <QString>
 #include <QMessageBox>
@@ -24,15 +25,15 @@
 #include "gui_tools/widgets/QuizCategory.hpp"
 #include "gui_tools/QuizCreator/CategoryCreator.hpp"
 
-using namespace std;
 
-MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const string& quizName, const QuizSettings& settings, const media::AudioPlayer::Ptr& audioPlayer,
-	const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, const vector<MusicQuiz::QuizTeam*>& teams, bool preview, QWidget* parent)
+MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const std::string& quizName, const QuizSettings& settings,
+	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer,
+	const common::Configuration& config, const std::vector< MusicQuiz::QuizTeam* >& teams, bool preview, QWidget* parent)
 {
 	/** Get List of Quizzes */
-	vector<string> quizList = MusicQuiz::util::QuizLoader::getListOfQuizzes(config);
+	std::vector< std::string > quizList = MusicQuiz::util::QuizLoader::getListOfQuizzes(config);
 	if ( quizList.empty() ) {
-		throw runtime_error("No quizzes found in the data folder.");
+		throw std::runtime_error("No quizzes found in the data folder.");
 	}
 
 	/** Check if Quiz Exists */
@@ -49,31 +50,32 @@ MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const string& quizName,
 
 	/** Sanity Check */
 	if ( !quizExists ) {
-		throw runtime_error("Quiz does not exists.");
+		throw std::runtime_error("Quiz does not exists.");
 	}
 
 	/** Create Quiz */
 	return createQuiz(idx, settings, audioPlayer, videoPlayer, textToSpeechPlayer, config, teams, preview, parent);
 }
 
-MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const size_t idx, const QuizSettings& settings, const media::AudioPlayer::Ptr& audioPlayer,
-	const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, const vector<MusicQuiz::QuizTeam*>& teams, bool preview, QWidget* parent)
+MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const size_t idx, const QuizSettings& settings,
+	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer,
+	const common::Configuration& config, const std::vector< MusicQuiz::QuizTeam* >& teams, bool preview, QWidget* parent)
 {
 	/** Seed Rand */
-	srand(static_cast<unsigned int>(time(NULL)));
+	srand(static_cast< unsigned int >(time(NULL)));
 
 	/** Create Quiz Board */
 	MusicQuiz::QuizBoard* quizBoard = nullptr;
 
 	/** Load Categories */
-	string loadError;
-	vector<MusicQuiz::QuizCategory*> categories = MusicQuiz::util::QuizLoader::loadQuizCategories(idx, audioPlayer, videoPlayer, textToSpeechPlayer, config, loadError);
+	std::string loadError;
+	std::vector< MusicQuiz::QuizCategory* > categories = MusicQuiz::util::QuizLoader::loadQuizCategories(idx, audioPlayer, videoPlayer, textToSpeechPlayer, config, loadError);
 	if ( !loadError.empty() ) {
 		QMessageBox::information(nullptr, "Info", "Incomplete Quiz:\n\n" + QString::fromStdString(loadError));
 	}
 
 	/** Load Row Categories */
-	vector< QString > rowCategories = MusicQuiz::util::QuizLoader::loadQuizRowCategories(idx, config);
+	std::vector< QString > rowCategories = MusicQuiz::util::QuizLoader::loadQuizRowCategories(idx, config);
 
 	/** Hidden Team Score */
 	if ( settings.hiddenTeamScore ) {
@@ -88,14 +90,14 @@ MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const size_t idx, const
 		numberOfEntries += categories[i]->getSize();
 	}
 
-	vector<size_t> entriesIndicies(numberOfEntries);
+	std::vector< size_t > entriesIndicies(numberOfEntries);
 	for ( size_t i = 0; i < numberOfEntries; ++i ) {
 		entriesIndicies[i] = i;
 	}
 
 	/** Get Daily Double Entries */
-	size_t dailyDoubleCount = static_cast<size_t>(std::floor(double(numberOfEntries * settings.dailyDoublePercentage) / 100.0));
-	vector<size_t> dailyDoubleSelectedElements;
+	size_t dailyDoubleCount = static_cast<size_t>(std::floor(static_cast< double >(numberOfEntries * settings.dailyDoublePercentage) / 100.0));
+	std::vector< size_t > dailyDoubleSelectedElements;
 	if ( settings.dailyDouble && !teams.empty() ) {
 		/** Ensure that there is atleas one element if the setting is enabled */
 		if ( dailyDoubleCount == 0 ) {
@@ -111,10 +113,9 @@ MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const size_t idx, const
 	}
 
 	/** Get Daily Triple Entries */
-	size_t dailyTripleCount = static_cast<size_t>(std::floor(double(numberOfEntries * settings.dailyTriplePercentage) / 100.0));
-	vector<size_t> dailyTripleSelectedElements;
+	size_t dailyTripleCount = static_cast<size_t>(std::floor(static_cast< double >(numberOfEntries * settings.dailyTriplePercentage) / 100.0));
+	std::vector< size_t > dailyTripleSelectedElements;
 	if ( settings.dailyTriple && !teams.empty() ) {
-
 		/** Select Elements */
 		while ( dailyTripleSelectedElements.size() < dailyTripleCount && !entriesIndicies.empty() ) {
 			const size_t randomIdx = rand() % entriesIndicies.size();
@@ -129,6 +130,7 @@ MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const size_t idx, const
 		if ( settings.guessTheCategory ) {
 			categories[i]->enableGuessTheCategory(settings.pointsPerCategory);
 		}
+
 		for ( size_t j = 0; j < categories[i]->getSize(); ++j ) {
 			MusicQuiz::QuizEntry* quizEntry = (*categories[i])[j];
 			if ( quizEntry != nullptr ) {
@@ -137,7 +139,6 @@ MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const size_t idx, const
 					if ( counter == dailyDoubleSelectedElements[k] ) {
 						quizEntry->setDoublePointsEnabled(true, settings.dailyDoubleHidden);
 					}
-
 				}
 
 				/** Triple Points */
@@ -145,7 +146,6 @@ MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const size_t idx, const
 					if ( counter == dailyTripleSelectedElements[k] ) {
 						quizEntry->setTriplePointsEnabled(true, settings.dailyTripleHidden);
 					}
-
 				}
 
 				/** Hidden Answers */

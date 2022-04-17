@@ -22,15 +22,18 @@
 #include "gui_tools/GuiUtil/QExtensions/QSliderWidget.hpp"
 
 
-MusicQuiz::EntryCreator::EntryCreator(const QString& name, const int points, const media::AudioPlayer::Ptr& audioPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, QWidget* parent) :
+MusicQuiz::EntryCreator::EntryCreator(const QString& name, const int points, const media::AudioPlayer::Ptr& audioPlayer,
+	const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, QWidget* parent) :
 	QWidget(parent), _points(points), _entryName(name), _audioPlayer(audioPlayer), _textToSpeechPlayer(textToSpeechPlayer), _config(config)
 {
 	/** Create Layout */
 	createLayout();
 }
 
-MusicQuiz::EntryCreator::EntryCreator(const boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, QWidget* parent) :
-	QWidget(parent), _points(tree.get<int>("Points")), _entryName(QString::fromStdString(tree.get<std::string>("<xmlattr>.name"))),	_audioPlayer(audioPlayer),	_textToSpeechPlayer(textToSpeechPlayer), _config(config)
+MusicQuiz::EntryCreator::EntryCreator(const boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer,
+	const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, QWidget* parent) :
+	QWidget(parent), _points(tree.get<int>("Points")), _entryName(QString::fromStdString(tree.get<std::string>("<xmlattr>.name"))),
+	_audioPlayer(audioPlayer),	_textToSpeechPlayer(textToSpeechPlayer), _config(config)
 {
 	createLayout();
 	const std::string type = tree.get<std::string>("<xmlattr>.type");
@@ -1015,10 +1018,10 @@ void MusicQuiz::EntryCreator::setEntryType(int index)
 		int height = 0;
 		if ( parentWidget()->parentWidget() != nullptr ) {
 			width = this->parentWidget()->parentWidget()->width();
-			height = int(this->parentWidget()->parentWidget()->width() * 0.75);
+			height = static_cast< int >(this->parentWidget()->parentWidget()->width() * 0.75);
 		} else {
 			width = this->width();
-			height = int(this->width() * 0.75);
+			height = static_cast< int >(this->width() * 0.75);
 		}
 		_videoPlayer->setMinimumSize(QSize(width / 2, height / 2));
 		_videoPlayer->resize(QSize(width / 2, height / 2));

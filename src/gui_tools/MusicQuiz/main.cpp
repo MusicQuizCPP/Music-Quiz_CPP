@@ -11,6 +11,7 @@
 #include "MusicQuizController.hpp"
 #include "gui_tools/QuizCreator/QuizCreator.hpp"
 
+
 static void errorMessage(const std::string& title, const std::string& errorMsg);
 static int runQuizCreator(QApplication& app, const common::Configuration& config);
 static int runMusicQuiz(QApplication& app, const common::Configuration& config);
@@ -99,7 +100,8 @@ int main(int argc, char* argv[])
 
 	if ( !config.doQuizDataPathExist() ) {
 		/** Popup to tell the user to select a data folder */
-		QMessageBox::information(nullptr, "Select Data Directory", "No Data Directory Found!\n\nSelect a directory containing the quiz data. This is required to load existing- and save new quizzes.", QMessageBox::Ok);
+		QMessageBox::information(nullptr, "Select Data Directory",
+			"No Data Directory Found!\n\nSelect a directory containing the quiz data. This is required to load existing- and save new quizzes.", QMessageBox::Ok);
 
 		/** Popup to select the data folder */
 		selectQuizData(config);
@@ -129,5 +131,6 @@ int main(int argc, char* argv[])
 			return 0;
 		}
 	}
+
 	return 0;
 }

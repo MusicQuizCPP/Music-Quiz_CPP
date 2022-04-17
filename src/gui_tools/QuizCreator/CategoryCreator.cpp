@@ -18,7 +18,8 @@
 #include "gui_tools/QuizCreator/EntryCreator.hpp"
 
 
-MusicQuiz::CategoryCreator::CategoryCreator(const QString& name, const media::AudioPlayer::Ptr& audioPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, QWidget* parent) :
+MusicQuiz::CategoryCreator::CategoryCreator(const QString& name, const media::AudioPlayer::Ptr& audioPlayer,
+	const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, QWidget* parent) :
 	QWidget(parent), _categoryName(name), _audioPlayer(audioPlayer), _textToSpeechPlayer(textToSpeechPlayer), _config(config)
 {
 	/** Create Layout */
@@ -215,6 +216,7 @@ void MusicQuiz::CategoryCreator::removeEntry()
 
 	removeEntry(index);
 }
+
 void MusicQuiz::CategoryCreator::removeEntry(int index)
 {
 	/** Sanity Check */
@@ -222,7 +224,7 @@ void MusicQuiz::CategoryCreator::removeEntry(int index)
 		return;
 	}
 
-	if ( index >= _tabWidget->count() || index >= _entriesTable->rowCount() || index < 0) {
+	if ( index >= _tabWidget->count() || index >= _entriesTable->rowCount() || index < 0 ) {
 		return;
 	}
 
@@ -274,7 +276,6 @@ void MusicQuiz::CategoryCreator::moveEntryDown()
 	swapEntries(idx, idx + 1);
 }
 
-
 int MusicQuiz::CategoryCreator::getSenderIdx() const
 {
 	const QPushButton* const button = qobject_cast<QPushButton*>(sender());
@@ -293,7 +294,7 @@ void MusicQuiz::CategoryCreator::swapEntries(int firstIdx, int secondIdx)
 	}
 
 	std::vector<int> indexes {firstIdx, secondIdx};
-	for(auto idx : indexes) {
+	for ( auto idx : indexes ) {
 		if ( idx < 0                          ||
 			 idx >= _tabWidget->count()       || 
 			 idx >= _entriesTable->rowCount() || 
@@ -301,10 +302,10 @@ void MusicQuiz::CategoryCreator::swapEntries(int firstIdx, int secondIdx)
 			return; 
 		}
 	}
-	if(firstIdx == secondIdx) {
+
+	if ( firstIdx == secondIdx ) {
 		return;
-	}
-	if(firstIdx > secondIdx) {
+	} else if ( firstIdx > secondIdx ) {
 		std::swap(firstIdx, secondIdx);
 	}
 
@@ -386,13 +387,14 @@ const std::vector< MusicQuiz::EntryCreator* > MusicQuiz::CategoryCreator::getEnt
 
 bool MusicQuiz::CategoryCreator::areEntryNamesUnique() const
 {
-	for(size_t i = 0; i < _entries.size(); ++i) {
+	for ( size_t i = 0; i < _entries.size(); ++i ) {
 		for ( size_t j = 0; j < _entries.size(); ++j ) {
 			if ( i != j && _entries[i]->getName().toStdString() == _entries[j]->getName().toStdString() ) {
 				return false;
 			}
 		}
 	}
+
 	return true;
 }
 
@@ -403,7 +405,7 @@ boost::property_tree::ptree MusicQuiz::CategoryCreator::saveToXml(const std::str
 		throw std::runtime_error("Failed to save quiz. All categories must have a name");
 	}
 
-	if( !areEntryNamesUnique() ) {
+	if ( !areEntryNamesUnique() ) {
 		throw std::runtime_error("Failed to save quiz. " + name + ": All entires in a category must have a unique name.");
 	}
 
@@ -418,7 +420,7 @@ boost::property_tree::ptree MusicQuiz::CategoryCreator::saveToXml(const std::str
 	}
 
 	for ( auto entry : _entries) {
-		if(entry->getName().toStdString().empty()) {
+		if ( entry->getName().toStdString().empty() ) {
 			throw std::runtime_error("Failed to save quiz. " + name + ": All entries needs to have a name.");
 		}
 

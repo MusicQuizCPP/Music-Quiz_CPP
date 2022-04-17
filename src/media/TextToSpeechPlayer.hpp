@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 
 #include <QVoice>
 #include <QString>
@@ -14,6 +15,7 @@ namespace media {
 	class TextToSpeechPlayer : public QWidget {
 		Q_OBJECT
 	public:
+
 		/** The text to speech settings */
 		struct TextToSpeechSettings {
 			/** Voice */
@@ -72,7 +74,6 @@ namespace media {
 		 * @brief Stops the audio.
 		 */
 		void stop();
-
 
 		/**
 		 * @brief Returns the list of available voices.

@@ -31,7 +31,8 @@ MusicQuiz::MusicQuizController::MusicQuizController(const common::Configuration&
 
 	/** Create Video Player */
 	_videoPlayer = std::make_shared< media::VideoPlayer >();
-	_videoPlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint | Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+	_videoPlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint |
+		Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
 
 	/** Set Video Player Size */
 	const QRect screenRec = QGuiApplication::primaryScreen()->geometry();
@@ -113,7 +114,8 @@ void MusicQuiz::MusicQuizController::executeQuiz()
 
 		/** Connect Signals */
 		connect(_quizSelector, SIGNAL(quitSignal()), this, SLOT(quitQuiz()));
-		connect(_quizSelector, SIGNAL(quizSelectedSignal(size_t, const QString&, const QString&, const MusicQuiz::QuizSettings&)), this, SLOT(quizSelected(size_t, const QString&, const QString&, const MusicQuiz::QuizSettings&)));
+		connect(_quizSelector, SIGNAL(quizSelectedSignal(size_t, const QString&, const QString&, const MusicQuiz::QuizSettings&)),
+			this, SLOT(quizSelected(size_t, const QString&, const QString&, const MusicQuiz::QuizSettings&)));
 
 		/** Show widget */
 		_quizSelector->exec();

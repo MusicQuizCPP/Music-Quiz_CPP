@@ -1,6 +1,8 @@
 #pragma once
 
+#include <memory>
 #include <vector>
+#include <string>
 
 #include <QObject>
 #include <QWidget>
@@ -22,7 +24,6 @@ namespace common {
 	class Configuration;
 }
 
-
 namespace MusicQuiz {
 	class QuizBoard;
 	class CategoryCreator;
@@ -30,6 +31,7 @@ namespace MusicQuiz {
 	class QuizCreator : public QDialog {
 		Q_OBJECT
 	public:
+
 		/**
 		 * @brief Constructor
 		 *

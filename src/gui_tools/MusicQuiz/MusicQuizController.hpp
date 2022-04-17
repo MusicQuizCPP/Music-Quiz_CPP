@@ -1,8 +1,9 @@
 #pragma once 
 
-#include <string>
 #include <atomic>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include <QtGui>
 #include <QTimer>

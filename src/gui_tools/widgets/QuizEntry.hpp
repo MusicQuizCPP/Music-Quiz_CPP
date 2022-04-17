@@ -14,13 +14,15 @@
 #include "media/TextToSpeechPlayer.hpp"
 
 #include "common/Log.hpp"
-class QMouseEvent;
 
+
+class QMouseEvent;
 
 namespace MusicQuiz {
 	class QuizEntry : public QPushButton {
 		Q_OBJECT
 	public:
+
 		/**
 		 * @brief Entry Type Song Constructor
 		 *

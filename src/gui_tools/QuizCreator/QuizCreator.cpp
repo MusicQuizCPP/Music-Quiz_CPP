@@ -33,7 +33,6 @@
 
 #include "gui_tools/QuizCreator/CategoryCreator.hpp"
 
-using namespace std;
 
 MusicQuiz::QuizCreator::QuizCreator(const common::Configuration& config, QWidget* parent) :
 	QDialog(parent), _config(config)
@@ -57,10 +56,10 @@ MusicQuiz::QuizCreator::QuizCreator(const common::Configuration& config, QWidget
 	}
 
 	/** Create Audio Player */
-	_audioPlayer = make_shared<media::AudioPlayer>();
+	_audioPlayer = std::make_shared< media::AudioPlayer >();
 
 	/** Create Video Player */
-	_videoPlayer = make_shared<media::VideoPlayer>();
+	_videoPlayer = std::make_shared< media::VideoPlayer >();
 	_videoPlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint);
 
 	/** Set Video Player Size */
@@ -69,7 +68,7 @@ MusicQuiz::QuizCreator::QuizCreator(const common::Configuration& config, QWidget
 	_videoPlayer->resize(QSize(screenRec.width() / 4, screenRec.height() / 4));
 
 	/** Create Text To Speech Player */
-	_textToSpeechPlayer = make_shared<media::TextToSpeechPlayer>();
+	_textToSpeechPlayer = std::make_shared< media::TextToSpeechPlayer >();
 
 	/** Create Layout */
 	createLayout();
@@ -473,18 +472,18 @@ void MusicQuiz::QuizCreator::updateCategoryTabName(const QString& str)
 	}
 }
 
-const vector< QString > MusicQuiz::QuizCreator::getRowCategories() const
+const std::vector< QString > MusicQuiz::QuizCreator::getRowCategories() const
 {
 	/** Sanity Check */
 	if ( _rowCategoriesTable == nullptr ) {
-		return vector< QString >();
+		return std::vector< QString >();
 	}
 
 	/** Get Number of Row Categories */
 	const int rowCategoryCount = _rowCategoriesTable->rowCount();
 
 	/** Get Row Category Name */
-	vector< QString > rowCategories;
+	std::vector< QString > rowCategories;
 	for ( int i = 0; i < rowCategoryCount; ++i ) {
 		QLineEdit* lineEdit = qobject_cast<QLineEdit*>(_rowCategoriesTable->cellWidget(i, 0));
 		if ( lineEdit == nullptr ) {
@@ -542,7 +541,7 @@ void MusicQuiz::QuizCreator::saveQuiz()
 	try {
 		quizData.save();
 		QMessageBox::information(this, "Info", "Quiz saves successfully.");
-	} catch ( const exception& err ) {
+	} catch ( const std::exception& err ) {
 		QMessageBox::warning(this, "Failed to Save Quiz", QString::fromStdString(err.what()));
 	} catch ( ... ) {
 		QMessageBox::warning(this, "Failed to Save Quiz", "Failed to save the quiz. Unkown Error.");
@@ -578,7 +577,7 @@ void MusicQuiz::QuizCreator::openLoadCategoryDialog()
 }
 
 
-void MusicQuiz::QuizCreator::loadQuiz(const string& quizName)
+void MusicQuiz::QuizCreator::loadQuiz(const std::string& quizName)
 {
 	/** Sanity Check */
 	if ( quizName.empty() ) {
@@ -596,7 +595,7 @@ void MusicQuiz::QuizCreator::loadQuiz(const string& quizName)
 	LOG_INFO("Loading quiz '" << quizName << "'");
 	try {
 		loadQuizData(QuizData(_config, quizName, _audioPlayer, _textToSpeechPlayer, this));
-	} catch ( const exception& err ) {
+	} catch ( const std::exception& err ) {
 		QMessageBox::warning(this, "Info", "Failed to load quiz. " + QString::fromStdString(err.what()));
 		return;
 	} catch ( ... ) {
@@ -605,22 +604,21 @@ void MusicQuiz::QuizCreator::loadQuiz(const string& quizName)
 	}
 }
 
-void MusicQuiz::QuizCreator::loadQuizCategory(const string& quizName, const string& categoryName)
+void MusicQuiz::QuizCreator::loadQuizCategory(const std::string& quizName, const std::string& categoryName)
 {
 	/** Sanity Check */
-	if ( quizName.empty() || categoryName.empty()) {
+	if ( quizName.empty() || categoryName.empty() ) {
 		return;
 	}
-
 
 	/** Load Quiz */
 	LOG_INFO("Loading quiz '" << quizName << "'");
 	try {
-		QuizData quizData = QuizData(_config, quizName, _audioPlayer, _textToSpeechPlayer, this, false, regex("^" + categoryName + "$"));
-		for(auto &category : quizData.getCategories()) {
+		QuizData quizData = QuizData(_config, quizName, _audioPlayer, _textToSpeechPlayer, this, false, std::regex("^" + categoryName + "$"));
+		for ( auto &category : quizData.getCategories() ) {
 			loadCategory(category);
 		}
-	} catch ( const exception& err ) {
+	} catch ( const std::exception& err ) {
 		QMessageBox::warning(this, "Info", "Failed to load quiz. " + QString::fromStdString(err.what()));
 		return;
 	} catch ( ... ) {
@@ -628,7 +626,6 @@ void MusicQuiz::QuizCreator::loadQuizCategory(const string& quizName, const stri
 		return;
 	}
 }
-
 
 void MusicQuiz::QuizCreator::loadQuizData(const QuizData& quizData)
 {
@@ -771,9 +768,9 @@ void MusicQuiz::QuizCreator::previewQuiz()
 	_textToSpeechPlayer->stop();
 
 	/** Check that quiz have been saved */
-	const string quizName = _quizNameLineEdit->text().toStdString();
-	const string quizPath = _config.getQuizDataPath() + "/" + quizName + "/" + quizName + ".quiz.xml", tree;
-	if ( !filesystem::exists(quizPath) ) {
+	const std::string quizName = _quizNameLineEdit->text().toStdString();
+	const std::string quizPath = _config.getQuizDataPath() + "/" + quizName + "/" + quizName + ".quiz.xml", tree;
+	if ( !std::filesystem::exists(quizPath) ) {
 		QMessageBox::information(nullptr, "Info", "Quiz must be saved before the preview can be shown.");
 		return;
 	}
@@ -795,7 +792,7 @@ void MusicQuiz::QuizCreator::previewQuiz()
 
 		/** Start Preview */
 		_previewQuizBoard->show();
-	} catch ( const exception& err ) {
+	} catch ( const std::exception& err ) {
 		QMessageBox::warning(this, "Info", "Failed to preview quiz. " + QString::fromStdString(err.what()));
 		return;
 	} catch ( ... ) {

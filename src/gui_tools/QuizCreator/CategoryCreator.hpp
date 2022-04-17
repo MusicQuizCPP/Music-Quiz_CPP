@@ -1,5 +1,9 @@
 #pragma once 
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include <QLabel>
 #include <QObject>
 #include <QWidget>
