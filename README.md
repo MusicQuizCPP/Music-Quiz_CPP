@@ -21,5 +21,5 @@ This repository contains the code for the music quiz game. The game is a Jepardy
 ## Installation
 [Install instructions](documentation/INSTALL.md).
 
-## Coding Guidelines 
+## Coding Guidelines
 [Coding Guidlines](documentation/CodingGuidlines.md).
