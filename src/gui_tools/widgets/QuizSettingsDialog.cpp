@@ -1,9 +1,11 @@
 #include "QuizSettingsDialog.hpp"
 
-#include <stdexcept>
+#include <map>
 #include <chrono>
-#include <QString>
+#include <stdexcept>
+
 #include <QLabel>
+#include <QString>
 #include <QWidget>
 #include <QGridLayout>
 #include <QHBoxLayout>

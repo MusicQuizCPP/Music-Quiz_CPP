@@ -16,11 +16,13 @@
 #include "lightcontrol/client/LightControlClient.hpp"
 #endif
 
+
 namespace MusicQuiz {
 	class QuizTeam;
 	class QuizCategory;
 	class QuizBoard : public QDialog {
 		Q_OBJECT
+
 	public:
 		/**
 		 * @brief Constructor

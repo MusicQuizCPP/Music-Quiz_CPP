@@ -1,5 +1,6 @@
 #include "CategoryCreator.hpp"
 
+#include <utility>
 #include <filesystem>
 
 #include <QLabel>
@@ -375,7 +376,7 @@ void MusicQuiz::CategoryCreator::setEntries(const std::vector< MusicQuiz::EntryC
 	_entries.clear();
 
 	/** Add Entries to Table */
-	for ( auto entry : entries) {
+	for ( auto entry : entries ) {
 		addEntry(entry);
 	}
 }
@@ -419,7 +420,7 @@ boost::property_tree::ptree MusicQuiz::CategoryCreator::saveToXml(const std::str
 		throw std::runtime_error("Failed to create directory to save the category files in.");
 	}
 
-	for ( auto entry : _entries) {
+	for ( auto entry : _entries ) {
 		if ( entry->getName().toStdString().empty() ) {
 			throw std::runtime_error("Failed to save quiz. " + name + ": All entries needs to have a name.");
 		}

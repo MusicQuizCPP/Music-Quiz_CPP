@@ -14,8 +14,8 @@
 namespace media {
 	class TextToSpeechPlayer : public QWidget {
 		Q_OBJECT
-	public:
 
+	public:
 		/** The text to speech settings */
 		struct TextToSpeechSettings {
 			/** Voice */

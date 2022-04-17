@@ -25,6 +25,7 @@
 namespace MusicQuiz {
 	class QuizSettingsDialog : public QDialog {
 		Q_OBJECT
+
 	public:
 		/**
 		 * @brief Constructor
@@ -126,6 +127,7 @@ namespace MusicQuiz {
 	signals:
 		void quitSignal();
 		void settingsUpdated(MusicQuiz::QuizSettings settings);
+
 	protected:
 		/**
 		 * @brief Creates the category layout.

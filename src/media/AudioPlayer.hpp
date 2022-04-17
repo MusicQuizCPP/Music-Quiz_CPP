@@ -11,8 +11,8 @@
 namespace media {
 	class AudioPlayer : public QWidget {
 		Q_OBJECT
-	public:
 
+	public:
 		/**
 		 * @brief Constructor
 		 *

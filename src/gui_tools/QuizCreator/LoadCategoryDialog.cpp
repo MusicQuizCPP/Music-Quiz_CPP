@@ -30,7 +30,7 @@ void MusicQuiz::LoadCategoryDialog::updateTable()
     std::vector<std::string> quizList = MusicQuiz::util::QuizLoader::getListOfQuizzes(_config);
     for ( auto& quizName : quizList ) {
         try {
-            std::replace( quizName.begin(), quizName.end(), '\\', '/');
+            std::replace(quizName.begin(), quizName.end(), '\\', '/');
             MusicQuiz::QuizData qdata(_config, quizName, nullptr, nullptr, this, true);
             for ( auto &category : qdata.getCategories() ) {
                 _categoryList.push_back(std::make_pair(quizName, category->getName().toStdString()));

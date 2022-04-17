@@ -24,7 +24,7 @@ namespace MusicQuiz {
              *
              * @param[in] config configuration.
              */
-            QuizData(const common::Configuration& config) : _config(config) {}
+            explicit QuizData(const common::Configuration& config) : _config(config) {}
 
             /**
              * @brief Constructor create quizdata from existing quiz on disk

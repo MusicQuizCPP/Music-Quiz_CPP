@@ -1,15 +1,13 @@
+#include <thread>
+#include <chrono>
+#include <iostream>
+
 #include "lightcontrol/discover/LightControlDiscover.hpp"
 #include "lightcontrol/client/LightControlClient.hpp"
 #include "lightcontrol/client/messages/LightModeMessage.hpp"
 #include "lightcontrol/client/messages/PulseMessage.hpp"
 #include "lightcontrol/client/messages/StrobeMessage.hpp"
 #include "lightcontrol/client/messages/GlitterMessage.hpp"
-
-#include <iostream>
-#include <chrono>
-#include <thread>
-
-using namespace LightControl;
 
 
 int main()

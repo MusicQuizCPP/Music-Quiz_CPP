@@ -21,8 +21,8 @@ class QMouseEvent;
 namespace MusicQuiz {
 	class QuizEntry : public QPushButton {
 		Q_OBJECT
-	public:
 
+	public:
 		/**
 		 * @brief Entry Type Song Constructor
 		 *

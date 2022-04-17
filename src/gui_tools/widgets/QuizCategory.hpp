@@ -14,6 +14,7 @@ namespace MusicQuiz {
 	class QuizEntry;
 	class QuizCategory : public QWidget {
 		Q_OBJECT
+
 	public:
 		/**
 		 * @brief Constructor

@@ -156,7 +156,7 @@ boost::property_tree::ptree MusicQuiz::QuizData::constructPtree(const std::strin
         throw std::runtime_error("Failed to save quiz. All categories must have an unique name");
     }
 
-    for ( auto& category : _categories) {
+    for ( auto& category : _categories ) {
         main_tree.add_child("QuizCategories.Category", category->saveToXml(savePath, getMediaPath()));
     }
 
@@ -178,7 +178,7 @@ void MusicQuiz::QuizData::saveCheatSheet(const std::string &path) const
         for ( auto category : _categories ) {
             cheatSheet << "\n\n-----  " << category->getName().toStdString() << "  -----";
             int i = 1;
-            for ( auto entry : category->getEntries()) {
+            for ( auto entry : category->getEntries() ) {
                 cheatSheet << "\n#" << i++ << " - " << entry->getPoints() << " - " << entry->getName().toStdString();
             }
         }
