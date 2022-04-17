@@ -30,6 +30,7 @@ namespace MusicQuiz {
 
 	class QuizCreator : public QDialog {
 		Q_OBJECT
+
 	public:
 		/**
 		 * @brief Constructor
