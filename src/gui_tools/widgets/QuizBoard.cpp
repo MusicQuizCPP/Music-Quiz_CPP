@@ -67,7 +67,8 @@ MusicQuiz::QuizBoard::QuizBoard(const std::vector<MusicQuiz::QuizCategory*>& cat
 	}
 
 	if ( sameNumberOfEntries ) {
-		_rowCategories = rowCategories;
+		_rowCategories.push_back("");
+		_rowCategories.insert(_rowCategories.end(), rowCategories.begin(), rowCategories.end());
 	}
 
 	/** Create Widget Layout */
@@ -127,6 +128,7 @@ void MusicQuiz::QuizBoard::createLayout()
 
 	/** Row Categories */
 	if ( !_rowCategories.empty() ) {
+
 		QVBoxLayout* rowCategorylayout = new QVBoxLayout;
 		rowCategorylayout->setSpacing(10);
 
