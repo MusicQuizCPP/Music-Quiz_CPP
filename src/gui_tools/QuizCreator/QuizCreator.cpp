@@ -878,16 +878,16 @@ void MusicQuiz::QuizCreator::checkThatQuizIsValid(const std::vector< MusicQuiz::
 			switch ( entry->getType() ) {
 			case MusicQuiz::EntryCreator::EntryType::Video:
 				if ( entry->getVideoFile().isEmpty() ) {
-					throw std::runtime_error("'" + entry->getName().toStdString() + "' does not have a valid video file.");
+					throw std::runtime_error("Entry '" + entry->getName().toStdString() + "' does not have a valid video file.");
 				}
 			case MusicQuiz::EntryCreator::EntryType::Song:
 				if ( entry->getSongFile().isEmpty() ) {
-					throw std::runtime_error("'" + entry->getName().toStdString() + "' does not have a valid song file.");
+					throw std::runtime_error("Entry '" + entry->getName().toStdString() + "' does not have a valid song file.");
 				}
 				break;
 			case MusicQuiz::EntryCreator::EntryType::TextToSpeech:
 				if ( entry->getTextToSpeechString().isEmpty() ) {
-					throw std::runtime_error("'" + entry->getName().toStdString() + "' does not have a valid speech string.");
+					throw std::runtime_error("Entry '" + entry->getName().toStdString() + "' does not have a valid speech string.");
 				}
 				break;
 			default:
