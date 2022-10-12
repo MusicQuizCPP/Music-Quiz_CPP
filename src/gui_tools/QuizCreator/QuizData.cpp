@@ -111,7 +111,7 @@ void MusicQuiz::QuizData::save() const
     }
     
     createQuizDirectory();
-    QTemporaryDir tmpMediaDir(QString::fromStdString(getQuizPath() + "/tmpXXXXXX"));
+    QTemporaryDir tmpMediaDir(QString::fromStdString(getQuizPath() + "/tmp"));
     if ( !tmpMediaDir.isValid() ) {
         throw std::runtime_error("Failed to create directory to save the media files in.");
     }
