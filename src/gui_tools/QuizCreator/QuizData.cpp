@@ -108,10 +108,6 @@ void MusicQuiz::QuizData::save() const
 {
     if ( _name.empty() ) {
         throw std::runtime_error("The quiz name needs to be set before saving.");
-    } else if ( _author.empty() ) {
-        throw std::runtime_error("The author needs to be set before saving.");
-    } else if ( _description.empty() ) {
-        throw std::runtime_error("The description needs to be set before saving.");
     }
     
     createQuizDirectory();
