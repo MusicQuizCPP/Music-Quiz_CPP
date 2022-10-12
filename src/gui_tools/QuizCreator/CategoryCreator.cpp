@@ -1,5 +1,6 @@
 #include "CategoryCreator.hpp"
 
+#include <regex>
 #include <utility>
 #include <filesystem>
 
@@ -103,13 +104,12 @@ void MusicQuiz::CategoryCreator::createLayout()
 
 void MusicQuiz::CategoryCreator::addEntry(MusicQuiz::EntryCreator* entry, int entryIndex)
 {
-	QString entryNameStr;
-
 	/** Get Number of Entries */
-
 	if(entryIndex < 0) {
 	 	entryIndex = _entriesTable->rowCount();
 	}
+
+	QString entryNameStr;
 	if(entry == nullptr) {
 		entryNameStr = "Entry " + QString::number(entryIndex + 1);
 		const int points = (entryIndex + 1) * 100;
@@ -117,6 +117,7 @@ void MusicQuiz::CategoryCreator::addEntry(MusicQuiz::EntryCreator* entry, int en
 	} else {
 		entryNameStr = entry->getName();
 	}
+
 	/** Sanity Check */
 	if ( _entriesTable == nullptr ) {
 		return;
@@ -151,6 +152,7 @@ void MusicQuiz::CategoryCreator::addEntry(MusicQuiz::EntryCreator* entry, int en
 	_entries.insert(_entries.begin() + entryIndex, entry);
 	_tabWidget->insertTab(entryIndex + 1, entry, entryNameStr);
 
+	/** Update indices */
 	updateIndices();
 }
 
@@ -421,10 +423,26 @@ boost::property_tree::ptree MusicQuiz::CategoryCreator::saveToXml(const std::str
 	}
 
 	for ( auto entry : _entries ) {
-		if ( entry->getName().toStdString().empty() ) {
+		/** Check name */
+		const std::string entryName = entry->getName().toStdString();
+		if ( entryName.empty() ) {
 			throw std::runtime_error("Failed to save quiz. " + name + ": All entries needs to have a name.");
 		}
 
+		/** Remove leading, trailing and extra spaces */
+		std::string fixedEntryname = std::regex_replace(entryName, std::regex("^ +| +$|( ) +"), "$1"); 
+		if ( entryName != fixedEntryname ) {
+			entry->setName(QString::fromStdString(fixedEntryname));
+			for ( int i = 0; i < _entriesTable->rowCount(); ++i ) {
+				QLineEdit* tmpLineEdit = qobject_cast<QLineEdit*>(_entriesTable->cellWidget(i, 0));
+				if ( tmpLineEdit != nullptr && tmpLineEdit->text().toStdString() == entryName ) {
+					tmpLineEdit->setText(QString::fromStdString(fixedEntryname));
+					break;
+				}
+			}
+		}
+		
+		/** Add child to tree */
 		tree.add_child("QuizEntry", entry->toXml(savePath + "/" + name, xmlPath + "/" + name));
 	}
 

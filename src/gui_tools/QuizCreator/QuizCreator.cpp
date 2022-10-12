@@ -1,8 +1,11 @@
 #include "QuizCreator.hpp"
 
+#include <regex>
+
 #include <QList>
 #include <QLabel>
 #include <QString>
+#include <QScreen>
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QSpacerItem>
@@ -13,7 +16,6 @@
 #include <QTableWidgetItem>
 #include <QAbstractItemView>
 #include <QGuiApplication>
-#include <QScreen>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -512,7 +514,9 @@ void MusicQuiz::QuizCreator::saveQuiz()
 	QuizData quizData(_config);
 
 	/** Quiz Name */
-	quizData.setName(_quizNameLineEdit->text().toStdString());
+	const std::string quizName = std::regex_replace(_quizNameLineEdit->text().toStdString(), std::regex("^ +| +$|( ) +"), "$1"); // Remove leading, trailing and extra spaces 
+	_quizNameLineEdit->setText(QString::fromStdString(quizName));
+	quizData.setName(quizName);
 
 	/** Quiz Author */
 	quizData.setAuthor(_quizAuthorLineEdit->text().toStdString());
@@ -779,6 +783,17 @@ void MusicQuiz::QuizCreator::previewQuiz()
 	MusicQuiz::QuizSettings settings;
 	settings.guessTheCategory = _hiddenCategoriesCheckbox->isChecked();
 
+	/** Check that quiz is valid */
+	try {
+		checkThatQuizIsValid(_categories);
+	} catch ( const std::exception& err ) {
+		QMessageBox::warning(this, "Info", "Failed to preview quiz:\n\n" + QString::fromStdString(err.what()));
+		return;
+	} catch ( ... ) {
+		QMessageBox::warning(this, "Info", "Failed to preview quiz.");
+		return;
+	}
+
 	/** Create Quiz Preview */
 	try {
 		_previewQuizBoard = MusicQuiz::QuizFactory::createQuiz(quizPath, settings, _audioPlayer, _videoPlayer, _textToSpeechPlayer, _config, {}, true, this);
@@ -793,7 +808,7 @@ void MusicQuiz::QuizCreator::previewQuiz()
 		/** Start Preview */
 		_previewQuizBoard->show();
 	} catch ( const std::exception& err ) {
-		QMessageBox::warning(this, "Info", "Failed to preview quiz. " + QString::fromStdString(err.what()));
+		QMessageBox::warning(this, "Info", "Failed to preview quiz:\n\n" + QString::fromStdString(err.what()));
 		return;
 	} catch ( ... ) {
 		QMessageBox::warning(this, "Info", "Failed to preview quiz.");
@@ -829,6 +844,55 @@ void MusicQuiz::QuizCreator::stopQuizPreview()
 	_previewQuizBoard->close();
 	delete _previewQuizBoard;
 	_previewQuizBoard = nullptr;
+}
+
+void MusicQuiz::QuizCreator::checkThatQuizIsValid(const std::vector< MusicQuiz::CategoryCreator* >& categories)
+{
+	/** Check that the quiz has any categories */
+	if ( categories.empty() ) {
+		throw std::runtime_error("The quiz does not have any categories.");
+	}
+
+	/** Loop through the categories */
+	for ( auto& category : categories ) {
+		/** Check category name */
+		if ( category->getName().isEmpty() ) {
+			throw std::runtime_error("All categories must have a name.");
+		}
+
+		/** Check category entries */
+		if ( category->getEntries().empty() ) {
+			throw std::runtime_error("All categories must have at least one entry.");
+		}
+
+		/** Loop through the entries */
+		for ( auto& entry : category->getEntries() ) {
+			/** Check entry name */
+			if ( entry->getName().isEmpty() ) {
+				throw std::runtime_error("All category entries must have a name.");
+			}
+
+			/** Check entry data */
+			switch ( entry->getType() ) {
+			case MusicQuiz::EntryCreator::EntryType::Video:
+				if ( entry->getVideoFile().isEmpty() ) {
+					throw std::runtime_error("'" + entry->getName().toStdString() + "' does not have a valid video file.");
+				}
+			case MusicQuiz::EntryCreator::EntryType::Song:
+				if ( entry->getSongFile().isEmpty() ) {
+					throw std::runtime_error("'" + entry->getName().toStdString() + "' does not have a valid song file.");
+				}
+				break;
+			case MusicQuiz::EntryCreator::EntryType::TextToSpeech:
+				if ( entry->getTextToSpeechString().isEmpty() ) {
+					throw std::runtime_error("'" + entry->getName().toStdString() + "' does not have a valid speech string.");
+				}
+				break;
+			default:
+				break;
+			}
+		}
+	}
 }
 
 void MusicQuiz::QuizCreator::quitCreator()

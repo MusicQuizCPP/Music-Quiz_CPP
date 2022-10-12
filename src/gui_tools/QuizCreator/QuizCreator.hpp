@@ -170,6 +170,14 @@ namespace MusicQuiz {
 		 */
 		void createLayout();
 
+		/**
+		 * @brief Checks that the quiz is valid, and throws otherwise.
+		 *
+		 * @param[in] categories The quiz categories.
+		 */
+		void checkThatQuizIsValid(const std::vector< MusicQuiz::CategoryCreator* >& categories);
+
+
 		/** Variables */
 		std::string _quizSavedName = "";
 
