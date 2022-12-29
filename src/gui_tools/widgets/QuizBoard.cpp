@@ -23,6 +23,10 @@
 
 #if BUILD_LIGHT_CONTROL
 #include "LightDeviceConnectedWidget.hpp"
+#include "lightcontrol/client/messages/SetColor.hpp"
+#include "lightcontrol/client/messages/SetOn.hpp"
+#include "lightcontrol/client/messages/SetEffect.hpp"
+
 #endif
 
 
@@ -83,7 +87,8 @@ MusicQuiz::QuizBoard::QuizBoard(const std::vector<MusicQuiz::QuizCategory*>& cat
 #if BUILD_LIGHT_CONTROL
 void MusicQuiz::QuizBoard::lightClientConnectedCallback(LightControl::LightControlClient* client)
 {
-	// client->sendMessage(LightControl::LightModeMessage(LightControl::LightMode::OFF, 1.f, 0, 0, 0));
+	client->sendMessage(LightControl::SetOn(false, 255));
+	client->sendMessage(LightControl::SetEffect(LightControl::WledEffects::SOLID, 255, 255));
 }
 #endif
 
@@ -232,10 +237,14 @@ void MusicQuiz::QuizBoard::handleAnswer(const size_t points)
 
 	/** Set color on light device */
 #if BUILD_LIGHT_CONTROL
-		// _lightClient->sendMessage(LightControl::LightModeMessage(LightControl::LightMode::ON, 1.f,
-		// 	static_cast<uint8_t>(buttonColor.red()),
-		// 	static_cast<uint8_t>(buttonColor.green()),
-		// 	static_cast<uint8_t>(buttonColor.blue())));
+	if ( _lightClient != nullptr ) {
+		_lightClient->sendMessage(LightControl::SetEffect(LightControl::WledEffects::SOLID, 255, 255));
+		_lightClient->sendMessage(LightControl::SetColor(
+			static_cast<uint8_t>(buttonColor.red()),
+			static_cast<uint8_t>(buttonColor.green()),
+			static_cast<uint8_t>(buttonColor.blue())));
+		_lightClient->sendMessage(LightControl::SetOn(true, 255));
+	}
 #endif
 
 	/** Set Button Color */
@@ -285,8 +294,9 @@ void MusicQuiz::QuizBoard::handleGameComplete()
 
 #if BUILD_LIGHT_CONTROL
 		if ( _lightClient != nullptr ) {
-			// _lightClient->sendMessage(LightControl::GlitterMessage(std::chrono::milliseconds(100), true, 50));
-			// _lightClient->sendMessage(LightControl::LightModeMessage(LightControl::LightMode::GLITTER, 1.f, 0, 0, 0));
+			_lightClient->sendMessage(LightControl::SetEffect(LightControl::WledEffects::TWINKLE_CAT, 255, 128));
+			_lightClient->sendMessage(LightControl::SetColor(255, 255, 255));
+			_lightClient->sendMessage(LightControl::SetOn(true, 255));
 		}
 #endif
 

@@ -11,6 +11,8 @@ std::shared_ptr<std::string> SetColor::compose() const
 	std::vector<json> segments;
 	std::vector<std::vector<uint8_t>> colors;
 	colors.push_back(std::vector<uint8_t>({_r, _g, _b}));
+	colors.push_back(std::vector<uint8_t>({_r, _g, _b}));
+	colors.push_back(std::vector<uint8_t>({_r, _g, _b}));
 	segments.push_back({
 		{"col", colors},
 	});

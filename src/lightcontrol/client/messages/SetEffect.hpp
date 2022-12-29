@@ -10,9 +10,10 @@
 
 namespace LightControl {
 	enum WledEffects {
-		SOLID = 	   0,
-		BLINK = 	   1,
+		SOLID 		 = 0,
+		BLINK 		 = 1,
 		SPARKLE_PLUS = 22,
+		TWINKLE_CAT  = 81,
 	};
 
 	class SetEffect : public SerializableMessage {

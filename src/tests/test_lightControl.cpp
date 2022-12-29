@@ -12,11 +12,11 @@ using namespace LightControl;
 
 int main()
 {
-	LightControlDiscover discover;
-	while ( discover.getDevices().size() == 0 ) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		std::cout << "Waiting for devices" << std::endl;
-	}
+	// LightControlDiscover discover;
+	// while ( discover.getDevices().size() == 0 ) {
+	// 	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	// 	std::cout << "Waiting for devices" << std::endl;
+	// }
 
 	// auto devices = discover.getDevices();
 	// std::string device = devices.begin()->second;
@@ -39,7 +39,7 @@ int main()
 	uint8_t b = 0;
 	while(true)
 	{
-	    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		client->sendMessage(SetColor(50, 50, b++));
 
 	}
