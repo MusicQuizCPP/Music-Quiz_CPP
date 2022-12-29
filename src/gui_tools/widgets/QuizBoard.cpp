@@ -83,7 +83,6 @@ MusicQuiz::QuizBoard::QuizBoard(const std::vector<MusicQuiz::QuizCategory*>& cat
 #if BUILD_LIGHT_CONTROL
 void MusicQuiz::QuizBoard::lightClientConnectedCallback(LightControl::LightControlClient* client)
 {
-	// client->sendMessage(LightControl::OnBoardLEDStrength(0));
 	// client->sendMessage(LightControl::LightModeMessage(LightControl::LightMode::OFF, 1.f, 0, 0, 0));
 }
 #endif

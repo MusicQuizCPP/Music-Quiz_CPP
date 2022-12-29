@@ -38,9 +38,6 @@ IF( BUILD_LIGHT_CONTROL )
     ### Zeroconf
     include_directories(SYSTEM submodules/mdns/)
     
-    ### Cereal serialisation library
-    include_directories(SYSTEM submodules/cereal/include)
-
     ### json serialisation library
     include_directories(SYSTEM submodules/json/include)
 

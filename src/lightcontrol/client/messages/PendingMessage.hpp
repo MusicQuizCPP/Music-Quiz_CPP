@@ -1,7 +1,7 @@
 #pragma once
 
 #include <chrono>
-#include <iostream>
+#include <string>
 
 
 namespace LightControl {
@@ -10,10 +10,10 @@ namespace LightControl {
 		/**
 		 * @brief Constructor
 		 *
-		 * @param[in] data ostringstream buffer containing the message.
+		 * @param[in] data std::string buffer containing the message.
 		 * @param[in] timeout how long the message is allowed to be queued before it expires
 		 */
-		PendingMessage(std::shared_ptr<std::ostringstream> data, std::chrono::milliseconds timeout) :
+		PendingMessage(std::shared_ptr<std::string> data, std::chrono::milliseconds timeout) :
 			_data(data),
 			_timeout(std::chrono::duration_cast<std::chrono::milliseconds>(timeout)),
 			_queueTime(std::chrono::system_clock::now())
@@ -30,7 +30,7 @@ namespace LightControl {
 		}
 
 		/** Variables */
-		std::shared_ptr<std::ostringstream> _data;
+		std::shared_ptr<std::string> _data;
 
 	private:
 		/** Variables */

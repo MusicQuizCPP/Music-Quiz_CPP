@@ -119,7 +119,6 @@ void LightControlClient::on_handshake(beast::error_code ec)
 	for ( auto& callback : _connectedCallbacks ) {
 		callback(this);
 	}
-
 	_ws.async_read(_readBuffer, beast::bind_front_handler(&LightControlClient::on_read, shared_from_this()));
 }
 
@@ -168,14 +167,13 @@ void LightControlClient::sendMessage(const SerializableMessage& msg, std::chrono
 	sendMessage(msg.compose(), timeout);
 }
 
-void LightControlClient::sendMessage(std::shared_ptr<std::ostringstream> data, std::chrono::milliseconds timeout)
+void LightControlClient::sendMessage(std::shared_ptr<std::string> data, std::chrono::milliseconds timeout)
 {
 	const std::lock_guard<std::mutex> lock(_writeLock);
 
 	if ( !_sendingMessage ) {
-		_writeBuffer = data;
 		_sendingMessage = true;
-		_ws.async_write(net::buffer(_writeBuffer->str()), beast::bind_front_handler(&LightControlClient::on_write, shared_from_this()));
+		_ws.async_write(net::buffer(*data), beast::bind_front_handler(&LightControlClient::on_write, shared_from_this()));
 	} else {
 		_writeQueue.push(PendingMessage(data, timeout));
 	}
@@ -199,7 +197,7 @@ void LightControlClient::on_write(boost::beast::error_code ec, std::size_t bytes
 
 		if ( !msg.isTimedOut() ) {
 			_sendingMessage = true;
-			_ws.async_write(net::buffer(_writeBuffer->str()), beast::bind_front_handler(&LightControlClient::on_write, shared_from_this()));
+			_ws.async_write(net::buffer(*_writeBuffer), beast::bind_front_handler(&LightControlClient::on_write, shared_from_this()));
 			break;
 		}
 	}

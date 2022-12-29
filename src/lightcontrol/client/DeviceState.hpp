@@ -2,7 +2,7 @@
 
 #include <boost/asio/buffer.hpp>
 #include <string>
-
+#include <vector>
 namespace LightControl {
 	class DeviceState {
 	public:
@@ -14,5 +14,8 @@ namespace LightControl {
 		void parseMessage(boost::asio::mutable_buffer& buffer);
 
 		std::string name;
+		std::vector<std::string> effects;
+		std::vector<std::string> palettes;
+
 	};
 }
