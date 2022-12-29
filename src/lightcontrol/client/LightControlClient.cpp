@@ -1,6 +1,5 @@
 #include "DeviceState.hpp"
 #include "LightControlClient.hpp"
-#include "messages/PackageTypes.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -105,7 +104,7 @@ void LightControlClient::on_connect(beast::error_code ec, tcp::resolver::results
 	std::string host_header = _hostname + ":" + std::to_string(_port);
 
 	/** Perform the websocket handshake */
-	_ws.async_handshake(host_header, "/", beast::bind_front_handler(&LightControlClient::on_handshake, shared_from_this()));
+	_ws.async_handshake(host_header, "/ws", beast::bind_front_handler(&LightControlClient::on_handshake, shared_from_this()));
 }
 
 void LightControlClient::on_handshake(beast::error_code ec)
@@ -156,11 +155,10 @@ void LightControlClient::parseMessage(net::mutable_buffer& buffer)
 std::string LightControlClient::getConnectionString()
 {
 	const std::lock_guard<std::mutex> lock(_stateLock);
-	if ( !_isConnected || _state->nodeInfo.nodes.size() == 0 ) {
+	if ( !_isConnected || _state->name.size() == 0 ) {
 		return "Disconnected";
 	} else {
-		std::string conStr = "Connected to " + _state->nodeInfo.nodes[0].name + "\n";
-		conStr += "Total devices: " + std::to_string(_state->nodeInfo.nodes.size());
+		std::string conStr = "Connected to " + _state->name + "\n";
 		return conStr;
 	}
 }

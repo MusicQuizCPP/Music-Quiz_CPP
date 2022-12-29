@@ -98,7 +98,7 @@ void LightControlDiscover::init()
 
 void LightControlDiscover::run()
 {
-	const char* service = "_ws._tcp.local.";
+	const char* service = "_wled._tcp.local.";
 	int sockets[32];
 	int query_id[32];
 	int num_sockets = open_client_sockets(sockets, sizeof(sockets) / sizeof(sockets[0]), 0);

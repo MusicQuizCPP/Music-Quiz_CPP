@@ -4,11 +4,8 @@
 
 #include "lightcontrol/discover/LightControlDiscover.hpp"
 #include "lightcontrol/client/LightControlClient.hpp"
-#include "lightcontrol/client/messages/LightModeMessage.hpp"
-#include "lightcontrol/client/messages/PulseMessage.hpp"
-#include "lightcontrol/client/messages/StrobeMessage.hpp"
-#include "lightcontrol/client/messages/GlitterMessage.hpp"
 
+using namespace LightControl;
 
 int main()
 {
@@ -28,14 +25,14 @@ int main()
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 
-	client->sendMessage(LightModeMessage(LightMode::OFF, 1.f, 0, 10, 0));
-	client->sendMessage(LightModeMessage(LightMode::PULSE, 1.f, 0, 10, 0));
-	client->sendMessage(GlitterMessage(std::chrono::milliseconds(50), true, 10));
-	client->sendMessage(PulseMessage(std::chrono::milliseconds(5000), PulseMessage::PulseDirection::PULSE_IN, true));
+	// client->sendMessage(LightModeMessage(LightMode::OFF, 1.f, 0, 10, 0));
+	// client->sendMessage(LightModeMessage(LightMode::PULSE, 1.f, 0, 10, 0));
+	// client->sendMessage(GlitterMessage(std::chrono::milliseconds(50), true, 10));
+	// client->sendMessage(PulseMessage(std::chrono::milliseconds(5000), PulseMessage::PulseDirection::PULSE_IN, true));
 
-	// while(true)
-	// {
-	//     client->sendMessage(LightModeMessage(LIGHT_MODE_ON, 0.99f, 0, 255, 0));
-	//     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	// }
+	while(true)
+	{
+	    // client->sendMessage(LightModeMessage(LIGHT_MODE_ON, 0.99f, 0, 255, 0));
+	    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
 }

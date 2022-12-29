@@ -4,8 +4,8 @@ cmake_policy(SET CMP0074 NEW)
 project(MusicQuiz)
 
 ### Options
-OPTION(BUILD_LIGHT_CONTROL "Build Light Control" OFF)
-OPTION(BUILD_TESTS "Build tests" OFF)
+OPTION(BUILD_LIGHT_CONTROL "Build Light Control" ON)
+OPTION(BUILD_TESTS "Build tests" ON)
 
 ### Set ROOT
 SET(ROOT ${CMAKE_CURRENT_SOURCE_DIR})
@@ -40,6 +40,11 @@ IF( BUILD_LIGHT_CONTROL )
     
     ### Cereal serialisation library
     include_directories(SYSTEM submodules/cereal/include)
+
+    ### json serialisation library
+    include_directories(SYSTEM submodules/json/include)
+
+    add_definitions(-DBUILD_LIGHT_CONTROL=1)
 ENDIF()
 
 ### Set the output dir for generated libraries and binaries
@@ -63,7 +68,7 @@ IF( MSVC )
     add_compile_definitions(_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING) #shut up MSVC
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)                           #shut up MSVC
 ELSE()
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wconversion -Werror -Wpointer-arith -Wcast-qual -Wall -Wextra -Wshadow -Wold-style-cast -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -pthread -g")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wconversion -Wpointer-arith -Wcast-qual -Wall -Wextra -Wshadow -Wold-style-cast -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -pthread -g")
 
     IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
       SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wlogical-op")
