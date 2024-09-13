@@ -14,11 +14,14 @@ show_usage() {
     echo
     echo "Bundles GStreamer plugins into an AppDir"
     echo
-    echo "Variables:"
-    echo "  GSTREAMER_INCLUDE_BAD_PLUGINS=\"1\" (optional; default: disabled; set to empty string or unset to disable)"
-    echo "  GSTREAMER_PLUGINS_DIR=\"...\" (optional; directory containing GStreamer plugins; default: guessed based on main distro architecture)"
-    echo "  GSTREAMER_HELPERS_DIR=\"...\" (optional; directory containing GStreamer helper tools like gst-plugin-scanner; default: guessed based on main distro architecture)"
-    echo "  GSTREAMER_VERSION=\"1.0\" (optional; default: 1.0)"
+    echo "Required variables:"
+    echo "  LINUXDEPLOY=\".../linuxdeploy\" path to linuxdeploy (e.g., AppImage); set automatically when plugin is run directly by linuxdeploy"
+    echo
+    echo "Optional variables:"
+    echo "  GSTREAMER_INCLUDE_BAD_PLUGINS=\"1\" (default: disabled; set to empty string or unset to disable)"
+    echo "  GSTREAMER_PLUGINS_DIR=\"...\" (directory containing GStreamer plugins; default: guessed based on main distro architecture)"
+    echo "  GSTREAMER_HELPERS_DIR=\"...\" (directory containing GStreamer helper tools like gst-plugin-scanner; default: guessed based on main distro architecture)"
+    echo "  GSTREAMER_VERSION=\"1.0\" (default: 1.0)"
 }
 
 while [ "$1" != "" ]; do
@@ -50,21 +53,37 @@ if [ "$APPDIR" == "" ]; then
     exit 1
 fi
 
+if ! which patchelf &>/dev/null && ! type patchelf &>/dev/null; then
+    echo "Error: patchelf not found"
+    echo
+    show_usage
+    exit 2
+fi
+
+if [[ "$LINUXDEPLOY" == "" ]]; then
+    echo "Error: \$LINUXDEPLOY not set"
+    echo
+    show_usage
+    exit 3
+fi
+
 mkdir -p "$APPDIR"
 
-export GSTREAMER_VERSION=${GSTREAMER_VERSION:-1.0}
+export GSTREAMER_VERSION="${GSTREAMER_VERSION:-1.0}"
 
 plugins_target_dir="$APPDIR"/usr/lib/gstreamer-"$GSTREAMER_VERSION"
 helpers_target_dir="$APPDIR"/usr/lib/gstreamer"$GSTREAMER_VERSION"/gstreamer-"$GSTREAMER_VERSION"
 
 if [ "$GSTREAMER_PLUGINS_DIR" != "" ]; then
     plugins_dir="${GSTREAMER_PLUGINS_DIR}"
-else
+elif [ -d /usr/lib/"$(uname -m)"-linux-gnu/gstreamer-"$GSTREAMER_VERSION" ]; then
     plugins_dir=/usr/lib/$(uname -m)-linux-gnu/gstreamer-"$GSTREAMER_VERSION"
+else
+    plugins_dir=/usr/lib/gstreamer-"$GSTREAMER_VERSION"
 fi
 
-if [ "$GSTREAMER_PLUGINS_DIR" != "" ]; then
-    helpers_dir="${GSTREAMER_PLUGINS_DIR}"
+if [ "$GSTREAMER_HELPERS_DIR" != "" ]; then
+    helpers_dir="${GSTREAMER_HELPERS_DIR}"
 else
     helpers_dir=/usr/lib/$(uname -m)-linux-gnu/gstreamer"$GSTREAMER_VERSION"/gstreamer-"$GSTREAMER_VERSION"
 fi
@@ -79,30 +98,41 @@ mkdir -p "$plugins_target_dir"
 echo "Copying plugins into $plugins_target_dir"
 for i in "$plugins_dir"/*; do
     [ -d "$i" ] && continue
+    [ ! -f "$i" ] && echo "File does not exist: $i" && continue
 
     echo "Copying plugin: $i"
     cp "$i" "$plugins_target_dir"
 done
 
+"$LINUXDEPLOY" --appdir "$APPDIR"
 
-$LINUXDEPLOY --appdir $APPDIR
+for i in "$plugins_target_dir"/*; do
+    [ -d "$i" ] && continue
+    [ ! -f "$i" ] && echo "File does not exist: $i" && continue
+    (file "$i" | grep -v ELF --silent) && echo "Ignoring non ELF file: $i" && continue
 
-# for i in "$plugins_target_dir"/*; do
-#     [ -d "$i" ] && continue
-
-#     patchelf --set-rpath '$ORIGIN/..:$ORIGIN' $i
-#     echo "patchelf --set-rpath '$ORIGIN/..:$ORIGIN' $i"
-#     echo "Manually setting rpath for $i"
-# done
+    echo "Manually setting rpath for $i"
+    patchelf --set-rpath '$ORIGIN/..:$ORIGIN' "$i"
+done
 
 mkdir -p "$helpers_target_dir"
 
 echo "Copying helpers in $helpers_target_dir"
 for i in "$helpers_dir"/*; do
     [ -d "$i" ] && continue
+    [ ! -f "$i" ] && echo "File does not exist: $i" && continue
 
     echo "Copying helper: $i"
     cp "$i" "$helpers_target_dir"
+done
+
+for i in "$helpers_target_dir"/*; do
+    [ -d "$i" ] && continue
+    [ ! -f "$i" ] && echo "File does not exist: $i" && continue
+    (file "$i" | grep -v ELF --silent) && echo "Ignoring non ELF file: $i" && continue
+
+    echo "Manually setting rpath for $i"
+    patchelf --set-rpath '$ORIGIN/../..' "$i"
 done
 
 echo "Installing AppRun hook"
@@ -114,6 +144,7 @@ if [ "$GSTREAMER_VERSION" == "1.0" ]; then
 
 export GST_REGISTRY_REUSE_PLUGIN_SCANNER="no"
 export GST_PLUGIN_SYSTEM_PATH_1_0="${APPDIR}/usr/lib/gstreamer-1.0"
+export GST_PLUGIN_PATH_1_0="${APPDIR}/usr/lib/gstreamer-1.0"
 
 export GST_PLUGIN_SCANNER_1_0="${APPDIR}/usr/lib/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner"
 export GST_PTP_HELPER_1_0="${APPDIR}/usr/lib/gstreamer1.0/gstreamer-1.0/gst-ptp-helper"
