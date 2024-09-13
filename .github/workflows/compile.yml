@@ -16,7 +16,7 @@ jobs:
       matrix:
         include:
         - os: ubuntu-20.04
-          releasefile: MusicQuizGUI.AppImage
+          releasefile: out/bin/MusicQuizGUI
           env: APPIMAGE_NAME=MusicQuizGUI.AppImage
         - os: windows-2019
           releasefile: MusicQuizGUI.exe
@@ -42,7 +42,7 @@ jobs:
 
     - name: Build Ubuntu
       if: startsWith(matrix.os, 'ubuntu')
-      run: SHOULD_PACKAGE=1 ./build_scripts/build_linux.sh
+      run: ./build_scripts/build_linux.sh
     - name: Build Windows
       if: startsWith(matrix.os, 'windows')
       run: QT_VERSION=5.15.2 ./build_scripts/build_windows.sh
