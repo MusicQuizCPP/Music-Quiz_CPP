@@ -48,13 +48,13 @@ jobs:
       run: ./build_scripts/build_mac.sh
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.releasefile }}
         path: artifacts/${{ matrix.releasefile }}
 
     - name: Upload binaries to release
-      uses: svenstaro/upload-release-action@v2
+      uses: svenstaro/upload-release-action@v4
       if: github.ref == 'refs/heads/master'
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
