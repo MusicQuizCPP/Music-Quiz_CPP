@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         include:
-        - os: ubuntu-20.04
+        - os: ubuntu-latest
           releasefile: MusicQuizGUI.AppImage
           env: APPIMAGE_NAME=MusicQuizGUI.AppImage
         - os: windows-latest
