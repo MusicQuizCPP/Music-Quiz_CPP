@@ -97,7 +97,6 @@ void MusicQuiz::QuizSettingsDialog::createLayout(const MusicQuiz::QuizSettings& 
 		mainlayout->addWidget(dailyTriple);
 	}
 
-#if BUILD_LIGHT_CONTROL
 	/** Line */
 	line = new QFrame;
 	line->setObjectName("settingsLine");
@@ -109,7 +108,6 @@ void MusicQuiz::QuizSettingsDialog::createLayout(const MusicQuiz::QuizSettings& 
 	if ( lightInterface != nullptr ) {
 		mainlayout->addWidget(lightInterface);
 	}
-#endif
 
 	/** Save Button */
 	QHBoxLayout* buttonLayout = new QHBoxLayout;
@@ -203,7 +201,6 @@ QWidget* MusicQuiz::QuizSettingsDialog::getDailyDoubleLayout(const MusicQuiz::Qu
 	return widget;
 }
 
-#if BUILD_LIGHT_CONTROL
 QWidget* MusicQuiz::QuizSettingsDialog::getLightInterfaceLayout(const MusicQuiz::QuizSettings& settings)
 {
 	/** Layout */
@@ -254,7 +251,6 @@ QWidget* MusicQuiz::QuizSettingsDialog::getLightInterfaceLayout(const MusicQuiz:
 	widget->setLayout(mainlayout);
 	return widget;
 }
-#endif
 
 QWidget* MusicQuiz::QuizSettingsDialog::getDailyTripleLayout(const MusicQuiz::QuizSettings& settings)
 {
@@ -393,10 +389,7 @@ void MusicQuiz::QuizSettingsDialog::saveSettings()
 	settings.dailyTriple = _dailyTriple->isChecked();
 	settings.dailyTripleHidden = _dailyTripleHidden->isChecked();
 	settings.dailyTriplePercentage = _dailyTriplePercentage->value();
-
-#if BUILD_LIGHT_CONTROL
 	settings.deviceIP = _ipInput->text().toStdString();
-#endif
 
 	/** Emit Signal with settings */
 	emit settingsUpdated(settings);
@@ -487,7 +480,6 @@ void MusicQuiz::QuizSettingsDialog::setLayoutEnabled(QLayout* layout, bool enabl
 	}
 }
 
-#if BUILD_LIGHT_CONTROL
 void MusicQuiz::QuizSettingsDialog::updateLightDevices()
 {
 	std::map<std::string, std::string> devices = lightcontrolDiscover.getDevices();
@@ -507,4 +499,3 @@ void MusicQuiz::QuizSettingsDialog::updateIP(int index)
 		_ipInput->setText(_discoveredList->currentText());
 	}
 }
-#endif

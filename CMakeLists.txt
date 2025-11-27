@@ -4,7 +4,6 @@ cmake_policy(SET CMP0074 NEW)
 project(MusicQuiz)
 
 ### Options
-OPTION(BUILD_LIGHT_CONTROL "Build Light Control" OFF)
 OPTION(BUILD_TESTS "Build tests" OFF)
 
 ### Set ROOT
@@ -33,14 +32,11 @@ include("cmake/FindBoost.cmake")
 INCLUDE_DIRECTORIES( src )
 
 ### Light Control Modules 
-MESSAGE("-- Build Light Control: " ${BUILD_LIGHT_CONTROL})
-IF( BUILD_LIGHT_CONTROL )
-    ### Zeroconf
-    include_directories(SYSTEM submodules/mdns/)
+### Zeroconf
+include_directories(SYSTEM submodules/mdns/)
     
-    ### Cereal serialisation library
-    include_directories(SYSTEM submodules/cereal/include)
-ENDIF()
+### Cereal serialisation library
+include_directories(SYSTEM submodules/cereal/include)
 
 ### Set the output dir for generated libraries and binaries
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime directory" FORCE)

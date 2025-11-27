@@ -17,9 +17,7 @@
 
 #include "util/QuizSettings.hpp"
 
-#if BUILD_LIGHT_CONTROL
 #include "lightcontrol/discover/LightControlDiscover.hpp"
-#endif
 
 
 namespace MusicQuiz {
@@ -100,7 +98,6 @@ namespace MusicQuiz {
 		 */
 		void informationMessageBox(const QString& info);
 
-#if BUILD_LIGHT_CONTROL
 		/**
 		 * @brief Update list of discovered light devices.
 		 *
@@ -112,7 +109,6 @@ namespace MusicQuiz {
 		 *
 		 */
 		void updateIP(int index);
-#endif
 
 		/**
 		 * @brief Display Information boxes for the different settings.
@@ -154,7 +150,6 @@ namespace MusicQuiz {
 		 */
 		QWidget* getDailyTripleLayout(const MusicQuiz::QuizSettings& settings);
 
-#if BUILD_LIGHT_CONTROL
 		/**
 		 * @brief Creates the Light Device interface.
 		 *
@@ -163,7 +158,6 @@ namespace MusicQuiz {
 		 * @return The Light Device layout.
 		 */
 		QWidget* getLightInterfaceLayout(const MusicQuiz::QuizSettings& settings);
-#endif
 
 		/**
 		 * @brief Enable / disable a layout and its children.
@@ -195,10 +189,8 @@ namespace MusicQuiz {
 
 		/**LightInterface */
 		QTimer _listUpdateTimer;
-#if BUILD_LIGHT_CONTROL
 		LightControl::LightControlDiscover lightcontrolDiscover;
 		QLineEdit* _ipInput = nullptr;
 		QComboBox* _discoveredList = nullptr;
-#endif
 	};
 }

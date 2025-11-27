@@ -107,7 +107,7 @@ The following configuration file (CMakeSettings.json) can be used to compile the
             "inheritEnvironments": [ "msvc_x86" ],
             "buildRoot": "${projectDir}\\out\\build\\${name}",
             "installRoot": "${projectDir}\\out\\install\\${name}",
-            "cmakeCommandArgs": "-DCMAKE_PREFIX_PATH=\"C:/Qt/5.12.3/msvc2017/\" -DBUILD_LIGHT_CONTROL=OFF",
+            "cmakeCommandArgs": "-DCMAKE_PREFIX_PATH=\"C:/Qt/5.12.3/msvc2017/\",
             "buildCommandArgs": "",
             "ctestCommandArgs": "",
             "variables": []
