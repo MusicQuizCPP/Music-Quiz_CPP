@@ -78,7 +78,7 @@ To use play audio and video on windows the [K-Lite Codec Pack](http://www.codecg
 Below are some guidelines that can help when installing on Windows 10.
 
 - [Command-Line Shell in Windows 10](#command-line-shell-in-windows-10)
-- [Setting environmental variables in Windows 10](#setting-environmental-variables-in-windows)
+- [Setting environmental variables in Windows 10](#setting-environmental-variables-in-windows-10)
 - [Microsoft Visual Studio Configuration File](#microsoft-visual-studio-configuration-file)
 
 

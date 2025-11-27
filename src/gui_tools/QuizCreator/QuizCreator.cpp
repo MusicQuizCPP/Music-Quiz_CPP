@@ -589,7 +589,8 @@ void MusicQuiz::QuizCreator::loadQuiz(const std::string& quizName)
 	}
 
 	/** Popup to ensure the user wants to load the quiz */
-	if ( !_categories.empty() || _rowCategoriesTable->rowCount() != 0 || !_quizNameLineEdit->text().isEmpty() || !_quizDescriptionTextEdit->toPlainText().isEmpty() || !_quizAuthorLineEdit->text().isEmpty() ) {
+	if ( !_categories.empty() || _rowCategoriesTable->rowCount() != 0 || !_quizNameLineEdit->text().isEmpty()
+		|| !_quizDescriptionTextEdit->toPlainText().isEmpty() || !_quizAuthorLineEdit->text().isEmpty() ) {
 		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Load Quiz?", "Are you sure you want to load the quiz? Any unsaved progress will be lost!",
 			QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
 		if ( resBtn == QMessageBox::No ) {

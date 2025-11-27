@@ -122,7 +122,6 @@ void MusicQuiz::QuizBoard::createLayout()
 
 	/** Row Categories */
 	if ( !_rowCategories.empty() ) {
-
 		QVBoxLayout* rowCategorylayout = new QVBoxLayout;
 		rowCategorylayout->setSpacing(10);
 
