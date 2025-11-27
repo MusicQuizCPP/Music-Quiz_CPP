@@ -95,11 +95,6 @@ The word **Interface** is hence only to be used if a class has only pure virtual
 An **Abstraction** is a class much like the Interface, but does also contain some implemented function bodies.
 It is however still required that an **Abstraction** has at least one pure virtual function.
 
-The **Proxy** class is one such that the provides an alternative API to another class that may be more convenient in some use-cases.
-This could be to implement a class that, while providing the basic functions of the hidden class, also allows the class, at runtime, to be replaced by another similar class.
-E.g. a RobotProxy interface which is able to switch between a simulated robot or any other real robot without the user being required to change the class interacting with.
-A **Proxy** class does not have any pure virtual functions and is should hence be possible to create an instant of such.
-
 
 ## Documentation
 The documentation of functions, classes, etc uses the doxygen standard with java-style using `/** ... */` and `@...` for commands such as `brief`, `param` and `return`.
