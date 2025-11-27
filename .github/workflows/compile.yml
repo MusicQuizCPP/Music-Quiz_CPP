@@ -65,7 +65,7 @@ jobs:
   linter:
     # Link: https://github.com/github/super-linter
     name: Validate Formatting
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       # Checkout repository 
