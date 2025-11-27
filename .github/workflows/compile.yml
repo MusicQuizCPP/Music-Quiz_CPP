@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         include:
-        - os: ubuntu-latest
+        - os: ubuntu-22.04
           releasefile: MusicQuizGUI.AppImage
           env: APPIMAGE_NAME=MusicQuizGUI.AppImage
         - os: windows-latest
@@ -65,7 +65,7 @@ jobs:
   linter:
     # Link: https://github.com/github/super-linter
     name: Validate Formatting
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       # Checkout repository 
