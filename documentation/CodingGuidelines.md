@@ -13,15 +13,15 @@ Note, the examples do not include comments since these are explained [in the doc
 
 
 ### Classes and Structs
-Class and struct names use the UpperCamelCaseStyle e.g. 
+Class and struct names use the UpperCamelCaseStyle e.g.
 
 ```C++
 class ThisIsMyClass {
-	...
+    ...
 };
 
 struct ThisIsMyStruct {
-	...
+    ...
 };
 ```
 
@@ -29,10 +29,10 @@ struct ThisIsMyStruct {
 **Member functions** use the generic style of [functions](#functions).
 ```C++
 class MyClass {
-	double getMemberVariable() const;
+    double getMemberVariable() const;
 
 protected:
-	double _thisIsMyMemberVariable = 0.0;
+    double _thisIsMyMemberVariable = 0.0;
 };
 ```
 
@@ -43,8 +43,8 @@ Instead the needed files can be included in the source files instead when needed
 Classes that are intended to be passed around with pointers must have defined a typdef for `MyClass::Ptr` (pointer to class) and `MyClass::CPtr` (Pointer to class of const type) using the `std::shared_ptr<>` unless it inherits a class from another library using a different convention.
 ```C++
 class MyClass {
-	typedef std::shared_ptr< MyClass > Ptr;
-	typedef std::shared_ptr< const MyClass > CPtr;
+    typedef std::shared_ptr< MyClass > Ptr;
+    typedef std::shared_ptr< const MyClass > CPtr;
 };
 ```
 
@@ -54,7 +54,7 @@ Enum names use the UpperCamelCaseStyle and their enum elements use SCREAMING_SNA
 
 ```C++
 enum ThisIsMyEnum {
-	ENUM_ONE, ENUM_TWO
+    ENUM_ONE, ENUM_TWO
 };
 ```
 
@@ -76,9 +76,9 @@ Namespaces use the lowerCamelCaseStyle e.g.
 
 ```C++
 namespace thisIsMyNamespace {
-	namespace thisIsMyNestedNamespace {
-		...
-	}
+    namespace thisIsMyNestedNamespace {
+        ...
+    }
 }
 ```
 
@@ -119,7 +119,7 @@ As example in for loops the syntax would be as follows:
 
 ```C++
 for ( size_t i = 0; i < 4; ++i ) {
-	...
+    ...
 }
 ```
 
