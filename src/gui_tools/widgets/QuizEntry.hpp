@@ -183,15 +183,15 @@ namespace MusicQuiz {
 		size_t _videoStartTime = 0;
 		size_t _answerStartTime = 0;
 
+		QString _audioFile = "";
+		QString _videoFile = "";
+		QString _speechString = "";
+
 		size_t _answerStartCharacter = 0;
 
 		QString _answer = "";
 		bool _entryAnswered = false;
 		QColor _answeredColor = QColor(0, 0, 120);
-
-		QString _audioFile = "";
-		QString _videoFile = "";
-		QString _speechString = "";
 
 		EntryType _type = EntryType::Song;
 		EntryState _state = EntryState::IDLE;
