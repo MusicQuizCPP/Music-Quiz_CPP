@@ -9,7 +9,7 @@ If the 3rd party library does not have an explicit definition of the interface s
 
 ## Naming Convention and Coding Style
 Defines a set of common naming conventions for certain identifiers to avoid confusions.
-Note, the examples do not include comments since these are explained [in the documentation section.](#Documentation)
+Note, the examples do not include comments since these are explained [in the documentation section.](#documentation)
 
 
 ### Classes and Structs
@@ -26,7 +26,7 @@ struct ThisIsMyStruct {
 ```
 
 **Member variables** follow the `_lowerCamelCaseStyle`, but are preceeded by an underscore.
-**Member functions** use the generic style of [functions](#Functions).
+**Member functions** use the generic style of [functions](#functions).
 ```C++
 class MyClass {
 	double getMemberVariable() const;
