@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         include:
-        - os: ubuntu-20.04
+        - os: ubuntu-22.04
           releasefile: MusicQuizGUI.AppImage
           env: APPIMAGE_NAME=MusicQuizGUI.AppImage
         - os: windows-latest
@@ -48,7 +48,7 @@ jobs:
       run: ./build_scripts/build_mac.sh
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.releasefile }}
         path: artifacts/${{ matrix.releasefile }}
@@ -65,7 +65,7 @@ jobs:
   linter:
     # Link: https://github.com/github/super-linter
     name: Validate Formatting
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       # Checkout repository 

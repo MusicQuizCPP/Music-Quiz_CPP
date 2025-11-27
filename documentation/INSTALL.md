@@ -83,7 +83,7 @@ Below are some guidelines that can help when installing on Windows 10.
 
 
 ### Command-Line Shell in Windows 10
-For executing the required commands to install the Inrotech Robot Software it is recommended to use the Windows PowerShell.
+For executing the required commands to install the MusicQuiz it is recommended to use Windows PowerShell.
 
 
 ### Setting environmental variables in Windows 10
