@@ -4,7 +4,7 @@ addons:
     - artifacts
 env:
   global:
-  - QT_VERSION=5.12.9
+  - QT_VERSION=5.15.2
 
 language: cpp
 
