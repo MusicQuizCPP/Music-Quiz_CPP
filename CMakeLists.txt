@@ -59,7 +59,7 @@ IF( MSVC )
     add_compile_definitions(_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING) #shut up MSVC
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)                           #shut up MSVC
 ELSE()
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wconversion -Werror -Wpointer-arith -Wcast-qual -Wall -Wextra -Wshadow -Wold-style-cast -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -pthread -g")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wconversion -Werror -Wpointer-arith -Wcast-qual -Wall -Wextra -Wno-reorder -Wshadow -Wold-style-cast -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -pthread -g")
 
     IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
       SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wlogical-op")

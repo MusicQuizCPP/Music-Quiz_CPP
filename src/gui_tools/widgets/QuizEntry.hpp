@@ -175,21 +175,21 @@ namespace MusicQuiz {
 		void applyColor(const QColor& color);
 
 		/** Variables */
-		QString _audioFile = "";
-		QString _videoFile = "";
-		QString _speechString = "";
-		QString _answer = "";
-
 		size_t _points = 0;
+		size_t _fontSize = 40;
+		bool _textSizeSet = false;
+
 		size_t _startTime = 0;
 		size_t _videoStartTime = 0;
 		size_t _answerStartTime = 0;
 
-		size_t _fontSize = 40;
-		bool _textSizeSet = false;
+		QString _audioFile = "";
+		QString _videoFile = "";
+		QString _speechString = "";
 
 		size_t _answerStartCharacter = 0;
 
+		QString _answer = "";
 		bool _entryAnswered = false;
 		QColor _answeredColor = QColor(0, 0, 120);
 
