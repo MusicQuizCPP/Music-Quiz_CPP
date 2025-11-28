@@ -523,7 +523,7 @@ QGridLayout* MusicQuiz::EntryCreator::createTextToSpeechLayout()
 		_voiceButtonGroup->addButton(createButton, i);
 
 		/** Add button to layout */
-		voicesLayout->addWidget(createButton, std::floor(i / 2), i % 2);
+		voicesLayout->addWidget(createButton, static_cast<int>(std::floor(i / 2)), i % 2);
 	}
 
 	mainlayout->addItem(voicesLayout, ++row, 0, 1, 2);
@@ -1374,7 +1374,7 @@ void MusicQuiz::EntryCreator::setVoice(const QString& voiceName)
 	/** Check voice exists */
 	bool voiceExists = false;
 	const QVector< QVoice > availableVoices = _textToSpeechPlayer->availableVoices();
-	for ( size_t i = 0; i < availableVoices.size(); ++i ) {
+	for ( int i = 0; i < availableVoices.size(); ++i ) {
 		if ( voiceName == availableVoices[i].name() ) {
 			voiceExists = true;
 			break;
@@ -1386,7 +1386,7 @@ void MusicQuiz::EntryCreator::setVoice(const QString& voiceName)
 	}
 
 	/** Find button with correct name */
-	for ( size_t i = 0; i < _voiceButtonGroup->buttons().size(); ++i ) {
+	for ( int i = 0; i < _voiceButtonGroup->buttons().size(); ++i ) {
 		QAbstractButton* btn = _voiceButtonGroup->button(i);
 		if ( btn != nullptr ) {
 			if ( btn->property("voiceName").toString() == voiceName ) {
