@@ -33,7 +33,7 @@ namespace gui_tools {
 			 * @param[in] prec   The precision to display the value with.
 			 * @param[in] parent The parent widget.
 			 */
-			explicit QSliderWidget(const QString& title, double min, double max, size_t steps, const QString& prefix = "", const QString& suffix = "", int prec = 0, QWidget* parent = nullptr);
+			explicit QSliderWidget(const QString& title, double min, double max, int steps, const QString& prefix = "", const QString& suffix = "", int prec = 0, QWidget* parent = nullptr);
 
 			/**
 			 * @brief Default destructor.
@@ -106,7 +106,7 @@ namespace gui_tools {
 			double max_ = 0.0;
 
 			/** The number of steps of the slider between min and max, both included. */
-			size_t steps_ = 0;
+			int steps_ = 0;
 
 			/** The prefix string to be displayed before the values. */
 			QString prefix_ = "";
