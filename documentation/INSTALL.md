@@ -78,12 +78,12 @@ To use play audio and video on windows the [K-Lite Codec Pack](http://www.codecg
 Below are some guidelines that can help when installing on Windows 10.
 
 - [Command-Line Shell in Windows 10](#command-line-shell-in-windows-10)
-- [Setting environmental variables in Windows 10](#setting-environmental-variables-in-windows)
+- [Setting environmental variables in Windows 10](#setting-environmental-variables-in-windows-10)
 - [Microsoft Visual Studio Configuration File](#microsoft-visual-studio-configuration-file)
 
 
 ### Command-Line Shell in Windows 10
-For executing the required commands to install the Inrotech Robot Software it is recommended to use the Windows PowerShell.
+For executing the required commands to install the MusicQuiz it is recommended to use Windows PowerShell.
 
 
 ### Setting environmental variables in Windows 10
@@ -107,7 +107,7 @@ The following configuration file (CMakeSettings.json) can be used to compile the
             "inheritEnvironments": [ "msvc_x86" ],
             "buildRoot": "${projectDir}\\out\\build\\${name}",
             "installRoot": "${projectDir}\\out\\install\\${name}",
-            "cmakeCommandArgs": "-DCMAKE_PREFIX_PATH=\"C:/Qt/5.12.3/msvc2017/\" -DBUILD_LIGHT_CONTROL=OFF",
+            "cmakeCommandArgs": "-DCMAKE_PREFIX_PATH=\"C:/Qt/5.12.9/msvc2017/\",
             "buildCommandArgs": "",
             "ctestCommandArgs": "",
             "variables": []

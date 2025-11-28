@@ -9,7 +9,7 @@
 #include <QGridLayout>
 
 
-gui_tools::GuiUtil::QSliderWidget::QSliderWidget(const QString& title, double min, double max, size_t steps, const QString& prefix, const QString& suffix, int prec, QWidget* parent) :
+gui_tools::GuiUtil::QSliderWidget::QSliderWidget(const QString& title, double min, double max, int steps, const QString& prefix, const QString& suffix, int prec, QWidget* parent) :
 	QFrame(parent), title_(title), min_(min), max_(max), steps_(steps), prefix_(prefix), suffix_(suffix), precision_(prec)
 {
 	/** Sanity Check */
@@ -83,7 +83,7 @@ void gui_tools::GuiUtil::QSliderWidget::setValue(double value)
 	}
 
 	/** Set Value */
-	const double newValue = static_cast<int>(std::round((value - min_) * static_cast<double>(steps_ - 1) / (max_ - min_)));
+	const int newValue = static_cast<int>(std::round((value - min_) * static_cast<double>(steps_ - 1) / (max_ - min_)));
 	widgetSlider_->setValue(newValue);
 	updateValueDisplay(newValue);
 }

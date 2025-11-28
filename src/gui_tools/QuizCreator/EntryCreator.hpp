@@ -328,11 +328,9 @@ namespace MusicQuiz {
 		/**
 		 * @brief Serialize text to speech media into the boost property_tree
 		 *
-		 * @param[out] tree    tree to serialize into.
-		 * @param[in] savePath path where the media files should be saved.
-		 * @param[in] xmlPath  path for the media files that should be written in the ptree.
+		 * @param[out] tree tree to serialize into.
 		 */
-		void saveTextToSpeechToXml(boost::property_tree::ptree& tree, const std::string& savePath, const std::string& xmlPath) const;
+		void saveTextToSpeechToXml(boost::property_tree::ptree& tree) const;
 
 	private slots:
 		/**

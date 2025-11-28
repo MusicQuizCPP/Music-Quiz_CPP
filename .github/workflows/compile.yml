@@ -65,37 +65,37 @@ jobs:
         asset_name: ${{ matrix.releasefile }}
         tag: ${{ github.run_number }}
 
-  # linter:
-  #   # Link: https://github.com/github/super-linter
-  #   name: Validate Formatting
-  #   runs-on: ubuntu-latest
+  linter:
+    # Link: https://github.com/github/super-linter
+    name: Validate Formatting
+    runs-on: ubuntu-20.04
 
-  #   steps:
-  #     # Checkout repository 
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v3
-  #       with:
-  #         # Full git history is needed to get a proper list of changed files within `super-linter`
-  #         fetch-depth: 0
+    steps:
+      # Checkout repository 
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          # Full git history is needed to get a proper list of changed files within `super-linter`
+          fetch-depth: 0
   
-  #     # Lint Code       
-  #     - name: Lint Code
-  #       uses: github/super-linter@v4
-  #       env:
-  #         DEFAULT_BRANCH: master
-  #         VALIDATE_ALL_CODEBASE: false
-  #         VALIDATE_BASH: false
-  #         VALIDATE_CLANG_FORMAT: false
-  #         VALIDATE_JSCPD: false
-  #         VALIDATE_PYTHON: false
-  #         VALIDATE_PYTHON_MYPY: false
-  #         VALIDATE_PYTHON_ISORT: false
-  #         VALIDATE_PYTHON_BLACK: false
-  #         VALIDATE_PYTHON_FLAKE8: false
-  #         VALIDATE_PYTHON_PYLINT: false
-  #         VALIDATE_TYPESCRIPT_ES: false
-  #         VALIDATE_NATURAL_LANGUAGE: false
-  #         VALIDATE_JSCPD_ALL_CODEBASE: false
-  #         VALIDATE_TYPESCRIPT_STANDARD: false
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #         LOG_LEVEL: NOTICE
+      # Lint Code       
+      - name: Lint Code
+        uses: github/super-linter@v4
+        env:
+          DEFAULT_BRANCH: master
+          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_BASH: false
+          VALIDATE_CLANG_FORMAT: false
+          VALIDATE_JSCPD: false
+          VALIDATE_PYTHON: false
+          VALIDATE_PYTHON_MYPY: false
+          VALIDATE_PYTHON_ISORT: false
+          VALIDATE_PYTHON_BLACK: false
+          VALIDATE_PYTHON_FLAKE8: false
+          VALIDATE_PYTHON_PYLINT: false
+          VALIDATE_TYPESCRIPT_ES: false
+          VALIDATE_NATURAL_LANGUAGE: false
+          VALIDATE_JSCPD_ALL_CODEBASE: false
+          VALIDATE_TYPESCRIPT_STANDARD: false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LOG_LEVEL: NOTICE

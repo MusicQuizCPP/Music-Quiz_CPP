@@ -211,7 +211,7 @@ std::vector< MusicQuiz::QuizCategory* > MusicQuiz::util::QuizLoader::loadQuizCat
 									settings._rate = it->second.get<double>("Media.Rate", 0.0);
 									const QString voiceName = QString::fromStdString(it->second.get<std::string>("Media.VoiceName", ""));
 									const QVector< QVoice > avaliableVoices = textToSpeechPlayer->availableVoices();
-									for ( size_t i = 0; i < avaliableVoices.size(); ++i ) {
+									for ( int i = 0; i < avaliableVoices.size(); ++i ) {
 										if ( voiceName == avaliableVoices[i].name() ) {
 											settings._voice = avaliableVoices[i];
 										}

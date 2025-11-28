@@ -12,9 +12,7 @@
 
 #include "util/QuizSettings.hpp"
 
-#if BUILD_LIGHT_CONTROL
 #include "lightcontrol/client/LightControlClient.hpp"
-#endif
 
 
 namespace MusicQuiz {
@@ -62,12 +60,10 @@ namespace MusicQuiz {
 		 */
 		QString getQuizName();
 
-#if BUILD_LIGHT_CONTROL
 		/**
 		 * @brief callback to run when the light client connects.
 		 */
 		static void lightClientConnectedCallback(LightControl::LightControlClient* client);
-#endif
 
 	public slots:
 		/**
@@ -133,8 +129,6 @@ namespace MusicQuiz {
 		std::vector<QString> _rowCategories;
 		std::vector<MusicQuiz::QuizCategory*> _categories;
 
-#if BUILD_LIGHT_CONTROL
 		std::shared_ptr<LightControl::LightControlClient> _lightClient;
-#endif
 	};
 }
