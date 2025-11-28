@@ -18,7 +18,7 @@ jobs:
         - os: ubuntu-20.04
           releasefile: out/bin/MusicQuizGUI
           env: APPIMAGE_NAME=MusicQuizGUI.AppImage
-        - os: windows-2019
+        - os: windows-2022
           releasefile: MusicQuizGUI.exe
 
     steps:
