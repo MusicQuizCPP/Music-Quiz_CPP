@@ -436,23 +436,23 @@ QGridLayout* MusicQuiz::EntryCreator::createTextToSpeechLayout()
 	textToSpeechSettingsLayout->addWidget(label, 0, 0, 1, 1);
 
 	/** Text to Speech Buttons - Play */
-	QPushButton* btn = new QPushButton;
-	btn->setProperty("type", "textToSpeech");
-	btn->setObjectName("quizCreatorPlayBtn");
-	connect(btn, SIGNAL(released()), this, SLOT(playText()));
-	textToSpeechSettingsLayout->addWidget(btn, 0, 2, 1, 1);
+	QPushButton* playBtn = new QPushButton;
+	playBtn->setProperty("type", "textToSpeech");
+	playBtn->setObjectName("quizCreatorPlayBtn");
+	connect(playBtn, SIGNAL(released()), this, SLOT(playText()));
+	textToSpeechSettingsLayout->addWidget(playBtn, 0, 2, 1, 1);
 
 	/** Text to Speech Buttons - Pause */
-	btn = new QPushButton;
-	btn->setObjectName("quizCreatorPauseBtn");
-	connect(btn, SIGNAL(released()), this, SLOT(pause()));
-	textToSpeechSettingsLayout->addWidget(btn, 0, 3, 1, 1);
+	QPushButton* pauseBtn = new QPushButton;
+	pauseBtn->setObjectName("quizCreatorPauseBtn");
+	connect(pauseBtn, SIGNAL(released()), this, SLOT(pause()));
+	textToSpeechSettingsLayout->addWidget(pauseBtn, 0, 3, 1, 1);
 
 	/** Text to Speech Buttons - Stop */
-	btn = new QPushButton;
-	btn->setObjectName("quizCreatorStopBtn");
-	connect(btn, SIGNAL(released()), this, SLOT(stop()));
-	textToSpeechSettingsLayout->addWidget(btn, 0, 4, 1, 1);
+	QPushButton* stopBtn = new QPushButton;
+	stopBtn->setObjectName("quizCreatorStopBtn");
+	connect(stopBtn, SIGNAL(released()), this, SLOT(stop()));
+	textToSpeechSettingsLayout->addWidget(stopBtn, 0, 4, 1, 1);
 
 	/** Add layout to settings widget */
 	_textToSpeechSettings = new QWidget;
@@ -466,23 +466,23 @@ QGridLayout* MusicQuiz::EntryCreator::createTextToSpeechLayout()
 	textToSpeechAnswerSettingsLayout->addWidget(label, 0, 0, 1, 1);
 
 	/** Answer Text to Speech Buttons - Play */
-	btn = new QPushButton;
-	btn->setProperty("type", "textToSpeechAnswer");
-	btn->setObjectName("quizCreatorPlayBtn");
-	connect(btn, SIGNAL(released()), this, SLOT(playText()));
-	textToSpeechAnswerSettingsLayout->addWidget(btn, 0, 2, 1, 1);
+	QPushButton* answerPlayBtn = new QPushButton;
+	answerPlayBtn->setProperty("type", "textToSpeechAnswer");
+	answerPlayBtn->setObjectName("quizCreatorPlayBtn");
+	connect(answerPlayBtn, SIGNAL(released()), this, SLOT(playText()));
+	textToSpeechAnswerSettingsLayout->addWidget(answerPlayBtn, 0, 2, 1, 1);
 
 	/** Answer Text to Speech Buttons - Pause */
-	btn = new QPushButton;
-	btn->setObjectName("quizCreatorPauseBtn");
-	connect(btn, SIGNAL(released()), this, SLOT(pause()));
-	textToSpeechAnswerSettingsLayout->addWidget(btn, 0, 3, 1, 1);
+	QPushButton* answerPauseBtn = new QPushButton;
+	answerPauseBtn->setObjectName("quizCreatorPauseBtn");
+	connect(answerPauseBtn, SIGNAL(released()), this, SLOT(pause()));
+	textToSpeechAnswerSettingsLayout->addWidget(answerPauseBtn, 0, 3, 1, 1);
 
 	/** Answer Text to Speech Buttons - Stop */
-	btn = new QPushButton;
-	btn->setObjectName("quizCreatorStopBtn");
-	connect(btn, SIGNAL(released()), this, SLOT(stop()));
-	textToSpeechAnswerSettingsLayout->addWidget(btn, 0, 4, 1, 1);
+	QPushButton* answerStopBtn = new QPushButton;
+	answerStopBtn->setObjectName("quizCreatorStopBtn");
+	connect(answerStopBtn, SIGNAL(released()), this, SLOT(stop()));
+	textToSpeechAnswerSettingsLayout->addWidget(answerStopBtn, 0, 4, 1, 1);
 
 	/** Add layout to answer settings widget */
 	_textToSpeechAnswerSettings = new QWidget;
@@ -509,21 +509,21 @@ QGridLayout* MusicQuiz::EntryCreator::createTextToSpeechLayout()
 	QGridLayout* voicesLayout = new QGridLayout;
 	_voiceButtonGroup = new QButtonGroup;
 	QVector< QVoice > availableVoices = _textToSpeechPlayer->availableVoices();
-	for ( size_t i = 0; i < availableVoices.size(); ++i ) {
+	for ( int i = 0; i < availableVoices.size(); ++i ) {
 		/** Get Name */
 		const QString voiceName = availableVoices[i].name() + " (" + QVoice::genderName(availableVoices[i].gender()) + ", " + QVoice::ageName(availableVoices[i].age()) + ")";
 
 		/** Create Button */
-		QRadioButton* btn = new QRadioButton(voiceName);
-		btn->setObjectName("quizCreatorRadioButtonVoices");
-		btn->setProperty("voiceName", availableVoices[i].name());
+		QRadioButton* createButton = new QRadioButton(voiceName);
+		createButton->setObjectName("quizCreatorRadioButtonVoices");
+		createButton->setProperty("voiceName", availableVoices[i].name());
 		if ( i == 0 ) {
-			btn->setChecked(true);
+			createButton->setChecked(true);
 		}
-		_voiceButtonGroup->addButton(btn, i);
+		_voiceButtonGroup->addButton(createButton, i);
 
 		/** Add button to layout */
-		voicesLayout->addWidget(btn, std::floor(i / 2), i % 2);
+		voicesLayout->addWidget(createButton, std::floor(i / 2), i % 2);
 	}
 
 	mainlayout->addItem(voicesLayout, ++row, 0, 1, 2);
@@ -682,7 +682,7 @@ void MusicQuiz::EntryCreator::playText()
 	if ( selectedButton != nullptr ) {
 		const QString selectedVoice = selectedButton->property("voiceName").toString();
 		const QVector< QVoice > availableVoices = _textToSpeechPlayer->availableVoices();
-		for ( size_t i = 0; i < availableVoices.size(); ++i ) {
+		for ( int i = 0; i < availableVoices.size(); ++i ) {
 			if ( selectedVoice == availableVoices[i].name() ) {
 				settings._voice = availableVoices[i];
 				break;
@@ -1512,7 +1512,7 @@ boost::property_tree::ptree MusicQuiz::EntryCreator::toXml(const std::string& sa
 			saveVideoToXml(tree, savePath + "/" + name, xmlPath + "/" + name);
 			break;
 		case MusicQuiz::EntryCreator::EntryType::TextToSpeech:
-			saveTextToSpeechToXml(tree, savePath + "/" + name, xmlPath + "/" + name);
+			saveTextToSpeechToXml(tree);
 			break;
 		default:
 			break;
@@ -1574,7 +1574,7 @@ void MusicQuiz::EntryCreator::saveVideoToXml(boost::property_tree::ptree& tree, 
 	}
 }
 
-void MusicQuiz::EntryCreator::saveTextToSpeechToXml(boost::property_tree::ptree& tree, const std::string& savePath, const std::string& xmlPath) const
+void MusicQuiz::EntryCreator::saveTextToSpeechToXml(boost::property_tree::ptree& tree) const
 {
 	/** Entry Type */
 	tree.put("<xmlattr>.type", "textToSpeech");
