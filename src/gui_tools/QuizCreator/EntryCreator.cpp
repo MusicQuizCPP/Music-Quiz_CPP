@@ -1015,8 +1015,7 @@ void MusicQuiz::EntryCreator::checkTextToSpeechAnswerSongFileName()
 	/** Set Line Edit Color */
 	if (!_textToSpeechAnswerSongFileLineEdit->isEnabled()) {
 		_textToSpeechAnswerSongFileLineEdit->setStyleSheet("color: rgb(150, 150, 150);");
-	}
-	else {
+	} else {
 		_textToSpeechAnswerSongFileLineEdit->setStyleSheet("color: rgb(" + QString::number(textColor.red()) + "," + QString::number(textColor.green()) + "," + QString::number(textColor.blue()) + ");");
 	}
 }
@@ -1738,7 +1737,7 @@ void MusicQuiz::EntryCreator::saveTextToSpeechToXml(boost::property_tree::ptree&
 	/** Media File */
 	const std::string songFile = getTextToSpeechAnswerSongFile().toStdString();
 	const std::string textToSpeechString = getTextToSpeechString().toStdString();
-	if ( !textToSpeechString.empty() && !songFile.empty()) {
+	if ( !textToSpeechString.empty() && !songFile.empty() ) {
 		boost::property_tree::ptree& media_tree = tree.add("Media", "");
 		media_tree.put("TextToSpeechString", textToSpeechString);
 		media_tree.put("Pitch", getPitch());

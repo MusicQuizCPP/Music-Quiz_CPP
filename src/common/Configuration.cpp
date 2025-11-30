@@ -9,18 +9,16 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
-using namespace common;
-using namespace std;
 
-Configuration::Configuration() : _quizDataPath("./data")
+common::Configuration::Configuration() : _quizDataPath("./data")
 {}
 
-string Configuration::getQuizDataPath() const
+std::string common::Configuration::getQuizDataPath() const
 {
     return _quizDataPath;
 }
 
-void Configuration::setQuizDataPath(string path)
+void common::Configuration::setQuizDataPath(std::string path)
 {
 	/** Set the path */
     _quizDataPath = path;
@@ -29,17 +27,17 @@ void Configuration::setQuizDataPath(string path)
 	saveConfigurationFile();
 }
 
-bool Configuration::doQuizDataPathExist() const
+bool common::Configuration::doQuizDataPathExist() const
 {
-    return filesystem::is_directory(_quizDataPath);
+    return std::filesystem::is_directory(_quizDataPath);
 }
 
-bool Configuration::doQuizConfigFileExist() const
+bool common::Configuration::doQuizConfigFileExist() const
 {
-	return filesystem::exists(_configFilePath);
+	return std::filesystem::exists(_configFilePath);
 }
 
-void Configuration::loadConfigurationFile() 
+void common::Configuration::loadConfigurationFile()
 {
 	/** Sanity Check */
 	if (!std::filesystem::exists(_configFilePath)) {
@@ -55,7 +53,7 @@ void Configuration::loadConfigurationFile()
 	_quizDataPath = sub_tree.get< std::string >("DataPath");
 }
 
-void Configuration::saveConfigurationFile()
+void common::Configuration::saveConfigurationFile()
 {
 	/** Sanity Check */
 	if (!doQuizDataPathExist()) {
@@ -76,17 +74,17 @@ void Configuration::saveConfigurationFile()
 	boost::property_tree::write_xml(_configFilePath, tree, std::locale(), settings);
 }
 
-string Configuration::mediaPathToFullPath(string mediaPathStr) const
+std::string common::Configuration::mediaPathToFullPath(std::string mediaPathStr) const
 {
-	filesystem::path quizDataPath(getQuizDataPath());
-	filesystem::path mediaPath(mediaPathStr);
+	std::filesystem::path quizDataPath(getQuizDataPath());
+	std::filesystem::path mediaPath(mediaPathStr);
 
-	filesystem::path fullpath = quizDataPath / mediaPath;
+	std::filesystem::path fullpath = quizDataPath / mediaPath;
 
-	if( !filesystem::exists(fullpath)) //Hack for compatibility with older quizes
+	if( !std::filesystem::exists(fullpath)) //Hack for compatibility with older quizes
 	{
-		mediaPath = regex_replace(mediaPathStr, regex("\\./data/"), "");
-		if(filesystem::exists(quizDataPath / mediaPath))
+		mediaPath = std::regex_replace(mediaPathStr, std::regex("\\./data/"), "");
+		if(std::filesystem::exists(quizDataPath / mediaPath))
 		{
 			fullpath = quizDataPath / mediaPath;
 		}
