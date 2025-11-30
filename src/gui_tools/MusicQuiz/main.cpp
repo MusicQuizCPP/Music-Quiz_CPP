@@ -98,6 +98,12 @@ int main(int argc, char* argv[])
 	msgBox.setStyleSheet(qss.readAll());
 	qss.close();
 
+	/** Check if config file exists. */
+	if (config.doQuizConfigFileExist()) {
+		config.loadConfigurationFile();
+	}
+
+	/** Set data folder */
 	if ( !config.doQuizDataPathExist() ) {
 		/** Popup to tell the user to select a data folder */
 		QMessageBox::information(nullptr, "Select Data Directory",
