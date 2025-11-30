@@ -222,8 +222,18 @@ std::vector< MusicQuiz::QuizCategory* > MusicQuiz::util::QuizLoader::loadQuizCat
 										err += "Text to speech string is empty\n";
 									}
 
-									/** Push Back Video Entry */
-									categorieEntries.push_back(new MusicQuiz::QuizEntry(textToSpeechString, answer, points, 0, audioPlayer, videoPlayer, textToSpeechPlayer, settings));
+									/** Get Answer Song File */
+									QString songFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile")));
+									const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
+									std::replace(songFile.begin(), songFile.end(), '\\', '/');
+
+									/** Check if file exsists */
+									if (!std::filesystem::exists(songFile.toStdString())) {
+										err += "Missing song file '" + songFile.toStdString() + "'\n";
+									}
+
+									/** Push Back Text to Speech Entry */
+									categorieEntries.push_back(new MusicQuiz::QuizEntry(textToSpeechString, songFile, answer, points, answerStartTime, audioPlayer, videoPlayer, textToSpeechPlayer, settings));
 								}
 							}
 						}

@@ -71,10 +71,10 @@ MusicQuiz::QuizEntry::QuizEntry(const QString& audioFile, const QString& videoFi
 	_mouseEventCallback = std::bind(&MusicQuiz::QuizEntry::handleMouseEvent, this, std::placeholders::_1);
 }
 
-MusicQuiz::QuizEntry::QuizEntry(const QString& string, const QString& answer, const size_t points, const size_t answerStartCharacter,
+MusicQuiz::QuizEntry::QuizEntry(const QString& string, const QString& audioFile, const QString& answer, const size_t points, size_t answerStartTime,
 	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer,
 	const media::TextToSpeechPlayer::TextToSpeechSettings& textToSpeechSettings, QWidget* parent) :
-	QPushButton(parent), _points(points), _speechString(string), _answerStartCharacter(answerStartCharacter), _answer(answer),
+	QPushButton(parent), _points(points), _speechString(string), _answerStartTime(answerStartTime), _answer(answer), _audioFile(audioFile),
 	_audioPlayer(audioPlayer), _videoPlayer(videoPlayer), _textToSpeechPlayer(textToSpeechPlayer), _textToSpeechSettings(textToSpeechSettings)
 {
 	/** Sanity Check */
@@ -195,9 +195,8 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 			_videoPlayer->play(_videoFile, _answerStartTime);
 			_videoPlayer->show();
 		} else if ( _type == EntryType::TextToSpeech ) {
-			_audioPlayer->stop();
 			_videoPlayer->stop();
-			_textToSpeechPlayer->play(_speechString, _textToSpeechSettings, true);
+			_audioPlayer->play(_audioFile, _answerStartTime);
 		}
 
 		if ( !_hiddenAnswer ) {
@@ -224,9 +223,8 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 			_videoPlayer->play(_videoFile, _answerStartTime);
 			_videoPlayer->show();
 		} else if ( _type == EntryType::TextToSpeech ) {
-			_audioPlayer->stop();
 			_videoPlayer->stop();
-			_textToSpeechPlayer->play(_speechString, _textToSpeechSettings, true);
+			_audioPlayer->play(_audioFile, _answerStartTime);
 		}
 
 		_state = EntryState::PLAYING_ANSWER;
