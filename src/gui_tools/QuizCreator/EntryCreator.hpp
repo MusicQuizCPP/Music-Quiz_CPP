@@ -166,6 +166,20 @@ namespace MusicQuiz {
 		const QString getVideoSongFile() const;
 
 		/**
+		 * @brief Sets the text to speech song file.
+		 *
+		 * @param[in] file The text to speech song file.
+		 */
+		void setTextToSpeechAnswerSongFile(const QString& file);
+
+		/**
+		 * @brief Gets the text to speech song file.
+		 *
+		 * @return The text to speech song file.
+		 */
+		const QString getTextToSpeechAnswerSongFile() const;
+
+		/**
 		 * @brief Sets the song start time.
 		 *
 		 * @param[in] time The song start time.
@@ -250,6 +264,20 @@ namespace MusicQuiz {
 		QString getTextToSpeechString() const;
 
 		/**
+		 * @brief Sets the text to speech answer start time.
+		 *
+		 * @param[in] time The text to speech answer start time.
+		 */
+		void setTextToSpeechAnswerStartTime(size_t time);
+
+		/**
+		 * @brief Gets the text to speech answer start time.
+		 *
+		 * @return The text to speech answer start time.
+		 */
+		size_t getTextToSpeechAnswerStartTime() const;
+
+		/**
 		 * @brief Sets the pitch.
 		 *
 		 * @param[in] pitch The pitch.
@@ -328,9 +356,11 @@ namespace MusicQuiz {
 		/**
 		 * @brief Serialize text to speech media into the boost property_tree
 		 *
-		 * @param[out] tree tree to serialize into.
+		 * @param[out] tree    tree to serialize into.
+		 * @param[in] savePath path where the media files should be saved.
+		 * @param[in] xmlPath  path for the media files that should be written in the ptree.
 		 */
-		void saveTextToSpeechToXml(boost::property_tree::ptree& tree) const;
+		void saveTextToSpeechToXml(boost::property_tree::ptree& tree, const std::string& savePath, const std::string& xmlPath) const;
 
 	private slots:
 		/**
@@ -349,6 +379,11 @@ namespace MusicQuiz {
 		void browseVideoSong();
 
 		/**
+		 * @brief Opens a dialog to browse for a song file.
+		 */
+		void browseTextToSpeechAnswerSong();
+
+		/**
 		 * @brief Check if the song file name is valid and enables / disables widgets.
 		 */
 		void checkSongFileName();
@@ -357,6 +392,11 @@ namespace MusicQuiz {
 		 * @brief Check if the video file names is valid and enables / disables widgets.
 		 */
 		void checkVideoFiles();
+
+		/**
+		 * @brief Check if the song file name is valid and enables / disables widgets.
+		 */
+		void checkTextToSpeechAnswerSongFileName();
 
 		/**
 		 * @brief Check if the text to speech lyrics are valid and enables / disables widgets.
@@ -495,9 +535,11 @@ namespace MusicQuiz {
 		QLineEdit* _songFileLineEdit = nullptr;
 		QLineEdit* _videoFileLineEdit = nullptr;
 		QLineEdit* _videoSongFileLineEdit = nullptr;
+		QLineEdit* _textToSpeechAnswerSongFileLineEdit = nullptr;
 
 		QTimeEdit* _songStartTimeEdit = nullptr;
 		QTimeEdit* _answerStartTimeEdit = nullptr;
+		QTimeEdit* _textToSpeechSnswerStartTimeEdit = nullptr;
 
 		QTimeEdit* _videoStartTimeEdit = nullptr;
 		QTimeEdit* _videoSongStartTimeEdit = nullptr;
@@ -515,6 +557,7 @@ namespace MusicQuiz {
 		QPushButton* _browseSongBtn = nullptr;
 		QPushButton* _browseVideoBtn = nullptr;
 		QPushButton* _browseVideoSongBtn = nullptr;
+		QPushButton* _browseTextToSpeechAnswerSongBtn = nullptr;
 
 		std::shared_ptr< media::AudioPlayer > _audioPlayer = nullptr;
 		media::VideoPlayer* _videoPlayer = nullptr;

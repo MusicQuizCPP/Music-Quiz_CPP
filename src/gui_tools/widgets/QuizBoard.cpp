@@ -63,7 +63,6 @@ MusicQuiz::QuizBoard::QuizBoard(const std::vector<MusicQuiz::QuizCategory*>& cat
 	}
 
 	if ( sameNumberOfEntries ) {
-		_rowCategories.push_back("");
 		_rowCategories.insert(_rowCategories.end(), rowCategories.begin(), rowCategories.end());
 	}
 

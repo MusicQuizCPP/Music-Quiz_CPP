@@ -64,16 +64,17 @@ namespace MusicQuiz {
 		 * @brief Entry Type Text to Speech Constructor
 		 *
 		 * @param[in] string               The string to say.
+		 * @param[in] audioFile            The answer audio file to play.
 		 * @param[in] answer               The entry anwser.
 		 * @param[in] points               The number of points obtained by guessing the entry.
-		 * @param[in] answerStartCharacter The index of the start character of the answer.
+		 * @param[in] answerStartTime    The answer media start time in [ms].
 		 * @param[in] audioPlayer          The audio player.
 		 * @param[in] videoPlayer          The video player.
 		 * @param[in] textToSpeechPlayer   The text to speech player.
 		 * @param[in] textToSpeechSettings The text to speech settings.
 		 * @param[in] parent               The parent widget.
 		 */
-		explicit QuizEntry(const QString& string, const QString& answer, size_t points, size_t answerStartCharacter,
+		explicit QuizEntry(const QString& string, const QString& audioFile, const QString& answer, size_t points, size_t answerStartTime,
 			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
 			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const media::TextToSpeechPlayer::TextToSpeechSettings& textToSpeechSettings, QWidget* parent = nullptr);
 
