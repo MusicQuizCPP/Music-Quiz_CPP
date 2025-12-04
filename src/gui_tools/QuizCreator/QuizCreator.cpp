@@ -83,7 +83,7 @@ void MusicQuiz::QuizCreator::createLayout()
 
 	/** Tab Widget */
 	_tabWidget = new QTabWidget;
-	mainlayout->addWidget(_tabWidget, 0, 0, 1, 5);
+	mainlayout->addWidget(_tabWidget, 0, 0, 1, 6);
 
 	/** Setup Tab */
 	QWidget* setupTab = new QWidget;
@@ -195,20 +195,25 @@ void MusicQuiz::QuizCreator::createLayout()
 	connect(saveQuizBtn, SIGNAL(released()), this, SLOT(saveQuiz()));
 	mainlayout->addWidget(saveQuizBtn, 1, 1, 1, 1);
 
+	QPushButton* newQuizBtn = new QPushButton("New Quiz");
+	newQuizBtn->setObjectName("quizCreatorBtn");
+	connect(newQuizBtn, SIGNAL(released()), this, SLOT(newQuiz()));
+	mainlayout->addWidget(newQuizBtn, 1, 2, 1, 1);
+
 	QPushButton* loadQuizBtn = new QPushButton("Load Quiz");
 	loadQuizBtn->setObjectName("quizCreatorBtn");
 	connect(loadQuizBtn, SIGNAL(released()), this, SLOT(openLoadQuizDialog()));
-	mainlayout->addWidget(loadQuizBtn, 1, 2, 1, 1);
+	mainlayout->addWidget(loadQuizBtn, 1, 3, 1, 1);
 
 	QPushButton* loadQuizCategoryBtn = new QPushButton("Load Category");
 	loadQuizCategoryBtn->setObjectName("quizCreatorBtn");
 	connect(loadQuizCategoryBtn, SIGNAL(released()), this, SLOT(openLoadCategoryDialog()));
-	mainlayout->addWidget(loadQuizCategoryBtn, 1, 3, 1, 1);
+	mainlayout->addWidget(loadQuizCategoryBtn, 1, 4, 1, 1);
 
 	QPushButton* quitCreatorBtn = new QPushButton("Quit");
 	quitCreatorBtn->setObjectName("quizCreatorBtn");
 	connect(quitCreatorBtn, SIGNAL(released()), this, SLOT(quitCreator()));
-	mainlayout->addWidget(quitCreatorBtn, 1, 4, 1, 1);
+	mainlayout->addWidget(quitCreatorBtn, 1, 5, 1, 1);
 
 	/** Set Layout */
 	setLayout(mainlayout);
@@ -534,7 +539,7 @@ void MusicQuiz::QuizCreator::saveQuiz()
 	quizData.setRowCategories(getRowCategories());
 
 	/** Save Quiz */
-	if(quizData.doesQuizDirectoryExist()) {
+	if ( !quizName.empty() && quizData.doesQuizDirectoryExist() ) {
 		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Overwrite Quiz?", "Quiz already exists, do you want to overwrite existing quiz?",
 			QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
 		if ( resBtn != QMessageBox::Yes ) {
@@ -903,6 +908,60 @@ void MusicQuiz::QuizCreator::checkThatQuizIsValid(const std::vector< MusicQuiz::
 				break;
 			}
 		}
+	}
+}
+
+void MusicQuiz::QuizCreator::newQuiz()
+{
+	/** Popup to ensure the user wants to create a new quiz */
+	if (!_categories.empty() || _rowCategoriesTable->rowCount() != 0 || !_quizNameLineEdit->text().isEmpty()
+		|| !_quizDescriptionTextEdit->toPlainText().isEmpty() || !_quizAuthorLineEdit->text().isEmpty()) {
+		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Create New Quiz?", "Are you sure you want to create a new quiz? Any unsaved progress will be lost!",
+			QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
+		if (resBtn == QMessageBox::No) {
+			return;
+		}
+	}
+
+	/** Remove Tabs */
+	while (_tabWidget->count() > 1) {
+		_tabWidget->removeTab(1);
+	}
+
+	/** Clear Categories */
+	for (size_t i = 0; i < _categories.size(); ++i) {
+		_categories[i]->clearEntries();
+		_categories[i] = nullptr;
+		delete _categories[i];
+	}
+	_categories.clear();
+	_categoriesTable->clear();
+	_categoriesTable->clearContents();
+	_categoriesTable->setRowCount(0);
+
+	/** Clear Row Categories */
+	_rowCategoriesTable->clear();
+	_rowCategoriesTable->clearContents();
+	_rowCategoriesTable->setRowCount(0);
+
+	/** Set Name */
+	if (_quizNameLineEdit != nullptr) {
+		_quizNameLineEdit->setText("");
+	}
+
+	/** Set Author */
+	if (_quizAuthorLineEdit != nullptr) {
+		_quizAuthorLineEdit->setText("");
+	}
+
+	/** Set Description */
+	if (_quizDescriptionTextEdit != nullptr) {
+		_quizDescriptionTextEdit->setText("");
+	}
+
+	/** Hidden Categories */
+	if (_hiddenCategoriesCheckbox != nullptr) {
+		_hiddenCategoriesCheckbox->setChecked(false);
 	}
 }
 

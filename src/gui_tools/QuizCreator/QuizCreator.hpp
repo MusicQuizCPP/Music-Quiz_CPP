@@ -155,6 +155,11 @@ namespace MusicQuiz {
 		void stopQuizPreview();
 
 		/**
+		 * @brief Resets everything so a new quiz can be created.
+		 */
+		void newQuiz();
+
+		/**
 		 * @brief Quits the quiz creator.
 		 */
 		void quitCreator();
