@@ -708,6 +708,9 @@ void MusicQuiz::QuizCreator::loadRowCategory(const std::string& rowCategory)
 
 	/** Add Line Edit */
 	QLineEdit* rowCategoryName = new QLineEdit(QString::fromStdString(rowCategory));
+	QRegExp re("^[a-zA-Z0-9\\_\\.\\,\\-\\s\\'\\+\\^\\(\\)]{1,50}");
+	QRegExpValidator* validator = new QRegExpValidator(re);
+	rowCategoryName->setValidator(validator);
 	rowCategoryName->setObjectName("quizCreatorCategoryLineEdit");
 	_rowCategoriesTable->setCellWidget(rowCategoryCount, 0, rowCategoryName);
 
@@ -737,6 +740,9 @@ void MusicQuiz::QuizCreator::loadCategory(MusicQuiz::CategoryCreator* category)
 
 	/** Add Line Edit */
 	QLineEdit* categoryName = new QLineEdit(category->getName());
+	QRegExp re("^[a-zA-Z0-9\\_\\.\\,\\-\\s\\'\\+\\^\\(\\)]{1,50}");
+	QRegExpValidator* validator = new QRegExpValidator(re);
+	categoryName->setValidator(validator);
 	categoryName->setObjectName("quizCreatorCategoryLineEdit");
 	categoryName->setProperty("index", categoryCount);
 	connect(categoryName, SIGNAL(textChanged(const QString&)), this, SLOT(updateCategoryTabName(const QString&)));
