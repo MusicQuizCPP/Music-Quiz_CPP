@@ -1,5 +1,6 @@
 #include "QuizCategory.hpp"
 
+#include <string>
 #include <stdexcept>
 
 #include <QLabel>
