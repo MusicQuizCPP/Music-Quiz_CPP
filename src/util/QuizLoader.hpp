@@ -28,7 +28,6 @@ namespace MusicQuiz {
 				bool includeVideos = false;
 				bool includeTextToSpeech = false;
 				bool guessTheCategory = false;
-				std::string quizDescription = "";
 				std::vector<std::string> categories;
 				std::vector<std::string> rowCategories;
 
@@ -36,7 +35,6 @@ namespace MusicQuiz {
 				{
 					out << "\n\nQuiz Name: " << quizPreview.quizName << "\n";
 					out << "Quiz Author: " << quizPreview.quizAuthor << "\n";
-					out << "Quiz Description: " << quizPreview.quizDescription << "\n";
 					if ( !quizPreview.categories.empty() ) {
 						out << "Quiz Categories:\n";
 						for ( size_t i = 0; i < quizPreview.categories.size(); ++i ) {

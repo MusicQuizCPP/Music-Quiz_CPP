@@ -110,7 +110,6 @@ namespace MusicQuiz {
 		QLineEdit* _authorText = nullptr;
 		QTextEdit* _categoryText = nullptr;
 		QTextEdit* _rowCategoryText = nullptr;
-		QTextEdit* _descriptionText = nullptr;
 		QListWidget* _quizSelectionList = nullptr;
 
 		QCheckBox* _includeSongsCheckbox = nullptr;

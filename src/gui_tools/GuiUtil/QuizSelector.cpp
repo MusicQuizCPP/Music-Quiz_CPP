@@ -61,7 +61,6 @@ void MusicQuiz::QuizSelector::createLayout()
 	/** Layout */
 	QGridLayout* mainlayout = new QGridLayout;
 	QVBoxLayout* quizSelectionLayout = new QVBoxLayout;
-	QVBoxLayout* descriptionLayout = new QVBoxLayout;
 	QVBoxLayout* infoLayout = new QVBoxLayout;
 	QGridLayout* categoryLayout = new QGridLayout;
 	QHBoxLayout* buttonLayout = new QHBoxLayout;
@@ -70,7 +69,6 @@ void MusicQuiz::QuizSelector::createLayout()
 	quizSelectionLayout->setSpacing(20);
 	buttonLayout->setSpacing(20);
 	infoLayout->setSpacing(30);
-	descriptionLayout->setSpacing(20);
 	categoryLayout->setHorizontalSpacing(20);
 	categoryLayout->setVerticalSpacing(20);
 	mainlayout->setColumnStretch(0, 1);
@@ -92,19 +90,6 @@ void MusicQuiz::QuizSelector::createLayout()
 		quizName->setText(QString(" ") + QString::fromStdString(_quizPreviews[i].quizName));
 		_quizSelectionList->addItem(quizName);
 	}
-
-	/** Description */
-	QLabel* descriptionLabel = new QLabel("Description");
-	descriptionLabel->setObjectName("descriptionLabel");
-	descriptionLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Minimum);
-	descriptionLabel->setAlignment(Qt::AlignHCenter);
-	descriptionLayout->addWidget(descriptionLabel);
-
-	_descriptionText = new QTextEdit;
-	_descriptionText->setReadOnly(true);
-	_descriptionText->setObjectName("descriptionTextLabel");
-	_descriptionText->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
-	descriptionLayout->addWidget(_descriptionText);
 
 	/** Categories */
 	QLabel* categoryLabel = new QLabel("Categories");
@@ -158,7 +143,6 @@ void MusicQuiz::QuizSelector::createLayout()
 	infoLayout->addWidget(_guessTheCategoryCheckbox, Qt::AlignHCenter);
 	infoLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
 	categoryLayout->addItem(infoLayout, 1, 2, Qt::AlignHCenter);
-	descriptionLayout->addItem(categoryLayout);
 
 	/** Buttons */
 	QPushButton* selectBtn = new QPushButton("Select Quiz");
@@ -178,7 +162,7 @@ void MusicQuiz::QuizSelector::createLayout()
 
 	/** Add Widgets */
 	mainlayout->addItem(quizSelectionLayout, 0, 0);
-	mainlayout->addItem(descriptionLayout, 0, 1);
+	mainlayout->addItem(categoryLayout, 0, 1);
 	mainlayout->addItem(buttonLayout, 1, 0, 1, 3);
 
 	/** Set Layout */
@@ -199,7 +183,7 @@ void MusicQuiz::QuizSelector::selectionClicked()
 			return;
 	}
 
-	if ( _descriptionText == nullptr || _quizSelectionList == nullptr ) {
+	if ( _quizSelectionList == nullptr ) {
 		LOG_ERROR("Can not update QuizSelection item are nullptr.")
 			return;
 	}
@@ -210,9 +194,6 @@ void MusicQuiz::QuizSelector::selectionClicked()
 		LOG_ERROR("Can not update QuizSelection index out of range.")
 			return;
 	}
-
-	/** Update Description */
-	_descriptionText->setText(QString::fromStdString(_quizPreviews[currentIndex].quizDescription));
 
 	/** Update Info Checkboxes */
 	_includeSongsCheckbox->setChecked(_quizPreviews[currentIndex].includeSongs);

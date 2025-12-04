@@ -115,16 +115,6 @@ void MusicQuiz::QuizCreator::createLayout()
 	_quizAuthorLineEdit->setObjectName("quizCreatorLineEdit");
 	setupTabLayout->addWidget(_quizAuthorLineEdit, ++row, 0, 1, 2);
 
-	/** Setup Tab - Quiz Description */
-	label = new QLabel("Quiz Description:");
-	label->setObjectName("quizCreatorLabel");
-	setupTabLayout->addWidget(label, ++row, 0, 1, 2, Qt::AlignLeft);
-
-	_quizDescriptionTextEdit = new QTextEdit;
-	_quizDescriptionTextEdit->setAcceptRichText(false);
-	_quizDescriptionTextEdit->setObjectName("quizCreatorTextEdit");
-	setupTabLayout->addWidget(_quizDescriptionTextEdit, ++row, 0, 1, 2);
-
 	/** Setup Tab - Settings */
 	label = new QLabel("Settings:");
 	label->setObjectName("quizCreatorLabel");
@@ -547,9 +537,6 @@ void MusicQuiz::QuizCreator::saveQuiz()
 	/** Quiz Author */
 	quizData.setAuthor(_quizAuthorLineEdit->text().toStdString());
 
-	/** Quiz Description */
-	quizData.setDescription(_quizDescriptionTextEdit->toPlainText().toStdString());
-
 	/** Guess the Categoies */
 	quizData.setGuessTheCategory(_guessTheCategoriesCheckbox->isChecked(), _guessTheCategoriesPointsSpinbox->value());
 
@@ -616,8 +603,7 @@ void MusicQuiz::QuizCreator::loadQuiz(const std::string& quizName)
 	}
 
 	/** Popup to ensure the user wants to load the quiz */
-	if ( !_categories.empty() || _rowCategoriesTable->rowCount() != 0 || !_quizNameLineEdit->text().isEmpty()
-		|| !_quizDescriptionTextEdit->toPlainText().isEmpty() || !_quizAuthorLineEdit->text().isEmpty() ) {
+	if ( !_categories.empty() || _rowCategoriesTable->rowCount() != 0 || !_quizNameLineEdit->text().isEmpty() || !_quizAuthorLineEdit->text().isEmpty() ) {
 		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Load Quiz?", "Are you sure you want to load '" + QString::fromStdString(quizName) + "' quiz ? Any unsaved progress will be lost!",
 			QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
 		if ( resBtn == QMessageBox::No ) {
@@ -692,11 +678,6 @@ void MusicQuiz::QuizCreator::loadQuizData(const QuizData& quizData)
 	/** Set Author */
 	if ( _quizAuthorLineEdit != nullptr ) {
 		_quizAuthorLineEdit->setText(QString::fromStdString(quizData.getAuthor()));
-	}
-
-	/** Set Description */
-	if ( _quizDescriptionTextEdit != nullptr ) {
-		_quizDescriptionTextEdit->setText(QString::fromStdString(quizData.getDescription()));
 	}
 
 	/** Guess the Categories */
@@ -941,8 +922,7 @@ void MusicQuiz::QuizCreator::checkThatQuizIsValid(const std::vector< MusicQuiz::
 void MusicQuiz::QuizCreator::newQuiz()
 {
 	/** Popup to ensure the user wants to create a new quiz */
-	if (!_categories.empty() || _rowCategoriesTable->rowCount() != 0 || !_quizNameLineEdit->text().isEmpty()
-		|| !_quizDescriptionTextEdit->toPlainText().isEmpty() || !_quizAuthorLineEdit->text().isEmpty()) {
+	if (!_categories.empty() || _rowCategoriesTable->rowCount() != 0 || !_quizNameLineEdit->text().isEmpty() || !_quizAuthorLineEdit->text().isEmpty()) {
 		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Create New Quiz?", "Are you sure you want to create a new quiz? Any unsaved progress will be lost!",
 			QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
 		if (resBtn == QMessageBox::No) {
@@ -979,11 +959,6 @@ void MusicQuiz::QuizCreator::newQuiz()
 	/** Set Author */
 	if (_quizAuthorLineEdit != nullptr) {
 		_quizAuthorLineEdit->setText("");
-	}
-
-	/** Set Description */
-	if (_quizDescriptionTextEdit != nullptr) {
-		_quizDescriptionTextEdit->setText("");
 	}
 
 	/** Guess Categories */

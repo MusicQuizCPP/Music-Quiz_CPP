@@ -71,9 +71,6 @@ MusicQuiz::util::QuizLoader::QuizPreview MusicQuiz::util::QuizLoader::getQuizPre
 	/** Author */
 	quizPreview.quizAuthor = sub_tree.get< std::string >("QuizAuthor");
 
-	/** Description */
-	quizPreview.quizDescription = sub_tree.get< std::string >("QuizDescription");
-
 	/** Guess the Category */
 	quizPreview.guessTheCategory = sub_tree.get("QuizGuessTheCategory.<xmlattr>.enabled", false);
 
