@@ -99,6 +99,7 @@ void MusicQuiz::QuizBoard::createLayout()
 	size_t maxNumberOfEntries = 0;
 	for ( size_t i = 0; i < _categories.size(); ++i ) {
 		categorylayout->addWidget(_categories[i]);
+		categorylayout->setStretch(i, 1);
 		if ( _settings.guessTheCategory ) {
 			connect(_categories[i], SIGNAL(guessed(size_t)), this, SLOT(handleAnswer(size_t)));
 		}
@@ -138,6 +139,18 @@ void MusicQuiz::QuizBoard::createLayout()
 			rowCategoryBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 			rowCategoryBtn->setObjectName("QuizEntry_rowCategoryLabel");
 			rowCategorylayout->addWidget(rowCategoryBtn);
+
+			/** Text Size */
+			int textWidth = fontMetrics().boundingRect(_rowCategories[i]).width();
+			size_t fontSize = 40;
+			while (textWidth > rowCategoryBtn->width() - 40 && fontSize > 10U) {
+				rowCategoryBtn->setStyleSheet("font-size: " + QString::number(fontSize) + "px;");
+				textWidth = fontMetrics().boundingRect(_rowCategories[i]).width();
+				--fontSize;
+			}
+
+			const std::string stylesheetString = "font-size: " + std::to_string(fontSize) + "px;";
+			rowCategoryBtn->setStyleSheet(QString::fromStdString(stylesheetString));
 		}
 
 		/** Add layouts to main layout */
