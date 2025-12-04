@@ -425,12 +425,12 @@ QCheckBox::indicator:unchecked#infoCheckbox {
 
 QCheckBox#quizCreatorCheckbox
 {
-	font-size	: 18px;
+	font-size	: 20px;
 }
 
 QCheckBox::indicator#quizCreatorCheckbox {
-	width		: 25px;
-	height		: 25px;
+	width		: 30px;
+	height		: 30px;
 }
 
 QCheckBox::indicator:checked#quizCreatorCheckbox {
@@ -521,6 +521,10 @@ QSpinBox#quizCreatorSpinbox
 {
 	font-size						: 20px;
 	min-height						: 40px;
+}
+
+QSpinBox#quizCreatorGuessTheCategoriesPointsSpinbox {
+	height		: 30px;
 }
 
 

@@ -3,7 +3,6 @@
 #include <regex>
 
 #include <QList>
-#include <QLabel>
 #include <QString>
 #include <QScreen>
 #include <QHBoxLayout>
@@ -80,6 +79,8 @@ void MusicQuiz::QuizCreator::createLayout()
 {
 	/** Layout */
 	QGridLayout* mainlayout = new QGridLayout;
+	QHBoxLayout* guessTheCategoryLayout = new QHBoxLayout;
+	guessTheCategoryLayout->setSpacing(10);
 
 	/** Tab Widget */
 	_tabWidget = new QTabWidget;
@@ -129,9 +130,29 @@ void MusicQuiz::QuizCreator::createLayout()
 	label->setObjectName("quizCreatorLabel");
 	setupTabLayout->addWidget(label, ++row, 0, 1, 2, Qt::AlignLeft);
 
-	_hiddenCategoriesCheckbox = new QCheckBox("Hidden Categories");
-	_hiddenCategoriesCheckbox->setObjectName("quizCreatorCheckbox");
-	setupTabLayout->addWidget(_hiddenCategoriesCheckbox, ++row, 0, 1, 2);
+	/** Setup Tab - Settings - Guess the Categories */
+	_guessTheCategoriesCheckbox = new QCheckBox("Guess the Categories");
+	_guessTheCategoriesCheckbox->setObjectName("quizCreatorCheckbox");
+	connect(_guessTheCategoriesCheckbox, SIGNAL(toggled(bool)), this, SLOT(showGuessTheCategoriesSettings(bool)));
+	guessTheCategoryLayout->addWidget(_guessTheCategoriesCheckbox);
+	guessTheCategoryLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+
+	/** Setup Tab - Settings - Guess the Categories Points */
+	_guessTheCategoriesPointsLabel = new QLabel("Points:");
+	_guessTheCategoriesPointsLabel->setStyleSheet("font-size: 20px;");
+	_guessTheCategoriesPointsLabel->setVisible(false);
+	guessTheCategoryLayout->addWidget(_guessTheCategoriesPointsLabel);
+
+	_guessTheCategoriesPointsSpinbox = new QSpinBox;
+	_guessTheCategoriesPointsSpinbox->setAlignment(Qt::AlignCenter);
+	_guessTheCategoriesPointsSpinbox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+	_guessTheCategoriesPointsSpinbox->setObjectName("quizCreatorGuessTheCategoriesPointsSpinbox");
+	_guessTheCategoriesPointsSpinbox->setRange(0, 10000);
+	_guessTheCategoriesPointsSpinbox->setSingleStep(50);
+	_guessTheCategoriesPointsSpinbox->setValue(500);
+	_guessTheCategoriesPointsSpinbox->setVisible(false);
+	guessTheCategoryLayout->addWidget(_guessTheCategoriesPointsSpinbox);
+	setupTabLayout->addLayout(guessTheCategoryLayout, ++row, 0, 1, 2);
 
 	/** Setup Tab - Categories */
 	label = new QLabel("Categories:");
@@ -529,8 +550,8 @@ void MusicQuiz::QuizCreator::saveQuiz()
 	/** Quiz Description */
 	quizData.setDescription(_quizDescriptionTextEdit->toPlainText().toStdString());
 
-	/** Hidden Categoies */
-	quizData.setGuessTheCategory(_hiddenCategoriesCheckbox->isChecked(), 500);
+	/** Guess the Categoies */
+	quizData.setGuessTheCategory(_guessTheCategoriesCheckbox->isChecked(), _guessTheCategoriesPointsSpinbox->value());
 
 	/** Quiz Categories */
 	quizData.setCategories(_categories);
@@ -678,9 +699,9 @@ void MusicQuiz::QuizCreator::loadQuizData(const QuizData& quizData)
 		_quizDescriptionTextEdit->setText(QString::fromStdString(quizData.getDescription()));
 	}
 
-	/** Hidden Categories */
-	if ( _hiddenCategoriesCheckbox != nullptr ) {
-		_hiddenCategoriesCheckbox->setChecked(quizData.getGuessTheCategory());
+	/** Guess the Categories */
+	if ( _guessTheCategoriesCheckbox != nullptr ) {
+		_guessTheCategoriesCheckbox->setChecked(quizData.getGuessTheCategory());
 	}
 
 	/** Add Categories */
@@ -795,7 +816,7 @@ void MusicQuiz::QuizCreator::previewQuiz()
 
 	/** Dummy Settings */
 	MusicQuiz::QuizSettings settings;
-	settings.guessTheCategory = _hiddenCategoriesCheckbox->isChecked();
+	settings.guessTheCategory = _guessTheCategoriesCheckbox->isChecked();
 
 	/** Check that quiz is valid */
 	try {
@@ -965,9 +986,9 @@ void MusicQuiz::QuizCreator::newQuiz()
 		_quizDescriptionTextEdit->setText("");
 	}
 
-	/** Hidden Categories */
-	if (_hiddenCategoriesCheckbox != nullptr) {
-		_hiddenCategoriesCheckbox->setChecked(false);
+	/** Guess Categories */
+	if (_guessTheCategoriesCheckbox != nullptr) {
+		_guessTheCategoriesCheckbox->setChecked(false);
 	}
 }
 
@@ -991,5 +1012,16 @@ void MusicQuiz::QuizCreator::keyPressEvent(QKeyEvent* event)
 	default:
 		QWidget::keyPressEvent(event);
 		break;
+	}
+}
+
+void MusicQuiz::QuizCreator::showGuessTheCategoriesSettings(bool show)
+{
+	if ( _guessTheCategoriesPointsLabel != nullptr ) {
+		_guessTheCategoriesPointsLabel->setVisible(show);
+	}
+
+	if ( _guessTheCategoriesPointsSpinbox != nullptr ) {
+		_guessTheCategoriesPointsSpinbox->setVisible(show);
 	}
 }
