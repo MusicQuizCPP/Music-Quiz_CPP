@@ -544,7 +544,8 @@ void MusicQuiz::QuizCreator::saveQuiz()
 
 	try {
 		quizData.save();
-		QMessageBox::information(this, "Info", "Quiz saves successfully.");
+		loadQuizData(QuizData(_config, quizData.getQuizPath() + "/" + quizData.getName() + ".quiz.xml", _audioPlayer, _textToSpeechPlayer, this)); // Reload quiz to update any file paths
+		QMessageBox::information(this, "Info", "Quiz saved successfully.");
 	} catch ( const std::exception& err ) {
 		QMessageBox::warning(this, "Failed to Save Quiz", QString::fromStdString(err.what()));
 	} catch ( ... ) {
@@ -591,7 +592,7 @@ void MusicQuiz::QuizCreator::loadQuiz(const std::string& quizName)
 	/** Popup to ensure the user wants to load the quiz */
 	if ( !_categories.empty() || _rowCategoriesTable->rowCount() != 0 || !_quizNameLineEdit->text().isEmpty()
 		|| !_quizDescriptionTextEdit->toPlainText().isEmpty() || !_quizAuthorLineEdit->text().isEmpty() ) {
-		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Load Quiz?", "Are you sure you want to load the quiz? Any unsaved progress will be lost!",
+		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Load Quiz?", "Are you sure you want to load '" + QString::fromStdString(quizName) + "' quiz ? Any unsaved progress will be lost!",
 			QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
 		if ( resBtn == QMessageBox::No ) {
 			return;
@@ -677,8 +678,7 @@ void MusicQuiz::QuizCreator::loadQuizData(const QuizData& quizData)
 		_hiddenCategoriesCheckbox->setChecked(quizData.getGuessTheCategory());
 	}
 
-	/**Add Categories */
-	_categories.clear();
+	/** Add Categories */
 	if ( _categoriesTable != nullptr ) {
 		for( auto& category : quizData.getCategories() ) {
 			loadCategory(category);

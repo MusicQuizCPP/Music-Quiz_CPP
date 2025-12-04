@@ -126,6 +126,7 @@ void MusicQuiz::QuizData::save() const
     boost::property_tree::xml_writer_settings< std::string > settings('\t', 1);
     boost::property_tree::write_xml(getQuizPath() + "/" + _name + ".quiz.xml", tree, std::locale(), settings);
 
+    /** Save cheatsheet */
     saveCheatSheet(getQuizPath() + "/" + _name + ".cheatsheet.txt");
 }
 
