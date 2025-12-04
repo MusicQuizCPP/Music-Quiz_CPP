@@ -77,7 +77,7 @@ void MusicQuiz::EntryCreator::createLayout()
 	_pointsSpinbox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 	_pointsSpinbox->setObjectName("quizCreatorSpinbox");
 	_pointsSpinbox->setRange(0, 10000);
-	_pointsSpinbox->setSingleStep(100);
+	_pointsSpinbox->setSingleStep(50);
 	_pointsSpinbox->setValue(_points);
 	connect(_pointsSpinbox, SIGNAL(valueChanged(int)), this, SLOT(pointsChanged(int)));
 	mainlayout->addWidget(_pointsSpinbox, row, 1);
