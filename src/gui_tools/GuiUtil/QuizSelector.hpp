@@ -24,6 +24,7 @@ namespace MusicQuiz {
 
 	class QuizSelector : public QDialog {
 		Q_OBJECT
+
 	public:
 		/**
 		 * @brief Constructor
@@ -98,6 +99,7 @@ namespace MusicQuiz {
 	signals:
 		void quitSignal();
 		void quizSelectedSignal(size_t quizIdx, const QString& quizName, const QString& quizAuthor, const MusicQuiz::QuizSettings& settings);
+
 	protected:
 		/**
 		 * @brief Creates the category layout.

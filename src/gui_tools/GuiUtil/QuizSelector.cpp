@@ -223,7 +223,6 @@ void MusicQuiz::QuizSelector::selectionClicked()
 	} else {
 		_rowCategoryText->clear();
 	}
-
 }
 
 void MusicQuiz::QuizSelector::quizSelected()
