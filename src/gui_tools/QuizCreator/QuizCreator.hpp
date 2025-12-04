@@ -4,9 +4,11 @@
 #include <vector>
 #include <string>
 
+#include <QLabel>
 #include <QObject>
 #include <QWidget>
 #include <QDialog>
+#include <QSpinBox>
 #include <QTextEdit>
 #include <QLineEdit>
 #include <QCheckBox>
@@ -155,6 +157,11 @@ namespace MusicQuiz {
 		void stopQuizPreview();
 
 		/**
+		 * @brief Resets everything so a new quiz can be created.
+		 */
+		void newQuiz();
+
+		/**
 		 * @brief Quits the quiz creator.
 		 */
 		void quitCreator();
@@ -163,6 +170,13 @@ namespace MusicQuiz {
 		 * @brief handle keypresses.
 		 */
 		void keyPressEvent(QKeyEvent* event);
+
+		/**
+		 * @brief Shows the settings for guess the categories if the checkbox is enabled.
+		 * 
+		 * @param[in] show True if the settings should be shown.
+		 */
+		void showGuessTheCategoriesSettings(const bool show);
 
 	protected:
 		/**
@@ -185,9 +199,10 @@ namespace MusicQuiz {
 
 		QLineEdit* _quizNameLineEdit = nullptr;
 		QLineEdit* _quizAuthorLineEdit = nullptr;
-		QTextEdit* _quizDescriptionTextEdit = nullptr;
 
-		QCheckBox* _hiddenCategoriesCheckbox = nullptr;
+		QCheckBox* _guessTheCategoriesCheckbox = nullptr;
+		QLabel* _guessTheCategoriesPointsLabel = nullptr;
+		QSpinBox* _guessTheCategoriesPointsSpinbox = nullptr;
 
 		QTableWidget* _categoriesTable = nullptr;
 		QTableWidget* _rowCategoriesTable = nullptr;

@@ -3,7 +3,6 @@
 #include <regex>
 
 #include <QList>
-#include <QLabel>
 #include <QString>
 #include <QScreen>
 #include <QHBoxLayout>
@@ -80,10 +79,12 @@ void MusicQuiz::QuizCreator::createLayout()
 {
 	/** Layout */
 	QGridLayout* mainlayout = new QGridLayout;
+	QHBoxLayout* guessTheCategoryLayout = new QHBoxLayout;
+	guessTheCategoryLayout->setSpacing(10);
 
 	/** Tab Widget */
 	_tabWidget = new QTabWidget;
-	mainlayout->addWidget(_tabWidget, 0, 0, 1, 5);
+	mainlayout->addWidget(_tabWidget, 0, 0, 1, 6);
 
 	/** Setup Tab */
 	QWidget* setupTab = new QWidget;
@@ -114,24 +115,34 @@ void MusicQuiz::QuizCreator::createLayout()
 	_quizAuthorLineEdit->setObjectName("quizCreatorLineEdit");
 	setupTabLayout->addWidget(_quizAuthorLineEdit, ++row, 0, 1, 2);
 
-	/** Setup Tab - Quiz Description */
-	label = new QLabel("Quiz Description:");
-	label->setObjectName("quizCreatorLabel");
-	setupTabLayout->addWidget(label, ++row, 0, 1, 2, Qt::AlignLeft);
-
-	_quizDescriptionTextEdit = new QTextEdit;
-	_quizDescriptionTextEdit->setAcceptRichText(false);
-	_quizDescriptionTextEdit->setObjectName("quizCreatorTextEdit");
-	setupTabLayout->addWidget(_quizDescriptionTextEdit, ++row, 0, 1, 2);
-
 	/** Setup Tab - Settings */
 	label = new QLabel("Settings:");
 	label->setObjectName("quizCreatorLabel");
 	setupTabLayout->addWidget(label, ++row, 0, 1, 2, Qt::AlignLeft);
 
-	_hiddenCategoriesCheckbox = new QCheckBox("Hidden Categories");
-	_hiddenCategoriesCheckbox->setObjectName("quizCreatorCheckbox");
-	setupTabLayout->addWidget(_hiddenCategoriesCheckbox, ++row, 0, 1, 2);
+	/** Setup Tab - Settings - Guess the Categories */
+	_guessTheCategoriesCheckbox = new QCheckBox("Guess the Categories");
+	_guessTheCategoriesCheckbox->setObjectName("quizCreatorCheckbox");
+	connect(_guessTheCategoriesCheckbox, SIGNAL(toggled(bool)), this, SLOT(showGuessTheCategoriesSettings(bool)));
+	guessTheCategoryLayout->addWidget(_guessTheCategoriesCheckbox);
+	guessTheCategoryLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+
+	/** Setup Tab - Settings - Guess the Categories Points */
+	_guessTheCategoriesPointsLabel = new QLabel("Points:");
+	_guessTheCategoriesPointsLabel->setStyleSheet("font-size: 20px;");
+	_guessTheCategoriesPointsLabel->setVisible(false);
+	guessTheCategoryLayout->addWidget(_guessTheCategoriesPointsLabel);
+
+	_guessTheCategoriesPointsSpinbox = new QSpinBox;
+	_guessTheCategoriesPointsSpinbox->setAlignment(Qt::AlignCenter);
+	_guessTheCategoriesPointsSpinbox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+	_guessTheCategoriesPointsSpinbox->setObjectName("quizCreatorGuessTheCategoriesPointsSpinbox");
+	_guessTheCategoriesPointsSpinbox->setRange(0, 10000);
+	_guessTheCategoriesPointsSpinbox->setSingleStep(50);
+	_guessTheCategoriesPointsSpinbox->setValue(500);
+	_guessTheCategoriesPointsSpinbox->setVisible(false);
+	guessTheCategoryLayout->addWidget(_guessTheCategoriesPointsSpinbox);
+	setupTabLayout->addLayout(guessTheCategoryLayout, ++row, 0, 1, 2);
 
 	/** Setup Tab - Categories */
 	label = new QLabel("Categories:");
@@ -195,20 +206,25 @@ void MusicQuiz::QuizCreator::createLayout()
 	connect(saveQuizBtn, SIGNAL(released()), this, SLOT(saveQuiz()));
 	mainlayout->addWidget(saveQuizBtn, 1, 1, 1, 1);
 
+	QPushButton* newQuizBtn = new QPushButton("New Quiz");
+	newQuizBtn->setObjectName("quizCreatorBtn");
+	connect(newQuizBtn, SIGNAL(released()), this, SLOT(newQuiz()));
+	mainlayout->addWidget(newQuizBtn, 1, 2, 1, 1);
+
 	QPushButton* loadQuizBtn = new QPushButton("Load Quiz");
 	loadQuizBtn->setObjectName("quizCreatorBtn");
 	connect(loadQuizBtn, SIGNAL(released()), this, SLOT(openLoadQuizDialog()));
-	mainlayout->addWidget(loadQuizBtn, 1, 2, 1, 1);
+	mainlayout->addWidget(loadQuizBtn, 1, 3, 1, 1);
 
 	QPushButton* loadQuizCategoryBtn = new QPushButton("Load Category");
 	loadQuizCategoryBtn->setObjectName("quizCreatorBtn");
 	connect(loadQuizCategoryBtn, SIGNAL(released()), this, SLOT(openLoadCategoryDialog()));
-	mainlayout->addWidget(loadQuizCategoryBtn, 1, 3, 1, 1);
+	mainlayout->addWidget(loadQuizCategoryBtn, 1, 4, 1, 1);
 
 	QPushButton* quitCreatorBtn = new QPushButton("Quit");
 	quitCreatorBtn->setObjectName("quizCreatorBtn");
 	connect(quitCreatorBtn, SIGNAL(released()), this, SLOT(quitCreator()));
-	mainlayout->addWidget(quitCreatorBtn, 1, 4, 1, 1);
+	mainlayout->addWidget(quitCreatorBtn, 1, 5, 1, 1);
 
 	/** Set Layout */
 	setLayout(mainlayout);
@@ -521,11 +537,8 @@ void MusicQuiz::QuizCreator::saveQuiz()
 	/** Quiz Author */
 	quizData.setAuthor(_quizAuthorLineEdit->text().toStdString());
 
-	/** Quiz Description */
-	quizData.setDescription(_quizDescriptionTextEdit->toPlainText().toStdString());
-
-	/** Hidden Categoies */
-	quizData.setGuessTheCategory(_hiddenCategoriesCheckbox->isChecked(), 500);
+	/** Guess the Categoies */
+	quizData.setGuessTheCategory(_guessTheCategoriesCheckbox->isChecked(), _guessTheCategoriesPointsSpinbox->value());
 
 	/** Quiz Categories */
 	quizData.setCategories(_categories);
@@ -534,7 +547,7 @@ void MusicQuiz::QuizCreator::saveQuiz()
 	quizData.setRowCategories(getRowCategories());
 
 	/** Save Quiz */
-	if(quizData.doesQuizDirectoryExist()) {
+	if ( !quizName.empty() && quizData.doesQuizDirectoryExist() ) {
 		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Overwrite Quiz?", "Quiz already exists, do you want to overwrite existing quiz?",
 			QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
 		if ( resBtn != QMessageBox::Yes ) {
@@ -544,7 +557,8 @@ void MusicQuiz::QuizCreator::saveQuiz()
 
 	try {
 		quizData.save();
-		QMessageBox::information(this, "Info", "Quiz saves successfully.");
+		loadQuizData(QuizData(_config, quizData.getQuizPath() + "/" + quizData.getName() + ".quiz.xml", _audioPlayer, _textToSpeechPlayer, this)); // Reload quiz to update any file paths
+		QMessageBox::information(this, "Info", "Quiz saved successfully.");
 	} catch ( const std::exception& err ) {
 		QMessageBox::warning(this, "Failed to Save Quiz", QString::fromStdString(err.what()));
 	} catch ( ... ) {
@@ -589,9 +603,8 @@ void MusicQuiz::QuizCreator::loadQuiz(const std::string& quizName)
 	}
 
 	/** Popup to ensure the user wants to load the quiz */
-	if ( !_categories.empty() || _rowCategoriesTable->rowCount() != 0 || !_quizNameLineEdit->text().isEmpty()
-		|| !_quizDescriptionTextEdit->toPlainText().isEmpty() || !_quizAuthorLineEdit->text().isEmpty() ) {
-		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Load Quiz?", "Are you sure you want to load the quiz? Any unsaved progress will be lost!",
+	if ( !_categories.empty() || _rowCategoriesTable->rowCount() != 0 || !_quizNameLineEdit->text().isEmpty() || !_quizAuthorLineEdit->text().isEmpty() ) {
+		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Load Quiz?", "Are you sure you want to load '" + QString::fromStdString(quizName) + "' quiz ? Any unsaved progress will be lost!",
 			QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
 		if ( resBtn == QMessageBox::No ) {
 			return;
@@ -667,18 +680,12 @@ void MusicQuiz::QuizCreator::loadQuizData(const QuizData& quizData)
 		_quizAuthorLineEdit->setText(QString::fromStdString(quizData.getAuthor()));
 	}
 
-	/** Set Description */
-	if ( _quizDescriptionTextEdit != nullptr ) {
-		_quizDescriptionTextEdit->setText(QString::fromStdString(quizData.getDescription()));
+	/** Guess the Categories */
+	if ( _guessTheCategoriesCheckbox != nullptr ) {
+		_guessTheCategoriesCheckbox->setChecked(quizData.getGuessTheCategory());
 	}
 
-	/** Hidden Categories */
-	if ( _hiddenCategoriesCheckbox != nullptr ) {
-		_hiddenCategoriesCheckbox->setChecked(quizData.getGuessTheCategory());
-	}
-
-	/**Add Categories */
-	_categories.clear();
+	/** Add Categories */
 	if ( _categoriesTable != nullptr ) {
 		for( auto& category : quizData.getCategories() ) {
 			loadCategory(category);
@@ -703,6 +710,9 @@ void MusicQuiz::QuizCreator::loadRowCategory(const std::string& rowCategory)
 
 	/** Add Line Edit */
 	QLineEdit* rowCategoryName = new QLineEdit(QString::fromStdString(rowCategory));
+	QRegExp re("^[a-zA-Z0-9\\_\\.\\,\\-\\s\\'\\+\\^\\(\\)]{1,50}");
+	QRegExpValidator* validator = new QRegExpValidator(re);
+	rowCategoryName->setValidator(validator);
 	rowCategoryName->setObjectName("quizCreatorCategoryLineEdit");
 	_rowCategoriesTable->setCellWidget(rowCategoryCount, 0, rowCategoryName);
 
@@ -732,6 +742,9 @@ void MusicQuiz::QuizCreator::loadCategory(MusicQuiz::CategoryCreator* category)
 
 	/** Add Line Edit */
 	QLineEdit* categoryName = new QLineEdit(category->getName());
+	QRegExp re("^[a-zA-Z0-9\\_\\.\\,\\-\\s\\'\\+\\^\\(\\)]{1,50}");
+	QRegExpValidator* validator = new QRegExpValidator(re);
+	categoryName->setValidator(validator);
 	categoryName->setObjectName("quizCreatorCategoryLineEdit");
 	categoryName->setProperty("index", categoryCount);
 	connect(categoryName, SIGNAL(textChanged(const QString&)), this, SLOT(updateCategoryTabName(const QString&)));
@@ -784,7 +797,7 @@ void MusicQuiz::QuizCreator::previewQuiz()
 
 	/** Dummy Settings */
 	MusicQuiz::QuizSettings settings;
-	settings.guessTheCategory = _hiddenCategoriesCheckbox->isChecked();
+	settings.guessTheCategory = _guessTheCategoriesCheckbox->isChecked();
 
 	/** Check that quiz is valid */
 	try {
@@ -906,6 +919,54 @@ void MusicQuiz::QuizCreator::checkThatQuizIsValid(const std::vector< MusicQuiz::
 	}
 }
 
+void MusicQuiz::QuizCreator::newQuiz()
+{
+	/** Popup to ensure the user wants to create a new quiz */
+	if (!_categories.empty() || _rowCategoriesTable->rowCount() != 0 || !_quizNameLineEdit->text().isEmpty() || !_quizAuthorLineEdit->text().isEmpty()) {
+		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Create New Quiz?", "Are you sure you want to create a new quiz? Any unsaved progress will be lost!",
+			QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
+		if (resBtn == QMessageBox::No) {
+			return;
+		}
+	}
+
+	/** Remove Tabs */
+	while (_tabWidget->count() > 1) {
+		_tabWidget->removeTab(1);
+	}
+
+	/** Clear Categories */
+	for (size_t i = 0; i < _categories.size(); ++i) {
+		_categories[i]->clearEntries();
+		_categories[i] = nullptr;
+		delete _categories[i];
+	}
+	_categories.clear();
+	_categoriesTable->clear();
+	_categoriesTable->clearContents();
+	_categoriesTable->setRowCount(0);
+
+	/** Clear Row Categories */
+	_rowCategoriesTable->clear();
+	_rowCategoriesTable->clearContents();
+	_rowCategoriesTable->setRowCount(0);
+
+	/** Set Name */
+	if (_quizNameLineEdit != nullptr) {
+		_quizNameLineEdit->setText("");
+	}
+
+	/** Set Author */
+	if (_quizAuthorLineEdit != nullptr) {
+		_quizAuthorLineEdit->setText("");
+	}
+
+	/** Guess Categories */
+	if (_guessTheCategoriesCheckbox != nullptr) {
+		_guessTheCategoriesCheckbox->setChecked(false);
+	}
+}
+
 void MusicQuiz::QuizCreator::quitCreator()
 {
 	QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Close Quiz Creator?", "Are you sure you want to close the Quiz Creator?",
@@ -926,5 +987,16 @@ void MusicQuiz::QuizCreator::keyPressEvent(QKeyEvent* event)
 	default:
 		QWidget::keyPressEvent(event);
 		break;
+	}
+}
+
+void MusicQuiz::QuizCreator::showGuessTheCategoriesSettings(bool show)
+{
+	if ( _guessTheCategoriesPointsLabel != nullptr ) {
+		_guessTheCategoriesPointsLabel->setVisible(show);
+	}
+
+	if ( _guessTheCategoriesPointsSpinbox != nullptr ) {
+		_guessTheCategoriesPointsSpinbox->setVisible(show);
 	}
 }

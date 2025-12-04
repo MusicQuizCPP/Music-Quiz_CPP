@@ -50,8 +50,6 @@ MusicQuiz::QuizData::QuizData(const common::Configuration& config, const std::st
 
     setAuthor(ini_ctrl->second.get< std::string >("QuizAuthor"));
 
-    setDescription(ini_ctrl->second.get< std::string >("QuizDescription"));
-
     setGuessTheCategory(ini_ctrl->second.get("QuizGuessTheCategory.<xmlattr>.enabled", false), 500);
 
     setCategories(loadCategories(tree.get_child("MusicQuiz"), audioPlayer, textToSpeechPlayer, skipEntries, categoryNameRegex, parent));
@@ -126,6 +124,7 @@ void MusicQuiz::QuizData::save() const
     boost::property_tree::xml_writer_settings< std::string > settings('\t', 1);
     boost::property_tree::write_xml(getQuizPath() + "/" + _name + ".quiz.xml", tree, std::locale(), settings);
 
+    /** Save cheatsheet */
     saveCheatSheet(getQuizPath() + "/" + _name + ".cheatsheet.txt");
 }
 
@@ -140,9 +139,6 @@ boost::property_tree::ptree MusicQuiz::QuizData::constructPtree(const std::strin
 
     /** Quiz Author */
     main_tree.put("QuizAuthor", _author);
-
-    /** Quiz Description */
-    main_tree.put("QuizDescription", _description);
 
     /** Guess the Category Setting */
     boost::property_tree::ptree& guessTheCategory_tree = main_tree.add("QuizGuessTheCategory", 500);

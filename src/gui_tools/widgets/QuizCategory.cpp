@@ -1,5 +1,6 @@
 #include "QuizCategory.hpp"
 
+#include <string>
 #include <stdexcept>
 
 #include <QLabel>
@@ -41,6 +42,18 @@ void MusicQuiz::QuizCategory::createLayout()
 	connect(_categoryBtn, SIGNAL(leftClicked()), this, SLOT(leftClickEvent()));
 	connect(_categoryBtn, SIGNAL(rightClicked()), this, SLOT(rightClickEvent()));
 	mainlayout->addWidget(_categoryBtn);
+
+	/** Text Size */
+	int textWidth = fontMetrics().boundingRect(_name).width();
+	size_t fontSize = 40;
+	while (textWidth > _categoryBtn->width() - 40 && fontSize > 10U) {
+		_categoryBtn->setStyleSheet("font-size: " + QString::number(fontSize) + "px;");
+		textWidth = fontMetrics().boundingRect(_name).width();
+		--fontSize;
+	}
+
+	const std::string stylesheetString = "font-size: " + std::to_string(fontSize) + "px;";
+	_categoryBtn->setStyleSheet(QString::fromStdString(stylesheetString));
 
 	/** Add Entries */
 	for ( size_t i = 0; i < _entries.size(); ++i ) {
