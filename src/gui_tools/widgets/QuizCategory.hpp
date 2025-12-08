@@ -6,6 +6,7 @@
 #include <QString>
 #include <QObject>
 #include <QWidget>
+#include <QShowEvent>
 
 #include "gui_tools/GuiUtil/QExtensions/QPushButtonExtender.hpp"
 
@@ -90,9 +91,19 @@ namespace MusicQuiz {
 
 	protected:
 		/**
+		 * @brief Overrides the show event to update the text size.
+		 */
+		void showEvent(QShowEvent*) override;
+
+		/**
 		 * @brief Creates the category layout.
 		 */
 		void createLayout();
+
+		/**
+		 * @brief Updates the text size.
+		 */
+		void updateTextSize();
 
 		/** Variables */
 		QString _name = "";

@@ -9,6 +9,8 @@
 #include <QObject>
 #include <QDialog>
 #include <QKeyEvent>
+#include <QShowEvent>
+#include <QPushButton>
 
 #include "util/QuizSettings.hpp"
 
@@ -113,6 +115,11 @@ namespace MusicQuiz {
 
 	protected:
 		/**
+		 * @brief Overrides the show event to update the text size.
+		 */
+		void showEvent(QShowEvent*) override;
+
+		/**
 		 * @brief Creates the category layout.
 		 */
 		void createLayout();
@@ -127,6 +134,7 @@ namespace MusicQuiz {
 
 		std::vector<QuizTeam*> _teams;
 		std::vector<QString> _rowCategories;
+		std::vector<QPushButton*> _rowCategoryButtons;
 		std::vector<MusicQuiz::QuizCategory*> _categories;
 
 		std::shared_ptr<LightControl::LightControlClient> _lightClient;
