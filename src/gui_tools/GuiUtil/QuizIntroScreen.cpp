@@ -62,11 +62,13 @@ void MusicQuiz::QuizIntroScreen::createLayout()
 	nameLayout->addWidget(label);
 
 	/** Quiz Author */
-	label = new QLabel("By " + _quizAuthor);
-	label->setObjectName("quizIntroAuthorLabel");
-	label->setAlignment(Qt::AlignCenter);
-	nameLayout->addWidget(label);
-	mainlayout->addItem(nameLayout, 3, 0);
+	if ( !_quizAuthor.isEmpty() ) {
+		label = new QLabel("By " + _quizAuthor);
+		label->setObjectName("quizIntroAuthorLabel");
+		label->setAlignment(Qt::AlignCenter);
+		nameLayout->addWidget(label);
+		mainlayout->addItem(nameLayout, 3, 0);
+	}
 
 	/** Set Layout */
 	setLayout(mainlayout);
