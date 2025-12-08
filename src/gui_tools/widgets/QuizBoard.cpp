@@ -336,8 +336,8 @@ void MusicQuiz::QuizBoard::keyPressEvent(QKeyEvent* event)
 	}
 }
 
-void MusicQuiz::QuizBoard::showEvent(QShowEvent* event) {
-
+void MusicQuiz::QuizBoard::showEvent(QShowEvent*) 
+{
 	/** Sanity Check */
 	if ( _rowCategoryButtons.empty() ) {
 		return;
