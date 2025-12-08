@@ -139,18 +139,7 @@ void MusicQuiz::QuizBoard::createLayout()
 			rowCategoryBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 			rowCategoryBtn->setObjectName("QuizEntry_rowCategoryLabel");
 			rowCategorylayout->addWidget(rowCategoryBtn);
-
-			/** Text Size */
-			int textWidth = fontMetrics().boundingRect(_rowCategories[i]).width();
-			size_t fontSize = 40;
-			while (textWidth > rowCategoryBtn->width() - 40 && fontSize > 10U) {
-				rowCategoryBtn->setStyleSheet("font-size: " + QString::number(fontSize) + "px;");
-				textWidth = fontMetrics().boundingRect(_rowCategories[i]).width();
-				--fontSize;
-			}
-
-			const std::string stylesheetString = "font-size: " + std::to_string(fontSize) + "px;";
-			rowCategoryBtn->setStyleSheet(QString::fromStdString(stylesheetString));
+			_rowCategoryButtons.push_back(rowCategoryBtn);
 		}
 
 		/** Add layouts to main layout */
@@ -336,7 +325,6 @@ bool MusicQuiz::QuizBoard::closeWindow()
 
 	return false;
 }
-
 void MusicQuiz::QuizBoard::keyPressEvent(QKeyEvent* event)
 {
 	switch ( event->key() ) {
@@ -350,6 +338,28 @@ void MusicQuiz::QuizBoard::keyPressEvent(QKeyEvent* event)
 	default:
 		QWidget::keyPressEvent(event);
 		break;
+	}
+}
+
+void MusicQuiz::QuizBoard::showEvent(QShowEvent*) 
+{
+	/** Sanity Check */
+	if ( _rowCategoryButtons.empty() ) {
+		return;
+	}
+
+	/** Resize Row Category Fonts */
+	for ( size_t i = 0; i < _rowCategoryButtons.size(); ++i ) {
+		int textWidth = _rowCategoryButtons[i]->fontMetrics().boundingRect(_rowCategoryButtons[i]->text()).width();
+		size_t fontSize = 40;
+		while ( textWidth > _rowCategoryButtons[i]->width() - 40 && fontSize > 10U ) {
+			_rowCategoryButtons[i]->setStyleSheet("font-size: " + QString::number(fontSize) + "px;");
+			textWidth = _rowCategoryButtons[i]->fontMetrics().boundingRect(_rowCategories[i]).width();
+			--fontSize;
+		}
+
+		const std::string stylesheetString = "font-size: " + std::to_string(fontSize) + "px;";
+		_rowCategoryButtons[i]->setStyleSheet(QString::fromStdString(stylesheetString));
 	}
 }
 
