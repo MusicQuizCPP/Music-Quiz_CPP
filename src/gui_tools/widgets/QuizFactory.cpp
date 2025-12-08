@@ -27,7 +27,7 @@
 
 
 MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const std::string& quizName, const QuizSettings& settings,
-	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer,
+	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const media::ImagePlayer::Ptr& imagePlayer,
 	const common::Configuration& config, const std::vector< MusicQuiz::QuizTeam* >& teams, bool preview, QWidget* parent)
 {
 	/** Get List of Quizzes */
@@ -54,11 +54,11 @@ MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const std::string& quiz
 	}
 
 	/** Create Quiz */
-	return createQuiz(idx, settings, audioPlayer, videoPlayer, textToSpeechPlayer, config, teams, preview, parent);
+	return createQuiz(idx, settings, audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer, config, teams, preview, parent);
 }
 
 MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const size_t idx, const QuizSettings& settings,
-	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer,
+	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const media::ImagePlayer::Ptr& imagePlayer,
 	const common::Configuration& config, const std::vector< MusicQuiz::QuizTeam* >& teams, bool preview, QWidget* parent)
 {
 	/** Seed Rand */
@@ -69,7 +69,7 @@ MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const size_t idx, const
 
 	/** Load Categories */
 	std::string loadError;
-	std::vector< MusicQuiz::QuizCategory* > categories = MusicQuiz::util::QuizLoader::loadQuizCategories(idx, audioPlayer, videoPlayer, textToSpeechPlayer, config, loadError);
+	std::vector< MusicQuiz::QuizCategory* > categories = MusicQuiz::util::QuizLoader::loadQuizCategories(idx, audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer, config, loadError);
 	if ( !loadError.empty() ) {
 		QMessageBox::information(nullptr, "Info", "Incomplete Quiz:\n\n" + QString::fromStdString(loadError));
 	}

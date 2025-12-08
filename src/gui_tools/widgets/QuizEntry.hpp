@@ -12,6 +12,7 @@
 #include "media/AudioPlayer.hpp"
 #include "media/VideoPlayer.hpp"
 #include "media/TextToSpeechPlayer.hpp"
+#include "media/ImagePlayer.hpp"
 
 #include "common/Log.hpp"
 
@@ -34,11 +35,12 @@ namespace MusicQuiz {
 		 * @param[in] audioPlayer        The audio player.
 		 * @param[in] videoPlayer        The video player.
 		 * @param[in] textToSpeechPlayer The text to speech player.
+		 * @param[in] imagePlayer        The image player.
 		 * @param[in] parent             The parent widget.
 		 */
 		explicit QuizEntry(const QString& audioFile, const QString& answer, size_t points, size_t startTime, size_t answerStartTime,
 			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
-			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, QWidget* parent = nullptr);
+			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const std::shared_ptr< media::ImagePlayer >& imagePlayer, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Entry Type Video Constructor
@@ -53,12 +55,12 @@ namespace MusicQuiz {
 		 * @param[in] audioPlayer        The audio player.
 		 * @param[in] videoPlayer        The video player.
 		 * @param[in] textToSpeechPlayer The text to speech player.
+		 * @param[in] imagePlayer        The image player.
 		 * @param[in] parent             The parent widget.
 		 */
 		explicit QuizEntry(const QString& audioFile, const QString& videoFile, const QString& answer, size_t points, size_t songStartTime, size_t videoStartTime, size_t answerStartTime,
 			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
-			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, QWidget* parent = nullptr);
-
+			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const std::shared_ptr< media::ImagePlayer >& imagePlayer, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Entry Type Text to Speech Constructor
@@ -67,16 +69,36 @@ namespace MusicQuiz {
 		 * @param[in] audioFile            The answer audio file to play.
 		 * @param[in] answer               The entry anwser.
 		 * @param[in] points               The number of points obtained by guessing the entry.
-		 * @param[in] answerStartTime    The answer media start time in [ms].
+		 * @param[in] answerStartTime      The answer media start time in [ms].
 		 * @param[in] audioPlayer          The audio player.
 		 * @param[in] videoPlayer          The video player.
 		 * @param[in] textToSpeechPlayer   The text to speech player.
 		 * @param[in] textToSpeechSettings The text to speech settings.
+		 * @param[in] imagePlayer          The image player.
 		 * @param[in] parent               The parent widget.
 		 */
 		explicit QuizEntry(const QString& string, const QString& audioFile, const QString& answer, size_t points, size_t answerStartTime,
 			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
-			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const media::TextToSpeechPlayer::TextToSpeechSettings& textToSpeechSettings, QWidget* parent = nullptr);
+			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const media::TextToSpeechPlayer::TextToSpeechSettings& textToSpeechSettings, 
+			const std::shared_ptr< media::ImagePlayer >& imagePlayer, QWidget* parent = nullptr);
+
+		/**
+		 * @brief Entry Type Image Constructor
+		 *
+		 * @param[in] imageFile            The image file to show.
+		 * @param[in] audioFile            The answer audio file to play.
+		 * @param[in] answer               The entry anwser.
+		 * @param[in] points               The number of points obtained by guessing the entry.
+		 * @param[in] answerStartTime      The answer media start time in [ms].
+		 * @param[in] audioPlayer          The audio player.
+		 * @param[in] videoPlayer          The video player.
+		 * @param[in] textToSpeechPlayer   The text to speech player.
+		 * @param[in] imagePlayer          The image player.
+		 * @param[in] parent               The parent widget.
+		 */
+		explicit QuizEntry(const QString& imageFile, const QString& audioFile, const QString& answer, size_t points, size_t answerStartTime,
+			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
+			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const std::shared_ptr< media::ImagePlayer >& imagePlayer, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Default Destructor
@@ -98,7 +120,7 @@ namespace MusicQuiz {
 		};
 
 		enum class EntryType {
-			Song = 0, Video = 1, TextToSpeech = 2
+			Song = 0, Video = 1, TextToSpeech = 2, Image = 3
 		};
 
 		/**
@@ -187,6 +209,7 @@ namespace MusicQuiz {
 		QString _audioFile = "";
 		QString _videoFile = "";
 		QString _speechString = "";
+		QString _imageFile = "";
 
 		size_t _answerStartCharacter = 0;
 
@@ -201,6 +224,7 @@ namespace MusicQuiz {
 		std::shared_ptr< media::VideoPlayer > _videoPlayer = nullptr;
 		std::shared_ptr< media::TextToSpeechPlayer > _textToSpeechPlayer = nullptr;
 		const media::TextToSpeechPlayer::TextToSpeechSettings _textToSpeechSettings;
+		std::shared_ptr< media::ImagePlayer > _imagePlayer = nullptr;
 
 		std::function< void(QMouseEvent*) > _mouseEventCallback;
 

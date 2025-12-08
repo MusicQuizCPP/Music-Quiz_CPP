@@ -13,6 +13,7 @@
 #include "media/AudioPlayer.hpp"
 #include "media/VideoPlayer.hpp"
 #include "media/TextToSpeechPlayer.hpp"
+#include "media/ImagePlayer.hpp"
 #include "gui_tools/widgets/QuizTeam.hpp"
 #include "gui_tools/widgets/QuizBoard.hpp"
 #include "gui_tools/QuizCreator/QuizCreator.hpp"
@@ -51,6 +52,7 @@ namespace MusicQuiz {
 		 * @param[in] audioPlayer        The audio player.
 		 * @param[in] videoPlayer        The video player
 		 * @param[in] textToSpeechPlayer The text to speech player
+		 * @param[in] imagePlayer        The image player
 		 * @param[in] teams              The teams list.
 		 * @param[in] preview            If the quiz should be displayed in preview mode..
 		 * @param[in] parent             The quiz board parent.
@@ -58,7 +60,7 @@ namespace MusicQuiz {
 		 * @return The quiz board.
 		 */
 		static MusicQuiz::QuizBoard* createQuiz(const std::string& quizName, const MusicQuiz::QuizSettings& settings, const std::shared_ptr< media::AudioPlayer >& audioPlayer,
-			const std::shared_ptr< media::VideoPlayer >& videoPlayer, const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer,
+			const std::shared_ptr< media::VideoPlayer >& videoPlayer, const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const std::shared_ptr< media::ImagePlayer >& imagePlayer,
 			const common::Configuration& config, const std::vector<MusicQuiz::QuizTeam*>& teams = {}, bool preview = false, QWidget* parent = nullptr);
 
 		/**
@@ -69,6 +71,7 @@ namespace MusicQuiz {
 		 * @param[in] audioPlayer        The audio player.
 		 * @param[in] videoPlayer        The video player
 		 * @param[in] textToSpeechPlayer The text to speech player
+		 * @param[in] imagePlayer        The image player
 		 * @param[in] teams              The teams list.
 		 * @param[in] preview            If the quiz should be displayed in preview mode.
 		 * @param[in] parent             The quiz board parent.
@@ -76,7 +79,7 @@ namespace MusicQuiz {
 		 * @return The quiz board.
 		 */
 		static MusicQuiz::QuizBoard* createQuiz(const size_t idx, const MusicQuiz::QuizSettings& settings, const std::shared_ptr< media::AudioPlayer >& audioPlayer,
-			const std::shared_ptr< media::VideoPlayer >& videoPlayer, const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer,
+			const std::shared_ptr< media::VideoPlayer >& videoPlayer, const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const std::shared_ptr< media::ImagePlayer >& imagePlayer,
 			const common::Configuration& config, const std::vector<MusicQuiz::QuizTeam*>& teams = {}, bool preview = false, QWidget* parent = nullptr);
 	};
 }

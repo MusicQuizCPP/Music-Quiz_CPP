@@ -41,7 +41,7 @@ namespace MusicQuiz {
 
 	public:
 		enum class EntryType {
-			Song = 0, Video = 1, TextToSpeech
+			Song = 0, Video = 1, TextToSpeech = 2, Image = 3
 		};
 
 		/**
@@ -110,14 +110,14 @@ namespace MusicQuiz {
 		size_t getPoints() const;
 
 		/**
-		 * @brief Sets the entry type [Song, Video].
+		 * @brief Sets the entry type [Song, Video, Text to Speech, Image].
 		 *
 		 * @param[in] type The entry type.
 		 */
 		void setType(const EntryType& type);
 
 		/**
-		 * @brief Gets the entry type [Song, Video].
+		 * @brief Gets the entry type [Song, Video, Text to Speech, Image].
 		 *
 		 * @return The entry type.
 		 */
@@ -178,6 +178,34 @@ namespace MusicQuiz {
 		 * @return The text to speech song file.
 		 */
 		const QString getTextToSpeechAnswerSongFile() const;
+
+		/**
+		 * @brief Sets the image file.
+		 *
+		 * @param[in] The image file.
+		 */
+		void setImageFile(const QString& file);
+
+		/**
+		 * @brief Gets the image file.
+		 *
+		 * @return The image file.
+		 */
+		const QString getImageFile() const;
+
+		/**
+		 * @brief Sets the image answer song file.
+		 *
+		 * @param[in] The image answer song file.
+		 */
+		void setImageAnswerSongFile(const QString& file);
+
+		/**
+		 * @brief Gets the image answer song file.
+		 *
+		 * @return The image answer song file.
+		 */
+		const QString getImageAnswerSongFile() const;
 
 		/**
 		 * @brief Sets the song start time.
@@ -320,6 +348,20 @@ namespace MusicQuiz {
 		QString getVoiceName() const;
 
 		/**
+		 * @brief Sets the image answer start time.
+		 *
+		 * @param[in] time The image answer start time.
+		 */
+		void setImageAnswerStartTime(size_t time);
+
+		/**
+		 * @brief Gets the image answer start time.
+		 *
+		 * @return The image answer start time.
+		 */
+		size_t getImageAnswerStartTime() const;
+
+		/**
 		 * @brief Stops the audio and video playing.
 		 */
 		void stop();
@@ -362,6 +404,15 @@ namespace MusicQuiz {
 		 */
 		void saveTextToSpeechToXml(boost::property_tree::ptree& tree, const std::string& savePath, const std::string& xmlPath) const;
 
+		/**
+		 * @brief Serialize image media into the boost property_tree
+		 *
+		 * @param[out] tree    tree to serialize into.
+		 * @param[in] savePath path where the media files should be saved.
+		 * @param[in] xmlPath  path for the media files that should be written in the ptree.
+		 */
+		void saveImageToXml(boost::property_tree::ptree& tree, const std::string& savePath, const std::string& xmlPath) const;
+
 	private slots:
 		/**
 		 * @brief Opens a dialog to browse for a song file.
@@ -384,6 +435,16 @@ namespace MusicQuiz {
 		void browseTextToSpeechAnswerSong();
 
 		/**
+		 * @brief Opens a dialog to browse for a image file.
+		 */
+		void browseImage();
+
+		/**
+		 * @brief Opens a dialog to browse for a song file.
+		 */
+		void browseImageAnswerSong();
+
+		/**
 		 * @brief Check if the song file name is valid and enables / disables widgets.
 		 */
 		void checkSongFileName();
@@ -402,6 +463,11 @@ namespace MusicQuiz {
 		 * @brief Check if the text to speech lyrics are valid and enables / disables widgets.
 		 */
 		void checkTextToSpeechLyrics();
+
+		/**
+		 * @brief Check if the image file names is valid and enables / disables widgets.
+		 */
+		void checkImageFiles();
 
 		/**
 		 * @brief Plays the song file from the start position defined in the start QTimeEdit.
@@ -446,17 +512,22 @@ namespace MusicQuiz {
 		/**
 		 * @brief Creates the song file category layout.
 		 */
-		QGridLayout* createSongFileLayout();
+		QGridLayout* createSongLayout();
 
 		/**
 		 * @brief Creates the video file category layout.
 		 */
-		QGridLayout* createVideoFileLayout();
+		QGridLayout* createVideoLayout();
 
 		/**
 		 * @brief Creates the text to speech category layout.
 		 */
-		QGridLayout* createTextToSpeechLayout();	
+		QGridLayout* createTextToSpeechLayout();
+
+		/**
+		 * @brief Creates the image category layout.
+		 */
+		QGridLayout* createImageLayout();
 
 		/**
 		 * @brief Checks if the song file name is valid.
@@ -475,6 +546,15 @@ namespace MusicQuiz {
 		 * @return True is name is valid.
 		 */
 		bool isVideoFileValid(const QString& fileName) const;
+
+		/**
+		 * @brief Checks if the image file name is valid.
+		 *
+		 * @param[in] fileName The file name.
+		 *
+		 * @return True is name is valid.
+		 */
+		bool isImageFileValid( const QString& fileName ) const;
 
 		/**
 		 * @brief Gets the time in msec from a QTime.
@@ -517,6 +597,13 @@ namespace MusicQuiz {
 		 */
 		void loadTextToSpeechFromXml(const boost::property_tree::ptree& tree);
 
+		/**
+		 * @brief Load image media from boost property_tree
+		 *
+		 * @param[out] tree The tree to load from.
+		 */
+		void loadImageFromXml(const boost::property_tree::ptree& tree);
+
 		/** Variables */
 		int _points = 0;
 
@@ -531,15 +618,19 @@ namespace MusicQuiz {
 		QWidget* _songLayout = nullptr;
 		QWidget* _videoLayout = nullptr;
 		QWidget* _textToSpeechLayout = nullptr;
+		QWidget* _imageLayout = nullptr;
 
 		QLineEdit* _songFileLineEdit = nullptr;
 		QLineEdit* _videoFileLineEdit = nullptr;
 		QLineEdit* _videoSongFileLineEdit = nullptr;
 		QLineEdit* _textToSpeechAnswerSongFileLineEdit = nullptr;
+		QLineEdit* _imageFileLineEdit = nullptr;
+		QLineEdit* _imageAnswerSongFileLineEdit = nullptr;
 
 		QTimeEdit* _songStartTimeEdit = nullptr;
 		QTimeEdit* _answerStartTimeEdit = nullptr;
-		QTimeEdit* _textToSpeechSnswerStartTimeEdit = nullptr;
+		QTimeEdit* _textToSpeechAnswerStartTimeEdit = nullptr;
+		QTimeEdit* _imageAnswerStartTimeEdit = nullptr;
 
 		QTimeEdit* _videoStartTimeEdit = nullptr;
 		QTimeEdit* _videoSongStartTimeEdit = nullptr;
@@ -550,14 +641,19 @@ namespace MusicQuiz {
 		gui_tools::GuiUtil::QSliderWidget* _rateSlider = nullptr;
 		QButtonGroup* _voiceButtonGroup = nullptr;
 
+		QLabel* _imagePreviewLabel = nullptr;
+
 		QWidget* _songSettings = nullptr;
 		QWidget* _videoSettings = nullptr;
 		QWidget* _textToSpeechSettings = nullptr;
 		QWidget* _textToSpeechAnswerSettings = nullptr;
+		QWidget* _imageAnswerSettings = nullptr;
 		QPushButton* _browseSongBtn = nullptr;
 		QPushButton* _browseVideoBtn = nullptr;
 		QPushButton* _browseVideoSongBtn = nullptr;
 		QPushButton* _browseTextToSpeechAnswerSongBtn = nullptr;
+		QPushButton* _browseImageBtn = nullptr;
+		QPushButton* _browseImageAnswerSongBtn = nullptr;
 
 		std::shared_ptr< media::AudioPlayer > _audioPlayer = nullptr;
 		media::VideoPlayer* _videoPlayer = nullptr;
@@ -565,6 +661,7 @@ namespace MusicQuiz {
 
 		const std::vector< QString > _validAudioFormats = { ".mp3", ".mp4", ".wav" };
 		const std::vector< QString > _validVideoFormats = { ".mp4" };
+		const std::vector< QString > _validImageFormats = { ".bmp", ".jpg", ".jpeg", ".png", ".ppm" };
 
 		const common::Configuration& _config;
 	};

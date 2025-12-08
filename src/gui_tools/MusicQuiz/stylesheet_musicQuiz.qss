@@ -1,4 +1,13 @@
 /****************************************/
+/*****			 QWidget			*****/
+/****************************************/
+
+QWidget#imagePlayerWidget
+{
+	background-color	: rgb(25, 25, 255);
+}
+
+/****************************************/
 /*****			 QDialog			*****/
 /****************************************/
 
@@ -340,6 +349,16 @@ QLabel#quizCreatorInformationLabel
 {
 	font-size			: 18px;
 	color				: grey;
+}
+
+QLabel#quizCreatorImagePreviewLabel
+{
+	min-height			: 250px;
+	max-height			: 250px;
+	border-color		: rgb(128, 128, 128);
+	border-radius		: 0px;
+	border-width		: 2px;
+	border-style		: solid;
 }
 
 

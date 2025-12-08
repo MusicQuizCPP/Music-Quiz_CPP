@@ -83,7 +83,7 @@ namespace media {
 		QVector< QVoice > availableVoices() const;
 
 	protected:
-		/** Text to Speeh Widget */
+		/** Text to Speech Widget */
 		QTextToSpeech* _textToSpeech = nullptr;
 	};
 }

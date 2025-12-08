@@ -71,6 +71,14 @@ MusicQuiz::QuizCreator::QuizCreator(const common::Configuration& config, QWidget
 	/** Create Text To Speech Player */
 	_textToSpeechPlayer = std::make_shared< media::TextToSpeechPlayer >();
 
+	/** Create Image Player */
+	_imagePlayer = std::make_shared< media::ImagePlayer >();
+	_imagePlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint);
+
+	/** Set Image Player Size */
+	_imagePlayer->setMinimumSize(QSize(screenRec.width() / 4, screenRec.height() / 4));
+	_imagePlayer->resize(QSize(screenRec.width() / 4, screenRec.height() / 4));
+
 	/** Create Layout */
 	createLayout();
 }
@@ -812,7 +820,7 @@ void MusicQuiz::QuizCreator::previewQuiz()
 
 	/** Create Quiz Preview */
 	try {
-		_previewQuizBoard = MusicQuiz::QuizFactory::createQuiz(quizPath, settings, _audioPlayer, _videoPlayer, _textToSpeechPlayer, _config, {}, true, this);
+		_previewQuizBoard = MusicQuiz::QuizFactory::createQuiz(quizPath, settings, _audioPlayer, _videoPlayer, _textToSpeechPlayer, _imagePlayer, _config, {}, true, this);
 		if ( _previewQuizBoard == nullptr ) {
 			QMessageBox::warning(this, "Info", "Failed to preview quiz.");
 			return;
@@ -910,6 +918,15 @@ void MusicQuiz::QuizCreator::checkThatQuizIsValid(const std::vector< MusicQuiz::
 				}
 				if (entry->getTextToSpeechAnswerSongFile().isEmpty()) {
 					throw std::runtime_error(entryName + " does not have a valid text to speech answer song file.");
+				}
+				break;
+			case MusicQuiz::EntryCreator::EntryType::Image:
+				if( entry->getImageFile().isEmpty() ) {
+					throw std::runtime_error(entryName + " does not have a valid image file.");
+				}
+
+				if( entry->getImageAnswerSongFile().isEmpty() ) {
+					throw std::runtime_error(entryName + " does not have a image answer song file.");
 				}
 				break;
 			default:

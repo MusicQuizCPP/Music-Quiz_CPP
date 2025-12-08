@@ -95,6 +95,8 @@ MusicQuiz::util::QuizLoader::QuizPreview MusicQuiz::util::QuizLoader::getQuizPre
 									quizPreview.includeVideos = true;
 								} else if ( it->second.get< std::string >("<xmlattr>.type") == "textToSpeech" && !quizPreview.includeVideos ) {
 									quizPreview.includeTextToSpeech = true;
+								} else if ( it->second.get< std::string >("<xmlattr>.type") == "image" && !quizPreview.includeImages ) {
+									quizPreview.includeImages = true;
 								}
 							}
 						}
@@ -116,7 +118,7 @@ MusicQuiz::util::QuizLoader::QuizPreview MusicQuiz::util::QuizLoader::getQuizPre
 }
 
 std::vector< MusicQuiz::QuizCategory* > MusicQuiz::util::QuizLoader::loadQuizCategories(const size_t idx, const media::AudioPlayer::Ptr& audioPlayer,
-	const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, std::string& err)
+	const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const media::ImagePlayer::Ptr& imagePlayer, const common::Configuration& config, std::string& err)
 {
 	/** Get List of Quizzes */
 	const std::vector< std::string > quizList = getListOfQuizzes(config);
@@ -177,7 +179,7 @@ std::vector< MusicQuiz::QuizCategory* > MusicQuiz::util::QuizLoader::loadQuizCat
 									}
 
 									/** Push Back Song Entry */
-									categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, answer, points, audioStartTime, answerStartTime, audioPlayer, videoPlayer, textToSpeechPlayer));
+									categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, answer, points, audioStartTime, answerStartTime, audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer));
 								} else if ( type == "video" ) { // Video
 									QString songFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile")));
 									QString videoFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get< std::string >("Media.VideoFile")));
@@ -197,7 +199,7 @@ std::vector< MusicQuiz::QuizCategory* > MusicQuiz::util::QuizLoader::loadQuizCat
 									}
 
 									/** Push Back Video Entry */
-									categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, videoFile, answer, points, videoSongStartTime, videoStartTime, answerStartTime, audioPlayer, videoPlayer, textToSpeechPlayer));
+									categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, videoFile, answer, points, videoSongStartTime, videoStartTime, answerStartTime, audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer));
 								} else if ( type == "textToSpeech" ) {// text to speech
 									/** Get Speech String */
 									const QString textToSpeechString = QString::fromStdString(it->second.get<std::string>("Media.TextToSpeechString"));
@@ -230,7 +232,25 @@ std::vector< MusicQuiz::QuizCategory* > MusicQuiz::util::QuizLoader::loadQuizCat
 									}
 
 									/** Push Back Text to Speech Entry */
-									categorieEntries.push_back(new MusicQuiz::QuizEntry(textToSpeechString, songFile, answer, points, answerStartTime, audioPlayer, videoPlayer, textToSpeechPlayer, settings));
+									categorieEntries.push_back(new MusicQuiz::QuizEntry(textToSpeechString, songFile, answer, points, answerStartTime, audioPlayer, videoPlayer, textToSpeechPlayer, settings, imagePlayer));
+								} else if ( type == "image" ) { // image
+									QString imageFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get< std::string >("Media.ImageFile")));
+									QString songFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile")));
+									std::replace(imageFile.begin(), imageFile.end(), '\\', '/');
+									std::replace(songFile.begin(), songFile.end(), '\\', '/');
+									const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
+
+									/** Check if files exsists */
+									if ( !std::filesystem::exists(imageFile.toStdString()) ) {
+										err += "Missing image file '" + imageFile.toStdString() + "'\n";
+									}
+
+									if ( !std::filesystem::exists(songFile.toStdString()) ) {
+										err += "Missing song file '" + songFile.toStdString() + "'\n";
+									}
+
+									/** Push Back Image Entry */
+									categorieEntries.push_back(new MusicQuiz::QuizEntry(imageFile, songFile, answer, points, answerStartTime, audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer));
 								}
 							}
 						}

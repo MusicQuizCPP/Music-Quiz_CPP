@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QString>
 #include <QVector>
+#include <QPixmap>
 #include <QScrollArea>
 #include <QFileDialog>
 #include <QPushButton>
@@ -43,6 +44,8 @@ MusicQuiz::EntryCreator::EntryCreator(const boost::property_tree::ptree &tree, c
 		loadVideoFromXml(tree);
 	} else if ( type == "textToSpeech" ) {
 		loadTextToSpeechFromXml(tree);
+	} else if( type == "image" ) {
+		loadImageFromXml(tree);
 	}
 }
 
@@ -83,46 +86,68 @@ void MusicQuiz::EntryCreator::createLayout()
 	mainlayout->addWidget(_pointsSpinbox, row, 1);
 
 	/** Type */
-	QHBoxLayout* typeLayout = new QHBoxLayout;
-	typeLayout->setStretch(0, 1);
-	typeLayout->setStretch(1, 1);
-	typeLayout->setStretch(2, 1);
+	QHBoxLayout* typeLayoutTop = new QHBoxLayout;
+	QHBoxLayout* typeLayoutBottom = new QHBoxLayout;
+	typeLayoutTop->setStretch(0, 1);
+	typeLayoutTop->setStretch(1, 1);
+	typeLayoutTop->setStretch(2, 1);
+	typeLayoutTop->setStretch(3, 1);
+	typeLayoutBottom->setStretch(0, 1);
+	typeLayoutBottom->setStretch(1, 1);
+	typeLayoutBottom->setStretch(2, 1);
+	typeLayoutBottom->setStretch(3, 1);
 	label = new QLabel("Type:");
 	label->setObjectName("quizCreatorLabel");
-	typeLayout->addWidget(label);
+	typeLayoutTop->addWidget(label);
+	typeLayoutBottom->addWidget(new QWidget());
 
 	_buttonGroup = new QButtonGroup;
 	QRadioButton* songBtn = new QRadioButton("Song");
 	QRadioButton* videoBtn = new QRadioButton("Video");
 	QRadioButton* textToSpeechBtn = new QRadioButton("Text to Speech");
+	QRadioButton* imageBtn = new QRadioButton("Image");
+	QRadioButton* textBtn = new QRadioButton("Text");
 	songBtn->setObjectName("quizCreatorRadioButton");
 	videoBtn->setObjectName("quizCreatorRadioButton");
 	textToSpeechBtn->setObjectName("quizCreatorRadioButton");
+	imageBtn->setObjectName("quizCreatorRadioButton");
+	textBtn->setObjectName("quizCreatorRadioButton");
 	_buttonGroup->addButton(songBtn, 0);
 	_buttonGroup->addButton(videoBtn, 1);
 	_buttonGroup->addButton(textToSpeechBtn, 2);
+	_buttonGroup->addButton(imageBtn, 3);
+	_buttonGroup->addButton(textBtn, 4);
 	connect(_buttonGroup, SIGNAL(buttonClicked(int)), this, SLOT(setEntryType(int)));
 	songBtn->setChecked(true);
 
-	typeLayout->addWidget(songBtn);
-	typeLayout->addWidget(videoBtn);
-	typeLayout->addWidget(textToSpeechBtn);
-	mainlayout->addItem(typeLayout, ++row, 0, 1, 2);
+	typeLayoutTop->addWidget(songBtn);
+	typeLayoutTop->addWidget(videoBtn);
+	typeLayoutTop->addWidget(textToSpeechBtn);
+	typeLayoutBottom->addWidget(imageBtn);
+	typeLayoutBottom->addWidget(textBtn);
+	typeLayoutBottom->addWidget(new QWidget());
+	mainlayout->addItem(typeLayoutTop, ++row, 0, 1, 2);
+	mainlayout->addItem(typeLayoutBottom, ++row, 0, 1, 2);
 
-	/** Song File Layout */
+	/** Song Layout */
 	_songLayout = new QWidget;
-	_songLayout->setLayout(createSongFileLayout());
+	_songLayout->setLayout(createSongLayout());
 	mainlayout->addWidget(_songLayout, ++row, 0, 1, 2);
 
-	/** Video File Layout */
+	/** Video Layout */
 	_videoLayout = new QWidget;
-	_videoLayout->setLayout(createVideoFileLayout());
+	_videoLayout->setLayout(createVideoLayout());
 	mainlayout->addWidget(_videoLayout, ++row, 0, 1, 2);
 
 	/** Text to Speech Layout */
 	_textToSpeechLayout = new QWidget;
 	_textToSpeechLayout->setLayout(createTextToSpeechLayout());
 	mainlayout->addWidget(_textToSpeechLayout, ++row, 0, 1, 2);
+
+	/** Image Layout */
+	_imageLayout = new QWidget;
+	_imageLayout->setLayout(createImageLayout());
+	mainlayout->addWidget(_imageLayout, ++row, 0, 1, 2);
 
 	/** Set Type to song */
 	setEntryType(0);
@@ -137,7 +162,7 @@ void MusicQuiz::EntryCreator::createLayout()
 	setLayout(scrollLayout);
 }
 
-QGridLayout* MusicQuiz::EntryCreator::createSongFileLayout()
+QGridLayout* MusicQuiz::EntryCreator::createSongLayout()
 {
 	/** Layout */
 	QGridLayout* mainlayout = new QGridLayout;
@@ -243,7 +268,7 @@ QGridLayout* MusicQuiz::EntryCreator::createSongFileLayout()
 	return mainlayout;
 }
 
-QGridLayout* MusicQuiz::EntryCreator::createVideoFileLayout()
+QGridLayout* MusicQuiz::EntryCreator::createVideoLayout()
 {
 	/** Layout */
 	QGridLayout* mainlayout = new QGridLayout;
@@ -491,12 +516,12 @@ QGridLayout* MusicQuiz::EntryCreator::createTextToSpeechLayout()
 	textToSpeechAnswerSettingsLayout->addWidget(label, 1, 0, 1, 1);
 
 	/** Answer Start Time */
-	_textToSpeechSnswerStartTimeEdit = new QTimeEdit;
-	_textToSpeechSnswerStartTimeEdit->setAlignment(Qt::AlignCenter);
-	_textToSpeechSnswerStartTimeEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-	_textToSpeechSnswerStartTimeEdit->setObjectName("quizCreatorTimeEdit");
-	_textToSpeechSnswerStartTimeEdit->setDisplayFormat("mm:ss");
-	textToSpeechAnswerSettingsLayout->addWidget(_textToSpeechSnswerStartTimeEdit, 1, 1, 1, 1);
+	_textToSpeechAnswerStartTimeEdit = new QTimeEdit;
+	_textToSpeechAnswerStartTimeEdit->setAlignment(Qt::AlignCenter);
+	_textToSpeechAnswerStartTimeEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+	_textToSpeechAnswerStartTimeEdit->setObjectName("quizCreatorTimeEdit");
+	_textToSpeechAnswerStartTimeEdit->setDisplayFormat("mm:ss");
+	textToSpeechAnswerSettingsLayout->addWidget(_textToSpeechAnswerStartTimeEdit, 1, 1, 1, 1);
 
 	/** Answer Audio Buttons - Play */
 	QPushButton* answerPlayBtn = new QPushButton;
@@ -565,6 +590,115 @@ QGridLayout* MusicQuiz::EntryCreator::createTextToSpeechLayout()
 	return mainlayout;
 }
 
+QGridLayout* MusicQuiz::EntryCreator::createImageLayout()
+{
+	/** Layout */
+	QGridLayout* mainlayout = new QGridLayout;
+	QHBoxLayout* imageLayout = new QHBoxLayout;
+	QHBoxLayout* imageFileLayout = new QHBoxLayout;
+	QGridLayout* imageSettingsLayout = new QGridLayout;
+	QHBoxLayout* imageAnswerSongFileLayout = new QHBoxLayout;
+	QGridLayout* imageAnswerSettingsLayout = new QGridLayout;
+	imageAnswerSettingsLayout->setMargin(0);
+	imageSettingsLayout->setMargin(0);
+	mainlayout->setVerticalSpacing(10);
+	mainlayout->setMargin(0);
+	int row = 0;
+
+	/** Image - File */
+	QLabel* label = new QLabel("Image File:");
+	label->setObjectName("quizCreatorLabel");
+	mainlayout->addWidget(label, ++row, 0);
+
+	imageFileLayout->setSpacing(10);
+	_imageFileLineEdit = new QLineEdit;
+	_imageFileLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+	_imageFileLineEdit->setObjectName("quizCreatorLineEdit");
+	connect(_imageFileLineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(checkImageFiles()));
+	imageFileLayout->addWidget(_imageFileLineEdit);
+
+	_browseImageBtn = new QPushButton;
+	_browseImageBtn->setObjectName("quizCreatorBrowseBtn");
+	connect(_browseImageBtn, SIGNAL(released()), this, SLOT(browseImage()));
+	imageFileLayout->addWidget(_browseImageBtn);
+	mainlayout->addItem(imageFileLayout, ++row, 0, 1, 2);
+
+	/** Image */
+	imageLayout->setSpacing(10);
+	imageLayout->setMargin(0);
+	_imagePreviewLabel = new QLabel;
+	_imagePreviewLabel->setObjectName("quizCreatorImagePreviewLabel");
+	_imagePreviewLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	_imagePreviewLabel->setAlignment(Qt::AlignCenter);
+	imageLayout->addWidget(_imagePreviewLabel, Qt::AlignCenter);
+	mainlayout->addItem(imageLayout, ++row, 0, 1, 2);
+
+	/** Answer Song - File */
+	label = new QLabel("Answer Song File:");
+	label->setObjectName("quizCreatorLabel");
+	mainlayout->addWidget(label, ++row, 0);
+
+	imageAnswerSongFileLayout->setSpacing(10);
+	_imageAnswerSongFileLineEdit = new QLineEdit;
+	_imageAnswerSongFileLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+	_imageAnswerSongFileLineEdit->setObjectName("quizCreatorLineEdit");
+	connect(_imageAnswerSongFileLineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(checkImageFiles()));
+	imageAnswerSongFileLayout->addWidget(_imageAnswerSongFileLineEdit);
+
+	_browseImageAnswerSongBtn = new QPushButton;
+	_browseImageAnswerSongBtn->setObjectName("quizCreatorBrowseBtn");
+	connect(_browseImageAnswerSongBtn, SIGNAL(released()), this, SLOT(browseImageAnswerSong()));
+	imageAnswerSongFileLayout->addWidget(_browseImageAnswerSongBtn);
+	mainlayout->addItem(imageAnswerSongFileLayout, ++row, 0, 1, 2);
+
+	/** Add layout to settings widget */
+	_textToSpeechSettings = new QWidget;
+	_textToSpeechSettings->setEnabled(false);
+	_textToSpeechSettings->setLayout(imageAnswerSettingsLayout);
+	mainlayout->addWidget(_textToSpeechSettings, ++row, 0, 1, 2);
+
+	/** Song - Set Answer Start */
+	label = new QLabel("Answer:");
+	label->setObjectName("quizCreatorLabel");
+	imageAnswerSettingsLayout->addWidget(label, 1, 0, 1, 1);
+
+	/** Answer Start Time */
+	_imageAnswerStartTimeEdit = new QTimeEdit;
+	_imageAnswerStartTimeEdit->setAlignment(Qt::AlignCenter);
+	_imageAnswerStartTimeEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+	_imageAnswerStartTimeEdit->setObjectName("quizCreatorTimeEdit");
+	_imageAnswerStartTimeEdit->setDisplayFormat("mm:ss");
+	imageAnswerSettingsLayout->addWidget(_imageAnswerStartTimeEdit, 1, 1, 1, 1);
+
+	/** Answer Audio Buttons - Play */
+	QPushButton* answerPlayBtn = new QPushButton;
+	answerPlayBtn->setProperty("type", "imageSongAnswer");
+	answerPlayBtn->setObjectName("quizCreatorPlayBtn");
+	connect(answerPlayBtn, SIGNAL(released()), this, SLOT(playSong()));
+	imageAnswerSettingsLayout->addWidget(answerPlayBtn, 1, 2, 1, 1);
+
+	/** Answer Audio Buttons - Pause */
+	QPushButton* answerPauseBtn = new QPushButton;
+	answerPauseBtn->setObjectName("quizCreatorPauseBtn");
+	connect(answerPauseBtn, SIGNAL(released()), this, SLOT(pause()));
+	imageAnswerSettingsLayout->addWidget(answerPauseBtn, 1, 3, 1, 1);
+
+	/** Answer Audio Buttons - Stop */
+	QPushButton* answerStopBtn = new QPushButton;
+	answerStopBtn->setObjectName("quizCreatorStopBtn");
+	connect(answerStopBtn, SIGNAL(released()), this, SLOT(stop()));
+	imageAnswerSettingsLayout->addWidget(answerStopBtn, 1, 4, 1, 1);
+
+	/** Add layout to answer settings widget */
+	_imageAnswerSettings = new QWidget;
+	_imageAnswerSettings->setEnabled(false);
+	_imageAnswerSettings->setLayout(imageAnswerSettingsLayout);
+	mainlayout->addWidget(_imageAnswerSettings, ++row, 0, 1, 2);
+
+	/** Set Layout */
+	return mainlayout;
+}
+
 void MusicQuiz::EntryCreator::playSong()
 {
 	/** Sanity Check */
@@ -615,7 +749,7 @@ void MusicQuiz::EntryCreator::playSong()
 		startTime = toMSec(_videoSongStartTimeEdit->time());
 	} else if ( type == "textToSpeechSongAnswer" ) {
 		/** Sanity Check */
-		if (_textToSpeechSnswerStartTimeEdit == nullptr || _textToSpeechAnswerSongFileLineEdit == nullptr) {
+		if (_textToSpeechAnswerStartTimeEdit == nullptr || _textToSpeechAnswerSongFileLineEdit == nullptr) {
 			return;
 		}
 
@@ -623,7 +757,18 @@ void MusicQuiz::EntryCreator::playSong()
 		fileName = _textToSpeechAnswerSongFileLineEdit->text();
 
 		/** Get Start and End Time */
-		startTime = toMSec(_textToSpeechSnswerStartTimeEdit->time());
+		startTime = toMSec( _textToSpeechAnswerStartTimeEdit->time() );
+	} else if( type == "imageSongAnswer" ) {
+		/** Sanity Check */
+		if( _imageAnswerStartTimeEdit == nullptr || _imageAnswerSongFileLineEdit == nullptr ) {
+			return;
+		}
+
+		/** Get File Name */
+		fileName = _imageAnswerSongFileLineEdit->text();
+
+		/** Get Start and End Time */
+		startTime = toMSec( _imageAnswerStartTimeEdit->time() );
 	}
 
 	/** Check if file is valid */
@@ -846,7 +991,7 @@ void MusicQuiz::EntryCreator::browseVideoSong()
 void MusicQuiz::EntryCreator::browseTextToSpeechAnswerSong()
 {
 	/** Sanity Check */
-	if (_textToSpeechAnswerSongFileLineEdit == nullptr) {
+	if ( _textToSpeechAnswerSongFileLineEdit == nullptr ) {
 		return;
 	}
 
@@ -858,12 +1003,62 @@ void MusicQuiz::EntryCreator::browseTextToSpeechAnswerSong()
 
 	/** Open File Dialog */
 	const QString filePath = QFileDialog::getOpenFileName(this, "Select Audio File", _config.getQuizDataPath().c_str(), "Audio File (" + allowedAudioFormats + ");");
-	if (filePath.isEmpty()) {
+	if ( filePath.isEmpty() ) {
 		return;
 	}
 
 	/** Update Line Edit */
 	_textToSpeechAnswerSongFileLineEdit->setText(filePath);
+}
+
+void MusicQuiz::EntryCreator::browseImage()
+{
+	/** Sanity Check */
+	if ( _imageFileLineEdit == nullptr ) {
+		return;
+	}
+
+	/** Get Allowed Image Formats */
+	QString allowedImageFormats = "";
+	for (size_t i = 0; i < _validImageFormats.size(); ++i) {
+		allowedImageFormats += "*" + _validImageFormats[i] + " ";
+	}
+
+	/** Open File Dialog */
+	const QString filePath = QFileDialog::getOpenFileName(this, "Select Image File", _config.getQuizDataPath().c_str(), "Image File (" + allowedImageFormats + ")");
+	if (filePath.isEmpty()) {
+		return;
+	}
+
+	/** Update Line Edit */
+	_imageFileLineEdit->setText(filePath);
+
+	/** Set Image */
+	QPixmap pixmap(filePath);
+	_imagePreviewLabel->setPixmap(pixmap.scaled(_imagePreviewLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+}
+
+void MusicQuiz::EntryCreator::browseImageAnswerSong()
+{
+	/** Sanity Check */
+	if( _imageAnswerSongFileLineEdit == nullptr ) {
+		return;
+	}
+
+	/** Get Allowed Audio Formats */
+	QString allowedAudioFormats = "";
+	for( size_t i = 0; i < _validAudioFormats.size(); ++i ) {
+		allowedAudioFormats += "*" + _validAudioFormats[i] + "; ";
+	}
+
+	/** Open File Dialog */
+	const QString filePath = QFileDialog::getOpenFileName(this, "Select Audio File", _config.getQuizDataPath().c_str(), "Audio File (" + allowedAudioFormats + ");");
+	if( filePath.isEmpty() ) {
+		return;
+	}
+
+	/** Update Line Edit */
+	_imageAnswerSongFileLineEdit->setText(filePath);
 }
 
 void MusicQuiz::EntryCreator::checkSongFileName()
@@ -1020,6 +1215,50 @@ void MusicQuiz::EntryCreator::checkTextToSpeechAnswerSongFileName()
 	}
 }
 
+void MusicQuiz::EntryCreator::checkImageFiles()
+{
+	/** Sanity Check */
+	if ( _imageFileLineEdit == nullptr || _imageAnswerSongFileLineEdit == nullptr ) {
+		return;
+	}
+
+	/** Check if name is valid */
+	bool isImageValid = isImageFileValid(_imageFileLineEdit->text());
+	bool isAnswerSongValid = isSongFileValid(_imageAnswerSongFileLineEdit->text());
+
+	/** Image File Line Edit */
+	if ( _imageFileLineEdit->isEnabled() ) {
+		if ( isImageValid ) {
+			/** Set Line Edit Color */
+			_imageFileLineEdit->setStyleSheet("color: black;");
+		}
+		else {
+			/** Set Line Edit Color */
+			_imageFileLineEdit->setStyleSheet("color: red;");
+		}
+	} else {
+		_imageFileLineEdit->setStyleSheet("color: rgb(150, 150, 150);");
+	}
+
+	/** Image Answer Song File Line Edit */
+	if ( _imageAnswerSongFileLineEdit->isEnabled()) {
+		if ( isAnswerSongValid ) {
+			/** Set Line Edit Color */
+			_imageAnswerSongFileLineEdit->setStyleSheet("color: black;");
+		} else {
+			/** Set Line Edit Color */
+			_imageAnswerSongFileLineEdit->setStyleSheet("color: red;");
+		}
+	} else {
+		_imageAnswerSongFileLineEdit->setStyleSheet("color: rgb(150, 150, 150);");
+	}
+
+	/** Set Widget enabled / disabled */
+	if( isAnswerSongValid != _imageAnswerSettings->isEnabled() ) {
+		_imageAnswerSettings->setEnabled(isAnswerSongValid);
+	}
+}
+
 bool MusicQuiz::EntryCreator::isSongFileValid(const QString& fileName) const
 {
 	/** Check if file has a valid format */
@@ -1066,6 +1305,29 @@ bool MusicQuiz::EntryCreator::isVideoFileValid(const QString& fileName) const
 	return true;
 }
 
+bool MusicQuiz::EntryCreator::isImageFileValid( const QString& fileName ) const
+{
+	/** Check if file has a valid format */
+	bool validFormat = false;
+	for( size_t i = 0; i < _validImageFormats.size(); ++i ) {
+		if( fileName.toLower().contains( _validImageFormats[i] ) ) {
+			validFormat = true;
+			break;
+		}
+	}
+
+	if( !validFormat ) {
+		return false;
+	}
+
+	/** Check if file exists */
+	if( !std::filesystem::exists( fileName.toStdString() ) ) {
+		return false;
+	}
+
+	return true;
+}
+
 size_t MusicQuiz::EntryCreator::toMSec(const QTime& time) const
 {
 	return time.minute() * 60000 + time.second() * 1000;
@@ -1100,6 +1362,7 @@ void MusicQuiz::EntryCreator::setEntryType(int index)
 		_songLayout->show();
 		_videoLayout->hide();
 		_textToSpeechLayout->hide();
+		_imageLayout->hide();
 	} else if ( index == 1 ) { // video
 		/** Set Type */
 		_entryType = EntryType::Video;
@@ -1121,6 +1384,7 @@ void MusicQuiz::EntryCreator::setEntryType(int index)
 		_videoLayout->show();
 		_songLayout->hide();
 		_textToSpeechLayout->hide();
+		_imageLayout->hide();
 	} else if ( index == 2 ) { // text to speech
 		/** Set Type */
 		_entryType = EntryType::TextToSpeech;
@@ -1129,10 +1393,23 @@ void MusicQuiz::EntryCreator::setEntryType(int index)
 		_textToSpeechLayout->show();
 		_songLayout->hide();
 		_videoLayout->hide();
+		_imageLayout->hide();
+	} else if (index == 3) { // image
+		/** Set Type */
+		_entryType = EntryType::Image;
+
+		/** Show / hide layouts */
+		_imageLayout->show();
+		_songLayout->hide();
+		_videoLayout->hide();
+		_textToSpeechLayout->hide();
 	}
 
 	checkVideoFiles();
 	checkSongFileName();
+	checkTextToSpeechLyrics();
+	checkTextToSpeechAnswerSongFileName();
+	checkImageFiles();
 }
 
 void MusicQuiz::EntryCreator::setName(const QString& name)
@@ -1193,6 +1470,9 @@ void MusicQuiz::EntryCreator::setType(const EntryType& type)
 	} else if ( _entryType == EntryType::TextToSpeech ) {
 		_buttonGroup->button(2)->setChecked(true);
 		setEntryType(2);
+	} else if (_entryType == EntryType::Image) {
+		_buttonGroup->button(3)->setChecked(true);
+		setEntryType(3);
 	}
 }
 
@@ -1300,6 +1580,62 @@ const QString MusicQuiz::EntryCreator::getTextToSpeechAnswerSongFile() const
 	/** Check if file is valid */
 	if (isSongFileValid(_textToSpeechAnswerSongFileLineEdit->text())) {
 		return _textToSpeechAnswerSongFileLineEdit->text();
+	}
+
+	return "";
+}
+
+void MusicQuiz::EntryCreator::setImageFile(const QString& file)
+{
+	/** Sanity Check */
+	if ( _imageFileLineEdit == nullptr ) {
+		return;
+	}
+
+	/** Set File */
+	_imageFileLineEdit->setText(file);
+
+	/** Set Image */
+	QPixmap pixmap(file);
+	_imagePreviewLabel->setPixmap(pixmap.scaled(_imagePreviewLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+}
+
+const QString MusicQuiz::EntryCreator::getImageFile() const
+{
+	/** Sanity Check */
+	if ( _imageFileLineEdit == nullptr ) {
+		return "";
+	}
+
+	/** Check if file is valid */
+	if ( isImageFileValid(_imageFileLineEdit->text()) ) {
+		return _imageFileLineEdit->text();
+	}
+
+	return "";
+}
+
+void MusicQuiz::EntryCreator::setImageAnswerSongFile(const QString& file)
+{
+	/** Sanity Check */
+	if( _imageAnswerSongFileLineEdit == nullptr ) {
+		return;
+	}
+
+	/** Set File */
+	_imageAnswerSongFileLineEdit->setText(file);
+}
+
+const QString MusicQuiz::EntryCreator::getImageAnswerSongFile() const
+{
+	/** Sanity Check */
+	if( _imageAnswerSongFileLineEdit == nullptr ) {
+		return "";
+	}
+
+	/** Check if file is valid */
+	if( isSongFileValid(_imageAnswerSongFileLineEdit->text()) ) {
+		return _imageAnswerSongFileLineEdit->text();
 	}
 
 	return "";
@@ -1436,22 +1772,22 @@ QString MusicQuiz::EntryCreator::getTextToSpeechString() const
 void MusicQuiz::EntryCreator::setTextToSpeechAnswerStartTime(const size_t time)
 {
 	/** Sanity Check */
-	if (_textToSpeechSnswerStartTimeEdit == nullptr) {
+	if (_textToSpeechAnswerStartTimeEdit == nullptr) {
 		return;
 	}
 
 	/** Set Time */
-	_textToSpeechSnswerStartTimeEdit->setTime(fromMSec(time));
+	_textToSpeechAnswerStartTimeEdit->setTime(fromMSec(time));
 }
 
 size_t MusicQuiz::EntryCreator::getTextToSpeechAnswerStartTime() const
 {
 	/** Sanity Check */
-	if (_textToSpeechSnswerStartTimeEdit == nullptr) {
+	if (_textToSpeechAnswerStartTimeEdit == nullptr) {
 		return 0;
 	}
 
-	return toMSec(_textToSpeechSnswerStartTimeEdit->time());
+	return toMSec(_textToSpeechAnswerStartTimeEdit->time());
 }
 
 void MusicQuiz::EntryCreator::setPitch(double pitch)
@@ -1549,6 +1885,27 @@ QString MusicQuiz::EntryCreator::getVoiceName() const
 	}
 	
 	return "";
+}
+
+void MusicQuiz::EntryCreator::setImageAnswerStartTime(const size_t time)
+{
+	/** Sanity Check */
+	if( _imageAnswerStartTimeEdit == nullptr ) {
+		return;
+	}
+
+	/** Set Time */
+	_imageAnswerStartTimeEdit->setTime(fromMSec(time));
+}
+
+size_t MusicQuiz::EntryCreator::getImageAnswerStartTime() const
+{
+	/** Sanity Check */
+	if( _imageAnswerStartTimeEdit == nullptr ) {
+		return 0;
+	}
+
+	return toMSec(_imageAnswerStartTimeEdit->time());
 }
 
 void MusicQuiz::EntryCreator::loadSongFromXml(const boost::property_tree::ptree &tree)
@@ -1649,6 +2006,31 @@ void MusicQuiz::EntryCreator::loadTextToSpeechFromXml(const boost::property_tree
 	} catch ( ... ) {}
 }
 
+void MusicQuiz::EntryCreator::loadImageFromXml(const boost::property_tree::ptree& tree)
+{
+	/** Set Type */
+	setType(MusicQuiz::EntryCreator::EntryType::Image);
+
+	/** Set Text to Speech String */
+	try {
+		setImageFile(QString::fromStdString(_config.mediaPathToFullPath(tree.get<std::string>("Media.ImageFile"))));
+	} catch ( ... ) {}
+
+	/** Set Answer Song File */
+	try {
+		QString songFile = QString::fromStdString(_config.mediaPathToFullPath(tree.get<std::string>("Media.SongFile")));
+		std::replace(songFile.begin(), songFile.end(), '\\', '/');
+		setImageAnswerSongFile(songFile);
+	}
+	catch (...) {}
+
+	/** Set Answer Song Start Time */
+	try {
+		setImageAnswerStartTime(tree.get<size_t>("AnswerStartTime"));
+	}
+	catch (...) {}
+}
+
 boost::property_tree::ptree MusicQuiz::EntryCreator::toXml(const std::string& savePath, const std::string xmlPath) const
 {
 	std::string name = getName().toStdString();
@@ -1665,6 +2047,9 @@ boost::property_tree::ptree MusicQuiz::EntryCreator::toXml(const std::string& sa
 			break;
 		case MusicQuiz::EntryCreator::EntryType::TextToSpeech:
 			saveTextToSpeechToXml(tree, savePath + "/" + name, xmlPath + "/" + name);
+			break;
+		case MusicQuiz::EntryCreator::EntryType::Image:
+			saveImageToXml(tree, savePath + "/" + name, xmlPath + "/" + name);
 			break;
 		default:
 			break;
@@ -1718,7 +2103,7 @@ void MusicQuiz::EntryCreator::saveVideoToXml(boost::property_tree::ptree& tree, 
 		const std::string audioFileExtension = std::filesystem::path(songFile).extension().string();
 		boost::property_tree::ptree& media_tree = tree.add("Media", "");
 		media_tree.put("VideoFile", std::filesystem::relative(xmlPath + "_video" + videoFileExtension, _config.getQuizDataPath()).string());
-		media_tree.put("SongFile", std::filesystem::relative(xmlPath + "_song" + videoFileExtension, _config.getQuizDataPath()).string());
+		media_tree.put("SongFile", std::filesystem::relative(xmlPath + "_song" + audioFileExtension, _config.getQuizDataPath()).string());
 
 		/** Copy Media File */
 		std::filesystem::copy_file(videoFile, savePath + "_video" + videoFileExtension, std::filesystem::copy_options::overwrite_existing);
@@ -1731,7 +2116,7 @@ void MusicQuiz::EntryCreator::saveTextToSpeechToXml(boost::property_tree::ptree&
 	/** Entry Type */
 	tree.put("<xmlattr>.type", "textToSpeech");
 
-	/** Entry Song Start Time */
+	/** Entry Answer Song Start Time */
 	tree.put("AnswerStartTime", getTextToSpeechAnswerStartTime());
 
 	/** Media File */
@@ -1748,6 +2133,32 @@ void MusicQuiz::EntryCreator::saveTextToSpeechToXml(boost::property_tree::ptree&
 		media_tree.put("SongFile", std::filesystem::relative(xmlPath + audioFileExtension, _config.getQuizDataPath()).string());
 
 		/** Copy Media File */
+		std::filesystem::copy_file(songFile, savePath + audioFileExtension, std::filesystem::copy_options::overwrite_existing);
+	}
+}
+
+void MusicQuiz::EntryCreator::saveImageToXml(boost::property_tree::ptree& tree, const std::string& savePath, const std::string& xmlPath) const
+{
+	/** Entry Type */
+	tree.put("<xmlattr>.type", "image");
+
+	/** Entry Answer Song Start Time */
+	tree.put("AnswerStartTime", getImageAnswerStartTime());
+
+	/** Media File */
+	const std::string imageFile = getImageFile().toStdString();
+	const std::string songFile = getImageAnswerSongFile().toStdString();
+	if ( !imageFile.empty() && !songFile.empty() ) {
+		boost::property_tree::ptree& media_tree = tree.add("Media", "");
+
+		const std::string imageFileExtension = std::filesystem::path(imageFile).extension().string();
+		media_tree.put("ImageFile", std::filesystem::relative(xmlPath + imageFileExtension, _config.getQuizDataPath()).string());
+
+		const std::string audioFileExtension = std::filesystem::path(songFile).extension().string();
+		media_tree.put("SongFile", std::filesystem::relative(xmlPath + audioFileExtension, _config.getQuizDataPath()).string());
+
+		/** Copy Media File */
+		std::filesystem::copy_file(imageFile, savePath + imageFileExtension, std::filesystem::copy_options::overwrite_existing);
 		std::filesystem::copy_file(songFile, savePath + audioFileExtension, std::filesystem::copy_options::overwrite_existing);
 	}
 }

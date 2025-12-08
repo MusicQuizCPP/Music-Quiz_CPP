@@ -18,6 +18,7 @@
 #include "media/AudioPlayer.hpp"
 #include "media/VideoPlayer.hpp"
 #include "media/TextToSpeechPlayer.hpp"
+#include "media/ImagePlayer.hpp"
 
 #include "gui_tools/widgets/QuizTeam.hpp"
 #include "gui_tools/widgets/QuizEntry.hpp"
@@ -142,6 +143,9 @@ namespace MusicQuiz {
 
 		/** Text to Speech Player */
 		std::shared_ptr< media::TextToSpeechPlayer > _textToSpeechPlayer = nullptr;
+
+		/** Image Player */
+		std::shared_ptr< media::ImagePlayer > _imagePlayer = nullptr;
 		
 		/** The configuration */
 		const common::Configuration& _config;

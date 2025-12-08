@@ -45,6 +45,18 @@ MusicQuiz::MusicQuizController::MusicQuizController(const common::Configuration&
 	/** Create Text to Speech Player */
 	_textToSpeechPlayer = std::make_shared< media::TextToSpeechPlayer >();
 
+	/** Create Image Player */
+	_imagePlayer = std::make_shared< media::ImagePlayer >();
+	_imagePlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint |
+		Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+
+	/** Set Image Player Size */
+	_imagePlayer->setMinimumSize(QSize(screenRec.width(), screenRec.height()));
+	_imagePlayer->resize(QSize(screenRec.width(), screenRec.height()));
+
+	/** Center Image Player */
+	_imagePlayer->move(0, 0);
+
 	/** Connect Update Timer */
 	connect(&_updateTimer, SIGNAL(timeout()), this, SLOT(executeQuiz()));
 
@@ -184,7 +196,7 @@ void MusicQuiz::MusicQuizController::executeQuiz()
 
 		try {
 			/** Create Quiz Board */
-			_quizBoard = MusicQuiz::QuizFactory::createQuiz(_selectedQuizIdx, _settings, _audioPlayer, _videoPlayer, _textToSpeechPlayer, _config, _teams);
+			_quizBoard = MusicQuiz::QuizFactory::createQuiz(_selectedQuizIdx, _settings, _audioPlayer, _videoPlayer, _textToSpeechPlayer, _imagePlayer, _config, _teams);
 
 			/** Connect Signals */
 			connect(_quizBoard, SIGNAL(quitSignal()), this, SLOT(quitQuiz()));
