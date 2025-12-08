@@ -190,12 +190,10 @@ void MusicQuiz::QuizEntry::handleMouseEvent(QMouseEvent* event)
 	}
 }
 
-#include <QMessageBox>
 void MusicQuiz::QuizEntry::leftClickEvent()
 {
 	switch ( _state ) {
 	case EntryState::IDLE: // Start Media
-		QMessageBox::information(this, "Left", "IDLE");
 		_state = EntryState::PLAYING;
 		if ( _type == EntryType::Song ) {
 			_videoPlayer->stop();
@@ -226,7 +224,6 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 
 		break;
 	case EntryState::PLAYING: // Pause Media
-		QMessageBox::information(this, "Left", "PLAYING");
 		_state = EntryState::PAUSED;
 
 		_audioPlayer->pause();
@@ -235,7 +232,6 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 
 		break;
 	case EntryState::PAUSED: // Play Answer
-		QMessageBox::information(this, "Left", "PAUSED");
 		_textSizeSet = false;
 		_state = EntryState::PLAYING_ANSWER;
 		if ( _type == EntryType::Song ) {
@@ -262,7 +258,6 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 		}
 		break;
 	case EntryState::PLAYING_ANSWER: // Entry Answered
-		QMessageBox::information(this, "Left", "PLAYING_ANSWER");
 		_state = EntryState::PLAYED;
 
 		_audioPlayer->stop();
@@ -273,7 +268,6 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 
 		break;
 	case QuizEntry::EntryState::PLAYED: // Play Answer Again
-		QMessageBox::information(this, "Left", "PLAYED");
 		if ( _type == EntryType::Song ) {
 			_videoPlayer->stop();
 			_textToSpeechPlayer->stop();
@@ -303,10 +297,8 @@ void MusicQuiz::QuizEntry::rightClickEvent()
 {
 	switch ( _state ) {
 	case EntryState::IDLE:
-		QMessageBox::information(this, "Right", "Idle");
 		break;
 	case EntryState::PLAYING: // Back to initial state
-		QMessageBox::information(this, "Right", "PLAYING");
 		_state = EntryState::IDLE;
 
 		_audioPlayer->pause();
@@ -319,7 +311,6 @@ void MusicQuiz::QuizEntry::rightClickEvent()
 
 		break;
 	case EntryState::PAUSED: // Continue playing
-		QMessageBox::information(this, "Right", "PAUSED");
 		_state = EntryState::PLAYING;
 		
 		if ( _type == EntryType::Song ) {
@@ -336,7 +327,6 @@ void MusicQuiz::QuizEntry::rightClickEvent()
 
 		break;
 	case EntryState::PLAYING_ANSWER: // Pause Media
-		QMessageBox::information(this, "Right", "PLAYING_ANSWER");
 		_state = EntryState::PAUSED;
 
 		_audioPlayer->pause();
@@ -351,7 +341,6 @@ void MusicQuiz::QuizEntry::rightClickEvent()
 		setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
 		break;
 	case QuizEntry::EntryState::PLAYED: // Back to idle
-		QMessageBox::information(this, "Right", "PLAYED");
 		_fontSize = 40;
 		_entryAnswered = false;
 		_state = EntryState::IDLE;
