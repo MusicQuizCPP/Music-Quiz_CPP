@@ -243,8 +243,6 @@ namespace MusicQuiz {
 		QString _speechString = "";
 		QString _textString = "";
 
-		size_t _answerStartCharacter = 0;
-
 		QString _answer = "";
 		bool _entryAnswered = false;
 		QColor _answeredColor = QColor(0, 0, 120);
