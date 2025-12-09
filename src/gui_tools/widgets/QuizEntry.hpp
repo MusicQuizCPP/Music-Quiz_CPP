@@ -188,8 +188,6 @@ namespace MusicQuiz {
 		QString _videoFile = "";
 		QString _speechString = "";
 
-		size_t _answerStartCharacter = 0;
-
 		QString _answer = "";
 		bool _entryAnswered = false;
 		QColor _answeredColor = QColor(0, 0, 120);
