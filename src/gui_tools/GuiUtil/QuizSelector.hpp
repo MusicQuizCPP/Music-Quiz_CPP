@@ -118,6 +118,7 @@ namespace MusicQuiz {
 		QCheckBox* _includeVideosCheckbox = nullptr;
 		QCheckBox* _includeTextToSpeechCheckbox = nullptr;
 		QCheckBox* _includeImageCheckbox = nullptr;
+		QCheckBox* _includeTextCheckbox = nullptr;
 		QCheckBox* _guessTheCategoryCheckbox = nullptr;
 
 		MusicQuiz::QuizSettings _settings;

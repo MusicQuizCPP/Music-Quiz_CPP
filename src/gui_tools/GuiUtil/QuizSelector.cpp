@@ -148,6 +148,12 @@ void MusicQuiz::QuizSelector::createLayout()
 	_includeImageCheckbox->setFocusPolicy(Qt::NoFocus);
 	infoLayout->addWidget(_includeImageCheckbox, Qt::AlignLeft);
 
+	_includeTextCheckbox = new QCheckBox(" Includes Text");
+	_includeTextCheckbox->setObjectName("infoCheckbox");
+	_includeTextCheckbox->setAttribute(Qt::WA_TransparentForMouseEvents);
+	_includeTextCheckbox->setFocusPolicy(Qt::NoFocus);
+	infoLayout->addWidget(_includeTextCheckbox, Qt::AlignLeft);
+
 	_guessTheCategoryCheckbox = new QCheckBox(" Guess the Category");
 	_guessTheCategoryCheckbox->setObjectName("infoCheckbox");
 	_guessTheCategoryCheckbox->setAttribute(Qt::WA_TransparentForMouseEvents);
@@ -212,6 +218,7 @@ void MusicQuiz::QuizSelector::selectionClicked()
 	_includeVideosCheckbox->setChecked(_quizPreviews[currentIndex].includeVideos);
 	_includeTextToSpeechCheckbox->setChecked(_quizPreviews[currentIndex].includeTextToSpeech);
 	_includeImageCheckbox->setChecked(_quizPreviews[currentIndex].includeImages);
+	_includeTextCheckbox->setChecked(_quizPreviews[currentIndex].includeText);
 	_guessTheCategoryCheckbox->setChecked(_quizPreviews[currentIndex].guessTheCategory);
 
 	/** Update Categories */

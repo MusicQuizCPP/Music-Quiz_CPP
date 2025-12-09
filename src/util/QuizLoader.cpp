@@ -84,7 +84,7 @@ MusicQuiz::util::QuizLoader::QuizPreview MusicQuiz::util::QuizLoader::getQuizPre
 				if ( sub_ctrl->first == "Category" ) {
 					quizPreview.categories.push_back(sub_ctrl->second.get< std::string >("<xmlattr>.name"));
 
-					if ( !quizPreview.includeSongs || !quizPreview.includeVideos ) { // Check if the quiz contains songs / videos.
+					if ( !quizPreview.includeSongs || !quizPreview.includeVideos || !quizPreview.includeTextToSpeech || !quizPreview.includeImages || !quizPreview.includeText ) {
 						boost::property_tree::ptree mediaTree = sub_ctrl->second;
 						boost::property_tree::ptree::const_iterator it = mediaTree.begin();
 						for ( ; it != mediaTree.end(); ++it ) {
@@ -93,10 +93,12 @@ MusicQuiz::util::QuizLoader::QuizPreview MusicQuiz::util::QuizLoader::getQuizPre
 									quizPreview.includeSongs = true;
 								} else if ( it->second.get< std::string >("<xmlattr>.type") == "video" && !quizPreview.includeVideos ) {
 									quizPreview.includeVideos = true;
-								} else if ( it->second.get< std::string >("<xmlattr>.type") == "textToSpeech" && !quizPreview.includeVideos ) {
+								} else if ( it->second.get< std::string >("<xmlattr>.type") == "textToSpeech" && !quizPreview.includeTextToSpeech ) {
 									quizPreview.includeTextToSpeech = true;
 								} else if ( it->second.get< std::string >("<xmlattr>.type") == "image" && !quizPreview.includeImages ) {
 									quizPreview.includeImages = true;
+								} else if ( it->second.get< std::string >("<xmlattr>.type") == "text" && !quizPreview.includeText ) {
+									quizPreview.includeText = true;
 								}
 							}
 						}
@@ -118,7 +120,8 @@ MusicQuiz::util::QuizLoader::QuizPreview MusicQuiz::util::QuizLoader::getQuizPre
 }
 
 std::vector< MusicQuiz::QuizCategory* > MusicQuiz::util::QuizLoader::loadQuizCategories(const size_t idx, const media::AudioPlayer::Ptr& audioPlayer,
-	const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const media::ImagePlayer::Ptr& imagePlayer, const common::Configuration& config, std::string& err)
+	const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const media::ImagePlayer::Ptr& imagePlayer,
+	const media::TextPlayer::Ptr& textPlayer, const common::Configuration& config, std::string& err)
 {
 	/** Get List of Quizzes */
 	const std::vector< std::string > quizList = getListOfQuizzes(config);
@@ -160,98 +163,133 @@ std::vector< MusicQuiz::QuizCategory* > MusicQuiz::util::QuizLoader::loadQuizCat
 						boost::property_tree::ptree entryTree = sub_ctrl->second;
 						boost::property_tree::ptree::const_iterator it = entryTree.begin();
 						for ( ; it != entryTree.end(); ++it ) {
-							if ( it->first == "QuizEntry" ) {
-								/** Settings */
-								const QString answer = QString::fromStdString(it->second.get< std::string >("Answer"));
-								const size_t points = it->second.get<size_t>("Points");
+							if ( it->first != "QuizEntry" ) {
+								continue;
+							}
 
-								/** Media Type */
-								const std::string type = it->second.get< std::string >("<xmlattr>.type");
-								if ( type == "song" ) { // Song
-									QString songFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile")));
-									const size_t audioStartTime = it->second.get<size_t>("StartTime");
-									const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
-									std::replace(songFile.begin(), songFile.end(), '\\', '/');
+							/** Settings */
+							const QString answer = QString::fromStdString(it->second.get< std::string >("Answer"));
+							const size_t points = it->second.get<size_t>("Points");
 
-									/** Check if file exsists */
-									if ( !std::filesystem::exists(songFile.toStdString()) ) {
-										err += "Missing song file '" + songFile.toStdString() + "'\n";
-									}
+							/** Media Type */
+							const std::string type = it->second.get< std::string >("<xmlattr>.type");
+							if ( type == "song" ) { // Song
+								std::string songFileString = config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile"));
+								const size_t audioStartTime = it->second.get<size_t>("StartTime");
+								const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
+								std::replace(songFileString.begin(), songFileString.end(), '\\', '/');
+								std::filesystem::path songFile(songFileString);
 
-									/** Push Back Song Entry */
-									categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, answer, points, audioStartTime, answerStartTime, audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer));
-								} else if ( type == "video" ) { // Video
-									QString songFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile")));
-									QString videoFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get< std::string >("Media.VideoFile")));
-									std::replace(songFile.begin(), songFile.end(), '\\', '/');
-									std::replace(videoFile.begin(), videoFile.end(), '\\', '/');
-									const size_t videoStartTime = it->second.get<size_t>("StartTime");
-									const size_t videoSongStartTime = it->second.get<size_t>("VideoSongStartTime");
-									const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
-
-									/** Check if files exsists */
-									if ( !std::filesystem::exists(songFile.toStdString()) ) {
-										err += "Missing song file '" + songFile.toStdString() + "'\n";
-									}
-
-									if ( !std::filesystem::exists(videoFile.toStdString()) ) {
-										err += "Missing video file '" + videoFile.toStdString() + "'\n";
-									}
-
-									/** Push Back Video Entry */
-									categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, videoFile, answer, points, videoSongStartTime, videoStartTime, answerStartTime, audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer));
-								} else if ( type == "textToSpeech" ) {// text to speech
-									/** Get Speech String */
-									const QString textToSpeechString = QString::fromStdString(it->second.get<std::string>("Media.TextToSpeechString"));
-
-									/** Get Settings */
-									media::TextToSpeechPlayer::TextToSpeechSettings settings;
-									settings._pitch = it->second.get<double>("Media.Pitch", 0.0);
-									settings._rate = it->second.get<double>("Media.Rate", 0.0);
-									const QString voiceName = QString::fromStdString(it->second.get<std::string>("Media.VoiceName", ""));
-									const QVector< QVoice > avaliableVoices = textToSpeechPlayer->availableVoices();
-									for ( int i = 0; i < avaliableVoices.size(); ++i ) {
-										if ( voiceName == avaliableVoices[i].name() ) {
-											settings._voice = avaliableVoices[i];
-										}
-									}
-
-									/** Check if string has been set */
-									if ( textToSpeechString.isEmpty() ) {
-										err += "Text to speech string is empty\n";
-									}
-
-									/** Get Answer Song File */
-									QString songFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile")));
-									const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
-									std::replace(songFile.begin(), songFile.end(), '\\', '/');
-
-									/** Check if file exsists */
-									if (!std::filesystem::exists(songFile.toStdString())) {
-										err += "Missing song file '" + songFile.toStdString() + "'\n";
-									}
-
-									/** Push Back Text to Speech Entry */
-									categorieEntries.push_back(new MusicQuiz::QuizEntry(textToSpeechString, songFile, answer, points, answerStartTime, audioPlayer, videoPlayer, textToSpeechPlayer, settings, imagePlayer));
-								} else if ( type == "image" ) { // image
-									QString imageFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get< std::string >("Media.ImageFile")));
-									QString songFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile")));
-									std::replace(imageFile.begin(), imageFile.end(), '\\', '/');
-									std::replace(songFile.begin(), songFile.end(), '\\', '/');
-									const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
-
-									/** Check if files exsists */
-									if ( !std::filesystem::exists(imageFile.toStdString()) ) {
-										err += "Missing image file '" + imageFile.toStdString() + "'\n";
-									}
-
-									if ( !std::filesystem::exists(songFile.toStdString()) ) {
-										err += "Missing song file '" + songFile.toStdString() + "'\n";
-									}
-
-									/** Push Back Image Entry */
-									categorieEntries.push_back(new MusicQuiz::QuizEntry(imageFile, songFile, answer, points, answerStartTime, audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer));
+								/** Check if file exsists */
+								if ( !std::filesystem::exists(songFile) ) {
+									err += "Missing song file '" + songFile.string() + "'\n";
 								}
+
+								/** Push Back Song Entry */
+								categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, answer, points, audioStartTime, answerStartTime,
+									audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer, textPlayer));
+							} else if ( type == "video" ) { // Video
+								std::string songFileString = config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile"));
+								std::string videoFileString = config.mediaPathToFullPath(it->second.get< std::string >("Media.VideoFile"));
+								std::replace(songFileString.begin(), songFileString.end(), '\\', '/');
+								std::replace(videoFileString.begin(), videoFileString.end(), '\\', '/');
+								std::filesystem::path songFile(songFileString);
+								std::filesystem::path videoFile(videoFileString);
+								const size_t videoStartTime = it->second.get<size_t>("StartTime");
+								const size_t videoSongStartTime = it->second.get<size_t>("VideoSongStartTime");
+								const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
+
+								/** Check if files exsists */
+								if ( !std::filesystem::exists(songFile) ) {
+									err += "Missing song file '" + songFile.string() + "'\n";
+								}
+
+								if ( !std::filesystem::exists(videoFile) ) {
+									err += "Missing video file '" + videoFile.string() + "'\n";
+								}
+
+								/** Push Back Video Entry */
+								categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, videoFile, answer, points, videoSongStartTime, videoStartTime, answerStartTime,
+									audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer, textPlayer));
+							} else if ( type == "textToSpeech" ) {// text to speech
+								/** Get Speech String */
+								const QString textToSpeechString = QString::fromStdString(it->second.get<std::string>("Media.TextToSpeechString"));
+
+								/** Get Settings */
+								media::TextToSpeechPlayer::TextToSpeechSettings settings;
+								settings._pitch = it->second.get<double>("Media.Pitch", 0.0);
+								settings._rate = it->second.get<double>("Media.Rate", 0.0);
+								const QString voiceName = QString::fromStdString(it->second.get<std::string>("Media.VoiceName", ""));
+								const QVector< QVoice > avaliableVoices = textToSpeechPlayer->availableVoices();
+								for ( int i = 0; i < avaliableVoices.size(); ++i ) {
+									if ( voiceName == avaliableVoices[i].name() ) {
+										settings._voice = avaliableVoices[i];
+									}
+								}
+
+								/** Check if string has been set */
+								if ( textToSpeechString.isEmpty() ) {
+									err += "Text to speech string is empty\n";
+								}
+
+								/** Get Answer Song File */
+								std::string songFileString = config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile"));
+								const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
+								std::replace(songFileString.begin(), songFileString.end(), '\\', '/');
+								std::filesystem::path songFile(songFileString);
+
+								/** Check if file exsists */
+								if ( !std::filesystem::exists(songFile) ) {
+									err += "Missing song file '" + songFile.string() + "'\n";
+								}
+
+								/** Push Back Text to Speech Entry */
+								categorieEntries.push_back(new MusicQuiz::QuizEntry(textToSpeechString, songFile, answer, points, answerStartTime,
+									audioPlayer, videoPlayer, textToSpeechPlayer, settings, imagePlayer, textPlayer));
+							} else if ( type == "image" ) { // image
+								std::string imageFileString = config.mediaPathToFullPath(it->second.get< std::string >("Media.ImageFile"));
+								std::string songFileString = config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile"));
+								std::replace(imageFileString.begin(), imageFileString.end(), '\\', '/');
+								std::replace(songFileString.begin(), songFileString.end(), '\\', '/');
+								std::filesystem::path imageFile(imageFileString);
+								std::filesystem::path songFile(songFileString);
+								const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
+
+								/** Check if files exsists */
+								if ( !std::filesystem::exists(imageFile) ) {
+									err += "Missing image file '" + imageFile.string() + "'\n";
+								}
+
+								if ( !std::filesystem::exists(songFile) ) {
+									err += "Missing song file '" + songFile.string() + "'\n";
+								}
+
+								/** Push Back Image Entry */
+								categorieEntries.push_back(new MusicQuiz::QuizEntry(imageFile, songFile, answer, points, answerStartTime,
+									audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer, textPlayer));
+							} else if ( type == "text" ) {// text
+								/** Get Text String */
+								const QString textString = QString::fromStdString(it->second.get<std::string>("Media.TextString"));
+
+								/** Check if string has been set */
+								if ( textString.isEmpty() ) {
+									err += "Text string is empty\n";
+								}
+
+								/** Get Answer Song File */
+								std::string songFileString = config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile"));
+								const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
+								std::replace(songFileString.begin(), songFileString.end(), '\\', '/');
+								std::filesystem::path songFile(songFileString);
+
+								/** Check if file exsists */
+								if ( !std::filesystem::exists(songFile) ) {
+									err += "Missing song file '" + songFile.string() + "'\n";
+								}
+
+								/** Push Back Text to Speech Entry */
+								categorieEntries.push_back(new MusicQuiz::QuizEntry(textString, songFile, answer, points, answerStartTime,
+									audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer, textPlayer));
 							}
 						}
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <filesystem>
 
 #include <QString>
 #include <QWidget>
@@ -52,7 +53,7 @@ namespace media {
 		 * @param[in] startTime The time at which to start playing the video file from.
 		 * @param[in] muted True if the audio should be muted.
 		 */
-		void play(const QString& videoFile, size_t startTime = 0, bool muted = false);
+		void play(const std::filesystem::path& videoFile, size_t startTime = 0, bool muted = false);
 
 		/**
 		 * @brief Pauses the video that is currently playing.

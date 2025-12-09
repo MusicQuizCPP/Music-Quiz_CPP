@@ -2,6 +2,7 @@
 
 #include <string>
 #include <memory>
+#include <filesystem>
 
 #include <QString>
 #include <QObject>
@@ -13,6 +14,7 @@
 #include "media/VideoPlayer.hpp"
 #include "media/TextToSpeechPlayer.hpp"
 #include "media/ImagePlayer.hpp"
+#include "media/TextPlayer.hpp"
 
 #include "common/Log.hpp"
 
@@ -36,11 +38,13 @@ namespace MusicQuiz {
 		 * @param[in] videoPlayer        The video player.
 		 * @param[in] textToSpeechPlayer The text to speech player.
 		 * @param[in] imagePlayer        The image player.
+		 * @param[in] textPlayer         The text player.
 		 * @param[in] parent             The parent widget.
 		 */
-		explicit QuizEntry(const QString& audioFile, const QString& answer, size_t points, size_t startTime, size_t answerStartTime,
+		explicit QuizEntry(const std::filesystem::path& audioFile, const QString& answer, size_t points, size_t startTime, size_t answerStartTime,
 			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
-			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const std::shared_ptr< media::ImagePlayer >& imagePlayer, QWidget* parent = nullptr);
+			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const std::shared_ptr< media::ImagePlayer >& imagePlayer,
+			const std::shared_ptr< media::TextPlayer >& textPlayer, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Entry Type Video Constructor
@@ -56,11 +60,13 @@ namespace MusicQuiz {
 		 * @param[in] videoPlayer        The video player.
 		 * @param[in] textToSpeechPlayer The text to speech player.
 		 * @param[in] imagePlayer        The image player.
+		 * @param[in] textPlayer         The text player.
 		 * @param[in] parent             The parent widget.
 		 */
-		explicit QuizEntry(const QString& audioFile, const QString& videoFile, const QString& answer, size_t points, size_t songStartTime, size_t videoStartTime, size_t answerStartTime,
-			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
-			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const std::shared_ptr< media::ImagePlayer >& imagePlayer, QWidget* parent = nullptr);
+		explicit QuizEntry(const std::filesystem::path& audioFile, const std::filesystem::path& videoFile, const QString& answer, size_t points, size_t songStartTime,
+			size_t videoStartTime, size_t answerStartTime, const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
+			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const std::shared_ptr< media::ImagePlayer >& imagePlayer,
+			const std::shared_ptr< media::TextPlayer >& textPlayer, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Entry Type Text to Speech Constructor
@@ -75,12 +81,13 @@ namespace MusicQuiz {
 		 * @param[in] textToSpeechPlayer   The text to speech player.
 		 * @param[in] textToSpeechSettings The text to speech settings.
 		 * @param[in] imagePlayer          The image player.
+		 * @param[in] textPlayer           The text player.
 		 * @param[in] parent               The parent widget.
 		 */
-		explicit QuizEntry(const QString& string, const QString& audioFile, const QString& answer, size_t points, size_t answerStartTime,
+		explicit QuizEntry(const QString& string, const std::filesystem::path& audioFile, const QString& answer, size_t points, size_t answerStartTime,
 			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
 			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const media::TextToSpeechPlayer::TextToSpeechSettings& textToSpeechSettings, 
-			const std::shared_ptr< media::ImagePlayer >& imagePlayer, QWidget* parent = nullptr);
+			const std::shared_ptr< media::ImagePlayer >& imagePlayer, const std::shared_ptr< media::TextPlayer >& textPlayer, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Entry Type Image Constructor
@@ -94,11 +101,33 @@ namespace MusicQuiz {
 		 * @param[in] videoPlayer          The video player.
 		 * @param[in] textToSpeechPlayer   The text to speech player.
 		 * @param[in] imagePlayer          The image player.
+		 * @param[in] textPlayer           The text player.
 		 * @param[in] parent               The parent widget.
 		 */
-		explicit QuizEntry(const QString& imageFile, const QString& audioFile, const QString& answer, size_t points, size_t answerStartTime,
+		explicit QuizEntry(const std::filesystem::path& imageFile, const std::filesystem::path& audioFile, const QString& answer, size_t points, size_t answerStartTime,
 			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
-			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const std::shared_ptr< media::ImagePlayer >& imagePlayer, QWidget* parent = nullptr);
+			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const std::shared_ptr< media::ImagePlayer >& imagePlayer,
+			const std::shared_ptr< media::TextPlayer >& textPlayer, QWidget* parent = nullptr);
+
+		/**
+		 * @brief Entry Type Text Constructor
+		 *
+		 * @param[in] string               The string to say.
+		 * @param[in] audioFile            The answer audio file to play.
+		 * @param[in] answer               The entry anwser.
+		 * @param[in] points               The number of points obtained by guessing the entry.
+		 * @param[in] answerStartTime      The answer media start time in [ms].
+		 * @param[in] audioPlayer          The audio player.
+		 * @param[in] videoPlayer          The video player.
+		 * @param[in] textToSpeechPlayer   The text player.
+		 * @param[in] imagePlayer          The image player.
+		 * @param[in] textPlayer           The text player.
+		 * @param[in] parent               The parent widget.
+		 */
+		explicit QuizEntry(const QString& string, const std::filesystem::path& audioFile, const QString& answer, size_t points, size_t answerStartTime,
+			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
+			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const std::shared_ptr< media::ImagePlayer >& imagePlayer,
+			const std::shared_ptr< media::TextPlayer >& textPlayer, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Default Destructor
@@ -120,7 +149,7 @@ namespace MusicQuiz {
 		};
 
 		enum class EntryType {
-			Song = 0, Video = 1, TextToSpeech = 2, Image = 3
+			Song = 0, Video = 1, TextToSpeech = 2, Image = 3, Text = 4
 		};
 
 		/**
@@ -164,6 +193,8 @@ namespace MusicQuiz {
 	signals:
 		void answered(size_t points);
 		void played();
+		void blurQuiz();
+		void unBlurQuiz();
 
 	protected:
 		/**
@@ -206,10 +237,11 @@ namespace MusicQuiz {
 		size_t _videoStartTime = 0;
 		size_t _answerStartTime = 0;
 
-		QString _audioFile = "";
-		QString _videoFile = "";
+		std::filesystem::path _audioFile = "";
+		std::filesystem::path _videoFile = "";
+		std::filesystem::path _imageFile = "";
 		QString _speechString = "";
-		QString _imageFile = "";
+		QString _textString = "";
 
 		size_t _answerStartCharacter = 0;
 
@@ -225,6 +257,7 @@ namespace MusicQuiz {
 		std::shared_ptr< media::TextToSpeechPlayer > _textToSpeechPlayer = nullptr;
 		const media::TextToSpeechPlayer::TextToSpeechSettings _textToSpeechSettings;
 		std::shared_ptr< media::ImagePlayer > _imagePlayer = nullptr;
+		std::shared_ptr< media::TextPlayer > _textPlayer = nullptr;
 
 		std::function< void(QMouseEvent*) > _mouseEventCallback;
 

@@ -7,6 +7,11 @@ QWidget#imagePlayerWidget
 	background-color	: rgb(25, 25, 255);
 }
 
+QWidget#TextPlayerWidget
+{	
+	background-color	: rgb(25, 25, 255);
+}
+
 /****************************************/
 /*****			 QDialog			*****/
 /****************************************/
@@ -361,6 +366,26 @@ QLabel#quizCreatorImagePreviewLabel
 	border-style		: solid;
 }
 
+QLabel#ImagePlayerLabel
+{
+	border-color		: black;
+	border-radius		: 5px;
+	border-width		: 4px;
+	border-style		: solid;
+}
+
+QLabel#TextPlayerLabel
+{
+	font-size			: 30px;
+	font-weight			: bold;
+	color				: Yellow;
+	border-color		: black;
+	border-radius		: 5px;
+	border-width		: 4px;
+	border-style		: solid;
+    padding				: 10px;
+}
+
 
 
 /****************************************/
@@ -411,6 +436,14 @@ QTextEdit#quizCreatorTextEdit
 }
 
 QTextEdit#quizCreatorTextToSpeechTextEdit
+{
+	font-size						: 16px;
+	min-height						: 220px;
+	max-height						: 220px;
+	padding-left					: 0px;
+}
+
+QTextEdit#quizCreatorTextTextEdit
 {
 	font-size						: 16px;
 	min-height						: 220px;

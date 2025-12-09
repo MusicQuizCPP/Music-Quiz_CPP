@@ -11,6 +11,7 @@
 #include "media/VideoPlayer.hpp"
 #include "media/TextToSpeechPlayer.hpp"
 #include "media/ImagePlayer.hpp"
+#include "media/TextPlayer.hpp"
 #include "gui_tools/widgets/QuizCategory.hpp"
 
 namespace common {
@@ -29,6 +30,7 @@ namespace MusicQuiz {
 				bool includeVideos = false;
 				bool includeTextToSpeech = false;
 				bool includeImages = false;
+				bool includeText = false;
 				bool guessTheCategory = false;
 				std::vector<std::string> categories;
 				std::vector<std::string> rowCategories;
@@ -55,6 +57,7 @@ namespace MusicQuiz {
 					out << "Quiz Include Videos: " << (quizPreview.includeVideos ? "Yes" : "No") << "\n";
 					out << "Quiz Include Text To Speech: " << (quizPreview.includeTextToSpeech ? "Yes" : "No") << "\n";
 					out << "Quiz Include Images: " << (quizPreview.includeImages ? "Yes" : "No") << "\n";
+					out << "Quiz Include Text: " << (quizPreview.includeText ? "Yes" : "No") << "\n";
 					out << "Quiz Quess the Category: " << (quizPreview.guessTheCategory ? "Yes" : "No") << "\n\n";
 					return out;
 				}
@@ -100,12 +103,14 @@ namespace MusicQuiz {
 			* @param[in] videoPlayer        The video player.
 			* @param[in] textToSpeechPlayer The text to speech player.
 			* @param[in] ImagePlayer        The image player.
+			* @param[in] TextPlayer         The text player.
 			* @param[out] err               The error message.
 			*
 			* @return The quiz categories.
 			*/
 			static std::vector<MusicQuiz::QuizCategory*> loadQuizCategories(size_t idx, const std::shared_ptr< media::AudioPlayer >& audioPlayer,
-				const std::shared_ptr< media::VideoPlayer >& videoPlayer, const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const std::shared_ptr< media::ImagePlayer >& imagePlayer,
+				const std::shared_ptr< media::VideoPlayer >& videoPlayer, const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer,
+				const std::shared_ptr< media::ImagePlayer >& imagePlayer, const std::shared_ptr< media::TextPlayer >& textPlayer,
 				const common::Configuration& config, std::string& err);
 
 			/**
@@ -129,7 +134,6 @@ namespace MusicQuiz {
 
 
 		protected:
-			/** Variables */
 		};
 	}
 }

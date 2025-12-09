@@ -11,6 +11,7 @@
 #include <QMessageBox>
 #include <QWindow>
 #include <QScreen>
+#include <QGraphicsBlurEffect>
 
 #include "common/Log.hpp"
 
@@ -111,6 +112,8 @@ void MusicQuiz::QuizBoard::createLayout()
 			if ( quizEntry != nullptr ) {
 				connect(quizEntry, SIGNAL(answered(size_t)), this, SLOT(handleAnswer(size_t)));
 				connect(quizEntry, SIGNAL(played()), this, SLOT(handleGameComplete()));
+				connect(quizEntry, SIGNAL(blurQuiz()), this, SLOT(blurQuiz()));
+				connect(quizEntry, SIGNAL(unBlurQuiz()), this, SLOT(unBlurQuiz()));
 			}
 		}
 
@@ -374,4 +377,16 @@ bool MusicQuiz::QuizBoard::eventFilter(QObject* target, QEvent* event)
 	}
 
 	return QDialog::eventFilter(target, event);
+}
+
+void MusicQuiz::QuizBoard::blurQuiz()
+{
+	QGraphicsBlurEffect* blur = new QGraphicsBlurEffect(this);
+	blur->setBlurRadius(10);
+	setGraphicsEffect(blur);
+}
+
+void MusicQuiz::QuizBoard::unBlurQuiz()
+{
+	setGraphicsEffect(nullptr);
 }

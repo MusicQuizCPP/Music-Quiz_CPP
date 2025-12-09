@@ -1,9 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <filesystem>
 
-#include <QLabel>
 #include <QString>
 #include <QWidget>
 #include <QObject>
@@ -11,10 +9,12 @@
 #include <QHideEvent>
 #include <QMouseEvent>
 
+#include "gui_tools/GuiUtil/QExtensions/QLabelExtender.hpp"
+
 
 
 namespace media {
-	class ImagePlayer : public QWidget {
+	class TextPlayer : public QWidget {
 		Q_OBJECT
 	public:
 		/**
@@ -22,30 +22,30 @@ namespace media {
 		 *
 		 * @param[in] parent The parent widget.
 		 */
-		explicit ImagePlayer(QWidget* parent = nullptr);
+		explicit TextPlayer(QWidget* parent = nullptr);
 
 		/**
 		 * @brief destructor
 		 */
-		virtual ~ImagePlayer() = default;
+		virtual ~TextPlayer() = default;
 
 		/**
 		 * @brief Shared Pointer
 		 */
-		typedef std::shared_ptr< ImagePlayer > Ptr;
+		typedef std::shared_ptr< TextPlayer > Ptr;
 
 		/**
 		 * @brief Deleted the copy and assignment constructor.
 		 */
-		ImagePlayer(const ImagePlayer&) = delete;
-		ImagePlayer& operator=(const ImagePlayer&) = delete;
+		TextPlayer(const TextPlayer&) = delete;
+		TextPlayer& operator=(const TextPlayer&) = delete;
 
 		/**
-		 * @brief Displays an image.
+		 * @brief Displays some text.
 		 *
-		 * @param[in] imageFile The name of the image file to show.
+		 * @param[in] textString The text string to show.
 		 */
-		void showImage(const std::filesystem::path& imageFile);
+		void showText(const QString& textString);
 
 		/**
 		 * @brief Resize the widget.
@@ -96,7 +96,7 @@ namespace media {
 		void hideEvent(QHideEvent* event) override;
 
 		/** Variables */
-		QLabel* _imageLabel = nullptr;
+		MusicQuiz::QExtensions::QLabelExtender* _textLabel = nullptr;
 
 		std::function< void(QMouseEvent*) > _mouseEventCallback;
 	};

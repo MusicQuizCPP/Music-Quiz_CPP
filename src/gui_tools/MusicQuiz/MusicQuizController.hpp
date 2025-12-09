@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include <QtGui>
 #include <QTimer>
@@ -19,6 +20,7 @@
 #include "media/VideoPlayer.hpp"
 #include "media/TextToSpeechPlayer.hpp"
 #include "media/ImagePlayer.hpp"
+#include "media/TextPlayer.hpp"
 
 #include "gui_tools/widgets/QuizTeam.hpp"
 #include "gui_tools/widgets/QuizEntry.hpp"
@@ -106,8 +108,8 @@ namespace MusicQuiz {
 
 	private:
 		/** Variables */
-		const QString _themeSongFile;
-		const QString _victorySongFile;
+		const std::filesystem::path _themeSongFile;
+		const std::filesystem::path _victorySongFile;
 
 		MusicQuiz::QuizBoard* _quizBoard = nullptr;
 		std::vector< MusicQuiz::QuizTeam* > _teams;
@@ -146,6 +148,9 @@ namespace MusicQuiz {
 
 		/** Image Player */
 		std::shared_ptr< media::ImagePlayer > _imagePlayer = nullptr;
+
+		/** Text Player */
+		std::shared_ptr< media::TextPlayer > _textPlayer = nullptr;
 		
 		/** The configuration */
 		const common::Configuration& _config;

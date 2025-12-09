@@ -32,10 +32,10 @@ media::VideoPlayer::~VideoPlayer()
 	delete _player;
 }
 
-void media::VideoPlayer::play(const QString& videoFile, const size_t startTime, bool muted)
+void media::VideoPlayer::play(const std::filesystem::path& videoFile, const size_t startTime, bool muted)
 {
 	/** Sanity Check */
-	if ( videoFile.isEmpty() ) {
+	if ( videoFile.empty() ) {
 		throw std::runtime_error("Video File Name is empty.");
 	}
 
@@ -43,7 +43,7 @@ void media::VideoPlayer::play(const QString& videoFile, const size_t startTime, 
 	stop();
 
 	/** Set Video File */
-	_player->setMedia(QUrl::fromLocalFile(videoFile));
+	_player->setMedia(QUrl::fromLocalFile(QString::fromStdString(videoFile.string())));
 
 	/** Set Volume */
 	if ( muted ) {

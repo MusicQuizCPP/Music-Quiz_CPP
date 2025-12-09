@@ -109,6 +109,16 @@ namespace MusicQuiz {
 		 */
 		bool eventFilter(QObject* target, QEvent* event);
 
+		/**
+		 * @brief Blurs the quiz (used when displaying image or text).
+		 */
+		void blurQuiz();
+
+		/**
+		 * @brief Unblurs the quiz (used when displaying image or text).
+		 */
+		void unBlurQuiz();
+
 	signals:
 		void quitSignal();
 		void gameComplete(std::vector<MusicQuiz::QuizTeam*> winningTeam);

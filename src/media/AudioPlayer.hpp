@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <filesystem>
 
 #include <QString>
 #include <QWidget>
@@ -42,7 +43,7 @@ namespace media {
 		 * @param[in] audioFile The name of the audio file to play.
 		 * @param[in] startTime The time at which to start playing the audio file from.
 		 */
-		void play(const QString& audioFile, size_t startTime = 0);
+		void play(const std::filesystem::path& audioFile, size_t startTime = 0);
 
 		/**
 		 * @brief Pauses the audio that is currently playing.

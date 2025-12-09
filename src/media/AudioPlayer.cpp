@@ -23,10 +23,10 @@ media::AudioPlayer::~AudioPlayer()
 	delete _player;
 }
 
-void media::AudioPlayer::play(const QString& audioFile, const size_t startTime)
+void media::AudioPlayer::play(const std::filesystem::path& audioFile, const size_t startTime)
 {
 	/** Sanity Check */
-	if ( audioFile.isEmpty() ) {
+	if ( audioFile.empty() ) {
 		throw std::runtime_error("Audio File Name is empty.");
 	}
 
@@ -34,7 +34,7 @@ void media::AudioPlayer::play(const QString& audioFile, const size_t startTime)
 	stop();
 
 	/** Set Audio File */
-	_player->setMedia(QUrl::fromLocalFile(audioFile));
+	_player->setMedia(QUrl::fromLocalFile(QString::fromStdString(audioFile.string())));
 
 	/** Set Start Time */
 	_player->setPosition(startTime);

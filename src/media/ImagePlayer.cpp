@@ -14,32 +14,30 @@ media::ImagePlayer::ImagePlayer(QWidget* parent) :
 	setObjectName("imagePlayerWidget");
 	QVBoxLayout* layout = new QVBoxLayout;
 	_imageLabel = new QLabel(this);
+	_imageLabel->setObjectName("ImagePlayerLabel");
 	_imageLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	_imageLabel->setAlignment(Qt::AlignCenter);
 	layout->addWidget(_imageLabel);
 	_imageLabel->show();
 }
 
-media::ImagePlayer::~ImagePlayer()
-{
-}
-
-void media::ImagePlayer::showImage(const QString& imageFile)
+void media::ImagePlayer::showImage(const std::filesystem::path& imageFile)
 {
 	/** Sanity Check */
-	if( imageFile.isEmpty() ) {
+	if( imageFile.empty() ) {
 		throw std::runtime_error("Image File Name is empty.");
 	}
 
 	/** Set Image */
-	QPixmap pixmap(imageFile);
+	QPixmap pixmap(QString::fromStdString(imageFile.string()));
 	_imageLabel->setPixmap(pixmap.scaled(_imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 	show();
+	emit shown();
 }
 
 void media::ImagePlayer::resize(const QSize& size)
 {
-	/** Resize the video widget */
+	/** Resize the text widget */
 	if( _imageLabel != nullptr ) {
 		_imageLabel->resize(size);
 	}
@@ -56,7 +54,7 @@ void media::ImagePlayer::mousePressEvent(QMouseEvent* event)
 
 void media::ImagePlayer::keyPressEvent(QKeyEvent* event)
 {
-	/** Hide Video if esc is pressed */
+	/** Hide image if esc is pressed */
 	if ( event->key() == Qt::Key_Escape ) {
 		hide();
 	}
@@ -67,4 +65,15 @@ void media::ImagePlayer::keyPressEvent(QKeyEvent* event)
 void media::ImagePlayer::setMouseEventCallbackFunction(const std::function< void(QMouseEvent*) > mouseEventCallback)
 {
 	_mouseEventCallback = mouseEventCallback;
+}
+
+void media::ImagePlayer::closeEvent(QCloseEvent* event)
+{
+	emit hidden();
+	event->accept();
+}
+
+void media::ImagePlayer::hideEvent(QHideEvent* event)
+{
+	emit hidden();
 }
