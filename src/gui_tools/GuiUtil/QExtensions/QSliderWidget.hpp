@@ -97,34 +97,34 @@ namespace gui_tools {
 			void makeWidgetLayout();
 
 			/** The title of the setting. */
-			const QString title_ = "";
+			const QString _title = "";
 
 			/** The minimum value of the slider. */
-			double min_ = 0.0;
+			double _min = 0.0;
 
 			/** The maximum value of the slider. */
-			double max_ = 0.0;
+			double _max = 0.0;
 
 			/** The number of steps of the slider between min and max, both included. */
-			int steps_ = 0;
+			int _steps = 0;
 
 			/** The prefix string to be displayed before the values. */
-			QString prefix_ = "";
+			QString _prefix = "";
 
 			/** The suffx string to be displayed after the values. */
-			QString suffix_ = "";
+			QString _suffix = "";
 
 			/** The precision to display the values with. */
-			int precision_ = 0;
+			int _precision = 0;
 
 			/** The label displaying the title. */
-			QLabel* widgetLabel_ = nullptr;
+			QLabel* _widgetLabel = nullptr;
 
 			/** The slider of the widget. */
-			QSlider* widgetSlider_ = nullptr;
+			QSlider* _widgetSlider = nullptr;
 
 			/** The line edit displaying the value and unit. */
-			QLineEdit* widgetLineEdit_ = nullptr;
+			QLineEdit* _widgetLineEdit = nullptr;
 		};
 	}
 }
