@@ -5,6 +5,7 @@
 #include <QList>
 #include <QString>
 #include <QScreen>
+#include <QSlider>
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QSpacerItem>
@@ -97,6 +98,7 @@ void MusicQuiz::QuizCreator::createLayout()
 	QGridLayout* mainlayout = new QGridLayout;
 	QHBoxLayout* guessTheCategoryLayout = new QHBoxLayout;
 	guessTheCategoryLayout->setSpacing(10);
+	mainlayout->setVerticalSpacing(15);
 
 	/** Tab Widget */
 	_tabWidget = new QTabWidget;
@@ -211,36 +213,71 @@ void MusicQuiz::QuizCreator::createLayout()
 	_rowCategoriesTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 	setupTabLayout->addWidget(_rowCategoriesTable, ++row, 0, 1, 2);
 
+	/** Volume control */
+	QHBoxLayout* volumeLayout = new QHBoxLayout;
+	volumeLayout->setSpacing(6);
+
+	QPushButton* voluemeIcon = new QPushButton;
+	voluemeIcon->setObjectName("quizCreatorVolumeIconBtn");
+	voluemeIcon->setFocusPolicy(Qt::FocusPolicy::NoFocus);
+	volumeLayout->addWidget(voluemeIcon);
+
+	QSlider* volumeSlider = new QSlider(Qt::Horizontal);
+	volumeSlider->setObjectName("quizCreatorVolumeSlider");
+	volumeSlider->setRange(0, 100);
+	volumeSlider->setValue(100);
+	volumeSlider->setTickInterval(10);
+	volumeSlider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	volumeLayout->addWidget(volumeSlider);
+
+	QLabel* volumeLabel = new QLabel(QString::number(volumeSlider->value()) + "%");
+	volumeLabel->setObjectName("quizCreatorSmallLabel");
+	volumeLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+	volumeLayout->addWidget(volumeLabel);
+
+	/** Connect slider : apply volume to players in real - time and update percent label */
+	connect(volumeSlider, &QSlider::valueChanged, this, [this, volumeLabel](int val) {
+		if ( volumeLabel != nullptr ) {
+			volumeLabel->setText(QString::number(val) + "%");
+		}
+		_audioPlayer->setVolume(val);
+		_videoPlayer->setVolume(val);
+		_textToSpeechPlayer->setVolume(val);
+		}
+	);
+
+	mainlayout->addLayout(volumeLayout, 1, 0, 1, 6);
+
 	/** Bottom Buttons */
 	QPushButton* previewQuizBtn = new QPushButton("Preview");
 	previewQuizBtn->setObjectName("quizCreatorBtn");
 	connect(previewQuizBtn, SIGNAL(released()), this, SLOT(previewQuiz()));
-	mainlayout->addWidget(previewQuizBtn, 1, 0, 1, 1);
+	mainlayout->addWidget(previewQuizBtn, 2, 0, 1, 1);
 
 	QPushButton* saveQuizBtn = new QPushButton("Save Quiz");
 	saveQuizBtn->setObjectName("quizCreatorBtn");
 	connect(saveQuizBtn, SIGNAL(released()), this, SLOT(saveQuiz()));
-	mainlayout->addWidget(saveQuizBtn, 1, 1, 1, 1);
+	mainlayout->addWidget(saveQuizBtn, 2, 1, 1, 1);
 
 	QPushButton* newQuizBtn = new QPushButton("New Quiz");
 	newQuizBtn->setObjectName("quizCreatorBtn");
 	connect(newQuizBtn, SIGNAL(released()), this, SLOT(newQuiz()));
-	mainlayout->addWidget(newQuizBtn, 1, 2, 1, 1);
+	mainlayout->addWidget(newQuizBtn, 2, 2, 1, 1);
 
 	QPushButton* loadQuizBtn = new QPushButton("Load Quiz");
 	loadQuizBtn->setObjectName("quizCreatorBtn");
 	connect(loadQuizBtn, SIGNAL(released()), this, SLOT(openLoadQuizDialog()));
-	mainlayout->addWidget(loadQuizBtn, 1, 3, 1, 1);
+	mainlayout->addWidget(loadQuizBtn, 2, 3, 1, 1);
 
 	QPushButton* loadQuizCategoryBtn = new QPushButton("Load Category");
 	loadQuizCategoryBtn->setObjectName("quizCreatorBtn");
 	connect(loadQuizCategoryBtn, SIGNAL(released()), this, SLOT(openLoadCategoryDialog()));
-	mainlayout->addWidget(loadQuizCategoryBtn, 1, 4, 1, 1);
+	mainlayout->addWidget(loadQuizCategoryBtn, 2, 4, 1, 1);
 
 	QPushButton* quitCreatorBtn = new QPushButton("Quit");
 	quitCreatorBtn->setObjectName("quizCreatorBtn");
 	connect(quitCreatorBtn, SIGNAL(released()), this, SLOT(quitCreator()));
-	mainlayout->addWidget(quitCreatorBtn, 1, 5, 1, 1);
+	mainlayout->addWidget(quitCreatorBtn, 2, 5, 1, 1);
 
 	/** Set Layout */
 	setLayout(mainlayout);

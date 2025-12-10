@@ -72,3 +72,8 @@ QVector< QVoice > media::TextToSpeechPlayer::availableVoices() const
 {
 	return _textToSpeech->availableVoices();
 }
+
+void media::TextToSpeechPlayer::setVolume(int volume)
+{
+	_textToSpeech->setVolume(std::clamp(volume, 0, 100));
+}

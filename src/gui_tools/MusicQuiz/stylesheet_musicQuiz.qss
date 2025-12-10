@@ -270,6 +270,15 @@ QPushButton#settingsInfo:disabled
 	border				: none;
 }
 
+QPushButton#quizCreatorVolumeIconBtn
+{
+	background-color	: rgba(0, 0, 0, 0);
+	min-height			: 25px;
+	min-width			: 25px;
+	image				: url(:/imgs/volume_icon.png);
+}
+
+
 
 /****************************************/
 /*****		    QLabel  			*****/
@@ -348,6 +357,11 @@ QLabel#winningScreenTextLabel
 QLabel#quizCreatorLabel
 {
 	font-size			: 25px;
+}
+
+QLabel#quizCreatorSmallLabel
+{
+	font-size			: 18px;
 }
 
 QLabel#quizCreatorInformationLabel

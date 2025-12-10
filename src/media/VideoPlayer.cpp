@@ -144,3 +144,8 @@ void media::VideoPlayer::setMouseEventCallbackFunction(const std::function< void
 {
 	_mouseEventCallback = mouseEventCallback;
 }
+
+void media::VideoPlayer::setVolume(int volume)
+{
+	_player->setVolume(std::clamp(volume, 0, 100));
+}

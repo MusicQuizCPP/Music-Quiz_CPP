@@ -84,6 +84,13 @@ namespace media {
 		 */
 		void setMouseEventCallbackFunction(const std::function< void(QMouseEvent*) > mouseEventCallback);
 
+		/**
+		 * @brief Sets the playback volume.
+		 *
+		 * @param[in] volume Volume in range [0, 100]. Values outside range are clamped.
+		 */
+		void setVolume(int volume);
+
 	private slots:
 		/**
 		 * @brief Handles mediastatus changes

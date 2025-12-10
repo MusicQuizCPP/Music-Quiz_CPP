@@ -97,3 +97,8 @@ void media::AudioPlayer::handleMediaStatus(QMediaPlayer::MediaStatus status)
 		this->resume();
 	}
 }
+
+void media::AudioPlayer::setVolume(int volume)
+{
+	_player->setVolume(std::clamp(volume, 0, 100));
+}

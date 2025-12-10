@@ -60,6 +60,13 @@ namespace media {
 		 */
 		void stop();
 
+		/**
+		 * @brief Sets the playback volume.
+		 *
+		 * @param[in] volume Volume in range [0, 100]. Values outside range are clamped.
+		 */
+		void setVolume(int volume);
+
 	private slots:
 		/**
 		 * @brief Handles media status changes

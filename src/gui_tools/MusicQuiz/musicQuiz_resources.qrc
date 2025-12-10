@@ -23,6 +23,7 @@
         <file>imgs/question_mark_yellow_disabled.png</file>
         <file>imgs/up.png</file>
         <file>imgs/down.png</file>
+        <file>imgs/volume_icon.png</file>
         <file>stylesheet_musicQuiz.qss</file>
     </qresource>
 </RCC>

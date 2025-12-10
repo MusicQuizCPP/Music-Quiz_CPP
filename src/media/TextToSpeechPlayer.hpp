@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <algorithm>
 
 #include <QVoice>
 #include <QString>
@@ -81,6 +82,13 @@ namespace media {
 		 * @return The list of avaliable voices.
 		 */
 		QVector< QVoice > availableVoices() const;
+
+		/**
+		 * @brief Sets the playback volume.
+		 *
+		 * @param[in] volume Volume in range [0, 100]. Values outside range are clamped.
+		 */
+		void setVolume(int volume);
 
 	protected:
 		/** Text to Speech Widget */
