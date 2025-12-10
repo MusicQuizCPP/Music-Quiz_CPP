@@ -254,6 +254,7 @@ std::vector< MusicQuiz::QuizCategory* > MusicQuiz::util::QuizLoader::loadQuizCat
 								std::filesystem::path imageFile(imageFileString);
 								std::filesystem::path songFile(songFileString);
 								const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
+								const int pixilationDuration = it->second.get<int>("PixilationDuration", 0);
 
 								/** Check if files exsists */
 								if ( !std::filesystem::exists(imageFile) ) {
@@ -265,8 +266,8 @@ std::vector< MusicQuiz::QuizCategory* > MusicQuiz::util::QuizLoader::loadQuizCat
 								}
 
 								/** Push Back Image Entry */
-								categorieEntries.push_back(new MusicQuiz::QuizEntry(imageFile, songFile, answer, points, answerStartTime,
-									audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer, textPlayer));
+								categorieEntries.push_back(new MusicQuiz::QuizEntry(imageFile, songFile, answer, points, answerStartTime, 
+									pixilationDuration, audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer, textPlayer));
 							} else if ( type == "text" ) {// text
 								/** Get Text String */
 								const QString textString = QString::fromStdString(it->second.get<std::string>("Media.TextString"));

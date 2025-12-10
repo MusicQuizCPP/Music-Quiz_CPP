@@ -102,9 +102,9 @@ MusicQuiz::QuizEntry::QuizEntry(const QString& string, const std::filesystem::pa
 }
 
 MusicQuiz::QuizEntry::QuizEntry(const std::filesystem::path& imageFile, const std::filesystem::path& audioFile, const QString& answer, const size_t points, size_t answerStartTime,
-	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer,
+	const int pixilationDuration, const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer,
 	const media::ImagePlayer::Ptr& imagePlayer, const media::TextPlayer::Ptr& textPlayer, QWidget* parent) :
-	QPushButton(parent), _points(points), _imageFile(imageFile), _answerStartTime(answerStartTime), _answer(answer), _audioFile(audioFile),
+	QPushButton(parent), _points(points), _imageFile(imageFile), _answerStartTime(answerStartTime), _answer(answer), _pixilationDuration(pixilationDuration), _audioFile(audioFile),
 	_audioPlayer(audioPlayer), _videoPlayer(videoPlayer), _textToSpeechPlayer(textToSpeechPlayer), _imagePlayer(imagePlayer), _textPlayer(textPlayer)
 {
 	/** Sanity Check */
@@ -271,7 +271,7 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 			_videoPlayer->stop();
 			_textToSpeechPlayer->stop();
 			_textPlayer->hide();
-			_imagePlayer->showImage(_imageFile);
+			_imagePlayer->showImage(_imageFile, _pixilationDuration);
 		} else if ( _type == EntryType::Text ) {
 			_audioPlayer->stop();
 			_videoPlayer->stop();
@@ -287,6 +287,7 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 		_audioPlayer->pause();
 		_videoPlayer->pause();
 		_textToSpeechPlayer->pause();
+		_imagePlayer->pause();
 		emit startCountdown();
 
 		break;
@@ -373,6 +374,7 @@ void MusicQuiz::QuizEntry::rightClickEvent()
 		_audioPlayer->pause();
 		_videoPlayer->pause();
 		_textToSpeechPlayer->pause();
+		_imagePlayer->pause();
 
 		if ( _type == EntryType::Video ) {
 			_videoPlayer->show();
@@ -391,6 +393,8 @@ void MusicQuiz::QuizEntry::rightClickEvent()
 			_videoPlayer->show();
 		} else if ( _type == EntryType::TextToSpeech ) {
 			_textToSpeechPlayer->resume();
+		} else if ( _type == EntryType::Image ) {
+			_imagePlayer->resume();
 		}
 
 		break;

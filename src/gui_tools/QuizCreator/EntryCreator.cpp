@@ -702,6 +702,21 @@ QGridLayout* MusicQuiz::EntryCreator::createImageLayout()
 	_imageAnswerSettings->setLayout(imageAnswerSettingsLayout);
 	mainlayout->addWidget(_imageAnswerSettings, ++row, 0, 1, 2);
 
+	/** Pixilation Checkbox and Slider */
+	_pixilationCheckbox = new QCheckBox("Enable Pixilation");
+	_pixilationCheckbox->setObjectName("quizCreatorLargeCheckbox");
+	_pixilationCheckbox->setChecked(false);
+	mainlayout->addWidget(_pixilationCheckbox, ++row, 0, 1, 2);
+
+	/** Slider for the depixilation duration */
+	_pixilationSlider = new gui_tools::GuiUtil::QSliderWidget("Pixilation Duration", 10, 120, 111, "", " seconds", 0);
+	_pixilationSlider->setValue(30);
+	_pixilationSlider->setEnabled(false);
+	mainlayout->addWidget(_pixilationSlider, ++row, 0, 1, 2);
+
+	/** Connect checkbox toggle to enable / disable slider */
+	connect(_pixilationCheckbox, &QCheckBox::toggled, _pixilationSlider, &QWidget::setEnabled);
+
 	/** Set Layout */
 	return mainlayout;
 }
@@ -2115,6 +2130,47 @@ size_t MusicQuiz::EntryCreator::getImageAnswerStartTime() const
 	return toMSec(_imageAnswerStartTimeEdit->time());
 }
 
+void MusicQuiz::EntryCreator::setImagePixilationEnabled(const bool enabled)
+{
+	/** Sanity Check */
+	if ( _pixilationCheckbox == nullptr ) {
+		return;
+	}
+
+	/** Set Time */
+	_pixilationCheckbox->setChecked(enabled);
+}
+
+bool MusicQuiz::EntryCreator::getImagePixilationEnabled() const
+{
+	/** Sanity Check */
+	if ( _pixilationCheckbox == nullptr ) {
+		return false;
+	}
+
+	return _pixilationCheckbox->isChecked();
+}
+
+void MusicQuiz::EntryCreator::setImagePixilationDuration(const int duration)
+{
+	/** Sanity Check */
+	if ( _pixilationSlider == nullptr ) {
+		return;
+	}
+
+	/** Set Time */
+	_pixilationSlider->setValue(duration);
+}
+
+int MusicQuiz::EntryCreator::getImagePixilationDuration() const
+{
+	/** Sanity Check */
+	if ( _pixilationSlider == nullptr ) {
+		return false;
+	}
+
+	return _pixilationSlider->getValue();
+}
 
 void MusicQuiz::EntryCreator::setTextString(const QString& textToSpeechString)
 {
@@ -2273,14 +2329,19 @@ void MusicQuiz::EntryCreator::loadImageFromXml(const boost::property_tree::ptree
 		QString songFile = QString::fromStdString(_config.mediaPathToFullPath(tree.get<std::string>("Media.SongFile")));
 		std::replace(songFile.begin(), songFile.end(), '\\', '/');
 		setImageAnswerSongFile(songFile);
-	}
-	catch (...) {}
+	} catch (...) {}
 
 	/** Set Answer Song Start Time */
 	try {
 		setImageAnswerStartTime(tree.get<size_t>("AnswerStartTime"));
-	}
-	catch (...) {}
+	} catch (...) {}
+
+	/** Set Pixilation Settings */
+	try {
+		const int pixilationDuration = tree.get<int>("PixilationDuration", 30000) / 1000;
+		setImagePixilationEnabled(pixilationDuration > 0);
+		setImagePixilationDuration(pixilationDuration);
+	} catch ( ... ) {}
 }
 
 void MusicQuiz::EntryCreator::loadTextFromXml(const boost::property_tree::ptree& tree)
@@ -2425,6 +2486,11 @@ void MusicQuiz::EntryCreator::saveImageToXml(boost::property_tree::ptree& tree, 
 
 	/** Entry Answer Song Start Time */
 	tree.put("AnswerStartTime", getImageAnswerStartTime());
+
+	/** Entry Pixilation Duration */
+	if ( getImagePixilationEnabled() ) {
+		tree.put("PixilationDuration", getImagePixilationDuration() * 1000);
+	}
 
 	/** Media File */
 	const std::string imageFile = getImageFile().toStdString();

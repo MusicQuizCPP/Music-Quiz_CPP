@@ -4,6 +4,7 @@
 #include <filesystem>
 
 #include <QLabel>
+#include <QTimer>
 #include <QString>
 #include <QWidget>
 #include <QObject>
@@ -43,9 +44,20 @@ namespace media {
 		/**
 		 * @brief Displays an image.
 		 *
-		 * @param[in] imageFile The name of the image file to show.
+		 * @param[in] imageFile            The name of the image file to show.
+		 * @param[in] depixilationDuration The durtation it takes for the image to go from pixilated to normal. If 0 the image will be shown as normal.
 		 */
-		void showImage(const std::filesystem::path& imageFile);
+		void showImage(const std::filesystem::path& imageFile, const int depixilationDuration = 0);
+
+		/**
+		 * @brief Pauses the depixilation.
+		 */
+		void pause();
+
+		/**
+		 * @brief Resumes the depixilation.
+		 */
+		void resume();
 
 		/**
 		 * @brief Resize the widget.
@@ -68,6 +80,12 @@ namespace media {
 		 * @param[in] event The event.
 		 */
 		void closeEvent(QCloseEvent* event);
+
+	private slots:
+		/**
+		 * @brief Update the image pixilation.
+		 */
+		void updateImagePixilation();
 
 	signals:
 		void shown();
@@ -95,9 +113,22 @@ namespace media {
 		 */
 		void hideEvent(QHideEvent* event) override;
 
-		/** Variables */
+		/** The image label */
 		QLabel* _imageLabel = nullptr;
 
+		/** The mouse event callback function */
 		std::function< void(QMouseEvent*) > _mouseEventCallback;
+
+		/** The update timer */
+		QTimer* _updateTimer = nullptr;
+
+		/** The depixilation duration in msec */
+		int _depixilationDuration = 0;
+
+		/** The elapsed time in msec */
+		int _elapsedTime = 0;
+
+		/** Original pixmap */
+		QPixmap _originalPixmap;
 	};
 }

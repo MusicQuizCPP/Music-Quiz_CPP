@@ -19,20 +19,63 @@ media::ImagePlayer::ImagePlayer(QWidget* parent) :
 	_imageLabel->setAlignment(Qt::AlignCenter);
 	layout->addWidget(_imageLabel);
 	_imageLabel->show();
+
+	/** Create timer */
+	_updateTimer = new QTimer(this);
+	_updateTimer->setInterval(50);
+	connect(_updateTimer, &QTimer::timeout, this, &ImagePlayer::updateImagePixilation);
 }
 
-void media::ImagePlayer::showImage(const std::filesystem::path& imageFile)
+void media::ImagePlayer::showImage(const std::filesystem::path& imageFile, const int depixilationDuration)
 {
 	/** Sanity Check */
 	if( imageFile.empty() ) {
 		throw std::runtime_error("Image File Name is empty.");
 	}
 
-	/** Set Image */
-	QPixmap pixmap(QString::fromStdString(imageFile.string()));
-	_imageLabel->setPixmap(pixmap.scaled(_imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+	/** Load Image */
+	_originalPixmap = QPixmap(QString::fromStdString(imageFile.string()));
+	if ( _originalPixmap.isNull() ) {
+		throw std::runtime_error("Image File is invalid.");
+	}
+
+	/** Stop timer if it was running */
+	_updateTimer->stop();
+
+	/** If no depixilation, just show the image */
+	if ( depixilationDuration == 0 ) {
+		/** Set Image */
+		_imageLabel->setPixmap(_originalPixmap.scaled(_imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+	} else {
+		/** Set parameters */
+		_elapsedTime = 0;
+		_depixilationDuration = depixilationDuration;
+
+		/** Start update timer */
+		_updateTimer->start();
+	}
+
+	/** Show image */
 	show();
 	emit shown();
+}
+
+void media::ImagePlayer::pause()
+{
+	if ( _depixilationDuration == 0 || !_updateTimer->isActive() ) {
+		return;
+	}
+
+	_updateTimer->stop();
+}
+
+void media::ImagePlayer::resume()
+{
+	if ( _depixilationDuration == 0 ) {
+		return;
+	}
+
+	_updateTimer->start();
 }
 
 void media::ImagePlayer::resize(const QSize& size)
@@ -69,11 +112,48 @@ void media::ImagePlayer::setMouseEventCallbackFunction(const std::function< void
 
 void media::ImagePlayer::closeEvent(QCloseEvent* event)
 {
+	_updateTimer->start();
 	emit hidden();
 	event->accept();
 }
 
 void media::ImagePlayer::hideEvent(QHideEvent* event)
 {
+	_updateTimer->start();
 	emit hidden();
+}
+
+void media::ImagePlayer::updateImagePixilation()
+{
+	/** Update elapsed time */
+	_elapsedTime += _updateTimer->interval();
+
+	/** Check if depixilation is complete */
+	if ( _elapsedTime >= _depixilationDuration ) {
+		_imageLabel->setPixmap(_originalPixmap.scaled(_imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+		_updateTimer->stop();
+		return;
+	}
+
+	/** Calculate progress */
+	const double progress = static_cast<double>(_elapsedTime) / static_cast<double>(_depixilationDuration);
+
+	/** Use an ease - in curve to slow the early normalization(progress ^ 2). */
+	const double easedProgress = std::pow(progress, 2.0);
+
+	/** Interpolate factor from minFactor -> 1.0 using eased progress */
+	const double minimumFactor = 0.02;
+	const double factor = minimumFactor + easedProgress * ( 1.0 - minimumFactor );
+
+	/** Calculate new size */
+	const int newWidth = static_cast<int>( _imageLabel->width() * factor );
+	const int newHeight = static_cast<int>( _imageLabel->height() * factor );
+	const QSize newSize(newWidth, newHeight);
+
+	/** Downscale original to small size(keep aspect ratio), then scale back up. */
+	const QPixmap downScaledImage = _originalPixmap.scaled(newSize, Qt::KeepAspectRatio, Qt::FastTransformation);
+	const QPixmap upScaledImage = downScaledImage.scaled(_imageLabel->size(), Qt::IgnoreAspectRatio, Qt::FastTransformation);
+
+	/** Update image */
+	_imageLabel->setPixmap(upScaledImage);
 }

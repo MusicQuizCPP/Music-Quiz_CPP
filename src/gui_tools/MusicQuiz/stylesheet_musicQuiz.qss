@@ -570,6 +570,24 @@ QCheckBox::indicator:unchecked#quizCreatorCheckbox {
 	image		: url(:/imgs/checkbox_unchecked_black.png);
 }
 
+QCheckBox#quizCreatorLargeCheckbox
+{
+	font-size	: 25px;
+}
+
+QCheckBox::indicator#quizCreatorLargeCheckbox {
+	width		: 40px;
+	height		: 40px;
+}
+
+QCheckBox::indicator:checked#quizCreatorLargeCheckbox {
+	image		: url(:/imgs/checkbox_checked_black.png);
+}
+
+QCheckBox::indicator:unchecked#quizCreatorLargeCheckbox {
+	image		: url(:/imgs/checkbox_unchecked_black.png);
+}
+
 
 QCheckBox#settingsCheckbox
 {

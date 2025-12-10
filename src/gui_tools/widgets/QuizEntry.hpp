@@ -97,6 +97,7 @@ namespace MusicQuiz {
 		 * @param[in] answer               The entry anwser.
 		 * @param[in] points               The number of points obtained by guessing the entry.
 		 * @param[in] answerStartTime      The answer media start time in [ms].
+		 * @param[in] pixilationDuration   The depixilation duration in [ms].
 		 * @param[in] audioPlayer          The audio player.
 		 * @param[in] videoPlayer          The video player.
 		 * @param[in] textToSpeechPlayer   The text to speech player.
@@ -105,7 +106,7 @@ namespace MusicQuiz {
 		 * @param[in] parent               The parent widget.
 		 */
 		explicit QuizEntry(const std::filesystem::path& imageFile, const std::filesystem::path& audioFile, const QString& answer, size_t points, size_t answerStartTime,
-			const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
+			const int pixilationDuration, const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::VideoPlayer >& videoPlayer,
 			const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer, const std::shared_ptr< media::ImagePlayer >& imagePlayer,
 			const std::shared_ptr< media::TextPlayer >& textPlayer, QWidget* parent = nullptr);
 
@@ -248,6 +249,8 @@ namespace MusicQuiz {
 		QString _answer = "";
 		bool _entryAnswered = false;
 		QColor _answeredColor = QColor(0, 0, 120);
+
+		int _pixilationDuration = 0;
 
 		EntryType _type = EntryType::Song;
 		EntryState _state = EntryState::IDLE;

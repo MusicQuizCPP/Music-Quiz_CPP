@@ -376,6 +376,34 @@ namespace MusicQuiz {
 		size_t getImageAnswerStartTime() const;
 
 		/**
+		 * @brief Sets the image pixilation setting enabled.
+		 * 
+		 * @param[in] enabled Enabled the pixilation setting.
+		 */
+		void setImagePixilationEnabled(bool enabled);
+
+		/**
+		 * @brief Gets the image pixilation setting enabled.
+		 *
+		 * @return If the setting is enabled.
+		 */
+		bool getImagePixilationEnabled() const;
+
+		/**
+		 * @brief Sets the image pixilation duration.
+		 *
+		 * @param[in] duration The pixilation duration.
+		 */
+		void setImagePixilationDuration(int duration);
+
+		/**
+		 * @brief Gets the image pixilation duration.
+		 *
+		 * @return The pixilation duration.
+		 */
+		int getImagePixilationDuration() const;
+
+		/**
 		 * @brief Sets the text string.
 		 *
 		 * @param[in] textString The text string.
@@ -718,6 +746,8 @@ namespace MusicQuiz {
 		QButtonGroup* _voiceButtonGroup = nullptr;
 
 		QLabel* _imagePreviewLabel = nullptr;
+		QCheckBox* _pixilationCheckbox = nullptr;
+		gui_tools::GuiUtil::QSliderWidget* _pixilationSlider = nullptr;
 
 		QTextEdit* _textTextEdit = nullptr;
 
