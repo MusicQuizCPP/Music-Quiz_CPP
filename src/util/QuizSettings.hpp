@@ -26,5 +26,9 @@ namespace MusicQuiz {
 
 		/** Light Device */
 		std::string deviceIP;
+
+		/** Guess time Limit */
+		bool guessTimeLimit = true;
+		size_t timeLimit = 10000;
 	};
 }

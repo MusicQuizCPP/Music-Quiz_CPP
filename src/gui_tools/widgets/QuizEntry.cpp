@@ -272,18 +272,12 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 			_textToSpeechPlayer->stop();
 			_textPlayer->hide();
 			_imagePlayer->showImage(_imageFile);
-
-			/** Skip pause state */
-			_state = EntryState::PAUSED;
 		} else if ( _type == EntryType::Text ) {
 			_audioPlayer->stop();
 			_videoPlayer->stop();
 			_textToSpeechPlayer->stop();
 			_imagePlayer->hide();
 			_textPlayer->showText(_textString);
-
-			/** Skip pause state */
-			_state = EntryState::PAUSED;
 		}
 
 		break;
@@ -293,9 +287,11 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 		_audioPlayer->pause();
 		_videoPlayer->pause();
 		_textToSpeechPlayer->pause();
+		emit startCountdown();
 
 		break;
 	case EntryState::PAUSED: // Play Answer
+		emit stopCountdown();
 		_textSizeSet = false;
 		_state = EntryState::PLAYING_ANSWER;
 		if ( _type == EntryType::Song ) {
@@ -384,6 +380,7 @@ void MusicQuiz::QuizEntry::rightClickEvent()
 
 		break;
 	case EntryState::PAUSED: // Continue playing
+		emit stopCountdown();
 		_state = EntryState::PLAYING;
 		
 		if ( _type == EntryType::Song ) {
@@ -394,8 +391,6 @@ void MusicQuiz::QuizEntry::rightClickEvent()
 			_videoPlayer->show();
 		} else if ( _type == EntryType::TextToSpeech ) {
 			_textToSpeechPlayer->resume();
-		} else if ( (_type == EntryType::Image || _type == EntryType::Text) && _entryAnswered ) {
-			_state = EntryState::PAUSED; // Prevent the image entry to go furter back than paused after having been answered.
 		}
 
 		break;

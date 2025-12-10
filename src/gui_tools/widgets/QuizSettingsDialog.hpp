@@ -54,6 +54,20 @@ namespace MusicQuiz {
 
 	private slots:
 		/**
+		 * @brief Enables / diables the guess time limit settings.
+		 *
+		 * @param[in] enabled If true the guess time limit settings will be enabled.
+		 */
+		void setGuessTimeLimitEnabled(bool enabled);
+
+		/**
+		 * @brief Updates the guess time limit line edit.
+		 *
+		 * @param[in] value The new value.
+		 */
+		void setGuessTimeLimitTime(int value);
+
+		/**
 		 * @brief Enables / diables the daily double settings.
 		 *
 		 * @param[in] enabled If true the daily double settings will be enabled.
@@ -115,6 +129,7 @@ namespace MusicQuiz {
 		 */
 		void showHiddenTeamsInfo();
 		void showHiddenAnswersInfo();
+		void showGuessTimeLimitInfo();
 		void showDailyDoubleInfo();
 		void showDailyTripleInfo();
 		void showDailyDoubleHiddenInfo();
@@ -131,6 +146,15 @@ namespace MusicQuiz {
 		 * @param[in] settings The currently set settings.
 		 */
 		void createLayout(const MusicQuiz::QuizSettings& settings);
+
+		/**
+		 * @brief Creates the guess time limit layout.
+		 *
+		 * @param[in] settings The currently set settings.
+		 *
+		 * @return The guess time limit  layout.
+		 */
+		QWidget* getGuessTimeLimitLayout(const MusicQuiz::QuizSettings& settings);
 
 		/**
 		 * @brief Creates the daily double layout.
@@ -170,6 +194,13 @@ namespace MusicQuiz {
 		/** Variables */
 		QCheckBox* _hiddenTeam = nullptr;
 		QCheckBox* _hiddenAnswers = nullptr;
+
+		/** Guess Time Limit */
+		QCheckBox* _guessTimeLimit = nullptr;
+		QSlider* _guessTimeLimitSlider = nullptr;
+		QGridLayout* _guessTimeLimitLayout = nullptr;
+		QLineEdit* _guessTimeLimitLineEdit = nullptr;
+		const int _minGuessTimeLimit = 5, _maxGuessTimeLimit = 30;
 
 		/** Daily Double */
 		QCheckBox* _dailyDouble = nullptr;

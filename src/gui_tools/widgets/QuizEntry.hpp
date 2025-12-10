@@ -195,6 +195,8 @@ namespace MusicQuiz {
 		void played();
 		void blurQuiz();
 		void unBlurQuiz();
+		void startCountdown();
+		void stopCountdown();
 
 	protected:
 		/**

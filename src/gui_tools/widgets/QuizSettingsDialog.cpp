@@ -79,6 +79,18 @@ void MusicQuiz::QuizSettingsDialog::createLayout(const MusicQuiz::QuizSettings& 
 	line->setFrameShape(QFrame::HLine);
 	mainlayout->addWidget(line);
 
+	/** Guess Time Limit */
+	QWidget* guessTimeLimit = getGuessTimeLimitLayout(settings);
+	if ( guessTimeLimit != nullptr ) {
+		mainlayout->addWidget(guessTimeLimit);
+	}
+
+	/** Line */
+	line = new QFrame;
+	line->setObjectName("settingsLine");
+	line->setFrameShape(QFrame::HLine);
+	mainlayout->addWidget(line);
+
 	/** Daily Double */
 	QWidget* dailyDouble = getDailyDoubleLayout(settings);
 	if ( dailyDouble != nullptr ) {
@@ -126,6 +138,67 @@ void MusicQuiz::QuizSettingsDialog::createLayout(const MusicQuiz::QuizSettings& 
 
 	/** Set Layout */
 	setLayout(mainlayout);
+}
+
+QWidget* MusicQuiz::QuizSettingsDialog::getGuessTimeLimitLayout(const MusicQuiz::QuizSettings& settings)
+{
+	/** Layout */
+	QGridLayout* mainlayout = new QGridLayout;
+	mainlayout->setColumnStretch(1, 1);
+	mainlayout->setVerticalSpacing(10);
+	mainlayout->setHorizontalSpacing(0);
+	mainlayout->setContentsMargins(0, 10, 0, 10);
+
+	/** Enable Checkbox */
+	QHBoxLayout* checkBoxLayout = new QHBoxLayout;
+	_guessTimeLimit = new QCheckBox("Guess Time Limit");
+	_guessTimeLimit->setChecked(settings.guessTimeLimit);
+	_guessTimeLimit->setObjectName("settingsCheckbox");
+	connect(_guessTimeLimit, SIGNAL(toggled(bool)), this, SLOT(setGuessTimeLimitEnabled(bool)));
+	checkBoxLayout->addWidget(_guessTimeLimit);
+
+	QPushButton* infoBtn = new QPushButton;
+	infoBtn->setObjectName("settingsInfo");
+	connect(infoBtn, SIGNAL(released()), this, SLOT(showGuessTimeLimitInfo()));
+	checkBoxLayout->addWidget(infoBtn, Qt::AlignRight);
+	mainlayout->addItem(checkBoxLayout, 0, 0, 1, 2, Qt::AlignLeft);
+
+	/** Spacer */
+	mainlayout->addItem(new QSpacerItem(35, 0, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 0);
+
+	/** Options Layout */
+	_guessTimeLimitLayout = new QGridLayout;
+	_guessTimeLimitLayout->setHorizontalSpacing(10);
+	_guessTimeLimitLayout->setVerticalSpacing(10);
+	mainlayout->addItem(_guessTimeLimitLayout, 1, 1);
+
+	/** Time Limit */
+	QLabel* label = new QLabel("Time Limit");
+	label->setObjectName("settingsLabel");
+	const int initialTimeLimitSeconds = settings.timeLimit / 1000;
+	_guessTimeLimitLineEdit = new QLineEdit(QString::number(initialTimeLimitSeconds) + " seconds");
+	_guessTimeLimitLineEdit->setObjectName("settingsLineEdit");
+	_guessTimeLimitLineEdit->setAlignment(Qt::AlignRight);
+	_guessTimeLimitLineEdit->setReadOnly(true);
+	_guessTimeLimitLayout->addWidget(label, 1, 0, Qt::AlignLeft);
+	_guessTimeLimitLayout->addWidget(_guessTimeLimitLineEdit, 1, 1, Qt::AlignRight);
+
+	_guessTimeLimitSlider = new QSlider(Qt::Horizontal);
+	_guessTimeLimitSlider->setObjectName("settingsSlider");
+	_guessTimeLimitSlider->setRange(_minGuessTimeLimit, _maxGuessTimeLimit);
+	_guessTimeLimitSlider->setPageStep(1);
+	_guessTimeLimitSlider->setSingleStep(1);
+	_guessTimeLimitSlider->setValue(initialTimeLimitSeconds);
+	connect(_guessTimeLimitSlider, SIGNAL(valueChanged(int)), this, SLOT(setGuessTimeLimitTime(int)));
+	_guessTimeLimitLayout->addWidget(_guessTimeLimitSlider, 2, 0, 1, 2);
+
+	/** Set Options Enabled / Disabled */
+	setGuessTimeLimitEnabled(settings.guessTimeLimit);
+
+	/** Return Layout Widget */
+	QWidget* widget = new QWidget;
+	widget->setLayout(mainlayout);
+	return widget;
 }
 
 QWidget* MusicQuiz::QuizSettingsDialog::getDailyDoubleLayout(const MusicQuiz::QuizSettings& settings)
@@ -207,11 +280,12 @@ QWidget* MusicQuiz::QuizSettingsDialog::getLightInterfaceLayout(const MusicQuiz:
 	QGridLayout* mainlayout = new QGridLayout;
 	mainlayout->setColumnStretch(1, 1);
 	mainlayout->setVerticalSpacing(10);
-	mainlayout->setHorizontalSpacing(0);
+	mainlayout->setHorizontalSpacing(10);
 	mainlayout->setContentsMargins(0, 10, 0, 10);
 
-	//Discovered devices dropdown
+	/** Discovered devices dropdown */
 	QHBoxLayout* discoveredLayout = new QHBoxLayout;
+	discoveredLayout->setSpacing(10);
 	QLabel* label = new QLabel("Discovered Devices:");
 	label->setObjectName("settingsLabel");
 
@@ -225,10 +299,11 @@ QWidget* MusicQuiz::QuizSettingsDialog::getLightInterfaceLayout(const MusicQuiz:
 	discoveredLayout->addWidget(label);
 	discoveredLayout->addWidget(_discoveredList);
 
-	mainlayout->addItem(discoveredLayout, 0, 0, 1, 2, Qt::AlignLeft);
+	mainlayout->addItem(discoveredLayout, 0, 0, 1, 2);
 
-	//IP input
+	/** IP input */
 	QHBoxLayout* ipLayout = new QHBoxLayout;
+	ipLayout->setSpacing(10);
 	label = new QLabel("Device IP:");
 	label->setObjectName("settingsLabel");
 
@@ -246,6 +321,7 @@ QWidget* MusicQuiz::QuizSettingsDialog::getLightInterfaceLayout(const MusicQuiz:
 	_listUpdateTimer.setInterval(std::chrono::milliseconds(500));
 	_listUpdateTimer.callOnTimeout(this, &MusicQuiz::QuizSettingsDialog::updateLightDevices);
 	_listUpdateTimer.start();
+
 	/** Return Layout Widget */
 	QWidget* widget = new QWidget;
 	widget->setLayout(mainlayout);
@@ -325,6 +401,28 @@ QWidget* MusicQuiz::QuizSettingsDialog::getDailyTripleLayout(const MusicQuiz::Qu
 	return widget;
 }
 
+void MusicQuiz::QuizSettingsDialog::setGuessTimeLimitEnabled(bool enabled)
+{
+	/** Sanity Check */
+	if ( _guessTimeLimitLayout == nullptr ) {
+		return;
+	}
+
+	/** Enable / Disable */
+	setLayoutEnabled(_guessTimeLimitLayout, enabled);
+}
+
+void MusicQuiz::QuizSettingsDialog::setGuessTimeLimitTime(int value)
+{
+	/** Sanity Check */
+	if ( _guessTimeLimitLineEdit == nullptr ) {
+		return;
+	}
+
+	/** Set Value */
+	_guessTimeLimitLineEdit->setText(QString::number(value) + " seconds");
+}
+
 void MusicQuiz::QuizSettingsDialog::setDailyDoubleEnabled(bool enabled)
 {
 	/** Sanity Check */
@@ -380,6 +478,10 @@ void MusicQuiz::QuizSettingsDialog::saveSettings()
 	/** Hidden Teams */
 	settings.hiddenTeamScore = _hiddenTeam->isChecked();
 
+	/** Guess Time Limit */
+	settings.guessTimeLimit = _guessTimeLimit->isChecked();
+	settings.timeLimit = static_cast<size_t>( _guessTimeLimitSlider->value() ) * 1000;
+
 	/** Daily Double */
 	settings.dailyDouble = _dailyDouble->isChecked();
 	settings.dailyDoubleHidden = _dailyDoubleHidden->isChecked();
@@ -432,6 +534,11 @@ void MusicQuiz::QuizSettingsDialog::showHiddenTeamsInfo()
 void MusicQuiz::QuizSettingsDialog::showHiddenAnswersInfo()
 {
 	informationMessageBox("If enabled the quiz answers will be hidden after the song have been guessed.");
+}
+
+void MusicQuiz::QuizSettingsDialog::showGuessTimeLimitInfo()
+{
+	informationMessageBox("If enabled the a countdown clock will be displayed during the quiz when a paticipant has to guess. This can be used to help determine when they are out of time.");
 }
 
 void MusicQuiz::QuizSettingsDialog::showDailyDoubleInfo()

@@ -4,13 +4,14 @@
 #include <algorithm>
 
 #include <QLabel>
+#include <QScreen>
+#include <QWindow>
 #include <QSpacerItem>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QMessageBox>
-#include <QWindow>
-#include <QScreen>
+#include <QGuiApplication>
 #include <QGraphicsBlurEffect>
 
 #include "common/Log.hpp"
@@ -77,6 +78,14 @@ MusicQuiz::QuizBoard::QuizBoard(const std::vector<MusicQuiz::QuizCategory*>& cat
 			widget->installEventFilter(this);
 		}
 	}
+
+	/** Create countdown clock */
+	if ( _settings.guessTimeLimit ) {
+		const QRect screenRect = QGuiApplication::primaryScreen()->geometry();
+		const int clockSize = screenRect.height() * 0.08;
+		_countdownClock = new MusicQuiz::QExtensions::QCountDownClock(_settings.timeLimit, clockSize);
+		_countdownClock->move(QPoint(screenRect.width() - (clockSize + screenRect.width() * 0.01), screenRect.height() * 0.02));
+	}
 }
 
 void MusicQuiz::QuizBoard::lightClientConnectedCallback(LightControl::LightControlClient* client)
@@ -114,6 +123,8 @@ void MusicQuiz::QuizBoard::createLayout()
 				connect(quizEntry, SIGNAL(played()), this, SLOT(handleGameComplete()));
 				connect(quizEntry, SIGNAL(blurQuiz()), this, SLOT(blurQuiz()));
 				connect(quizEntry, SIGNAL(unBlurQuiz()), this, SLOT(unBlurQuiz()));
+				connect(quizEntry, SIGNAL(startCountdown()), this, SLOT(startCountdown()));
+				connect(quizEntry, SIGNAL(stopCountdown()), this, SLOT(stopCountdown()));
 			}
 		}
 
@@ -389,4 +400,18 @@ void MusicQuiz::QuizBoard::blurQuiz()
 void MusicQuiz::QuizBoard::unBlurQuiz()
 {
 	setGraphicsEffect(nullptr);
+}
+
+void MusicQuiz::QuizBoard::startCountdown()
+{
+	if ( _countdownClock != nullptr ) {
+		_countdownClock->start();
+	}
+}
+
+void MusicQuiz::QuizBoard::stopCountdown()
+{
+	if ( _countdownClock != nullptr ) {
+		_countdownClock->stop();
+	}
 }

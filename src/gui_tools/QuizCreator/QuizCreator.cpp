@@ -813,6 +813,7 @@ void MusicQuiz::QuizCreator::previewQuiz()
 
 	/** Dummy Settings */
 	MusicQuiz::QuizSettings settings;
+	settings.guessTimeLimit = false;
 	settings.guessTheCategory = _guessTheCategoriesCheckbox->isChecked();
 
 	/** Check that quiz is valid */

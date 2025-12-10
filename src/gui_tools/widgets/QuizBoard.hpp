@@ -16,6 +16,8 @@
 
 #include "lightcontrol/client/LightControlClient.hpp"
 
+#include "gui_tools/GuiUtil/QExtensions/QCountDownClock.hpp"
+
 
 namespace MusicQuiz {
 	class QuizTeam;
@@ -119,6 +121,16 @@ namespace MusicQuiz {
 		 */
 		void unBlurQuiz();
 
+		/**
+		 * @brief Displays a countdown clock to show how much time the participant have left to guess.
+		 */
+		void startCountdown();
+
+		/**
+		 * @brief Stops the countdown.
+		 */
+		void stopCountdown();
+
 	signals:
 		void quitSignal();
 		void gameComplete(std::vector<MusicQuiz::QuizTeam*> winningTeam);
@@ -148,5 +160,7 @@ namespace MusicQuiz {
 		std::vector<MusicQuiz::QuizCategory*> _categories;
 
 		std::shared_ptr<LightControl::LightControlClient> _lightClient;
+
+		MusicQuiz::QExtensions::QCountDownClock* _countdownClock = nullptr;
 	};
 }
