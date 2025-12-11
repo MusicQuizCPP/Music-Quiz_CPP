@@ -112,28 +112,45 @@ void media::ImagePlayer::setMouseEventCallbackFunction(const std::function< void
 
 void media::ImagePlayer::closeEvent(QCloseEvent* event)
 {
-	_updateTimer->start();
+	_updateTimer->stop();
 	emit hidden();
 	event->accept();
 }
 
 void media::ImagePlayer::hideEvent(QHideEvent* event)
 {
-	_updateTimer->start();
+	_updateTimer->stop();
 	emit hidden();
 }
 
 void media::ImagePlayer::updateImagePixilation()
 {
-	/** Update elapsed time */
-	_elapsedTime += _updateTimer->interval();
+    /** Sanity Checks */
+    if ( _depixilationDuration <= 0 ) {
+        _updateTimer->stop();
+        return;
+    }
 
-	/** Check if depixilation is complete */
-	if ( _elapsedTime >= _depixilationDuration ) {
-		_imageLabel->setPixmap(_originalPixmap.scaled(_imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-		_updateTimer->stop();
-		return;
-	}
+    if ( _imageLabel == nullptr ) {
+        _updateTimer->stop();
+        return;
+    }
+
+    const QSize labelSize = _imageLabel->size();
+    if ( labelSize.width() <= 0 || labelSize.height() <= 0 ) {
+        _updateTimer->stop();
+        return;
+    }
+
+    /** Update elapsed time */
+    _elapsedTime += _updateTimer->interval();
+
+    /** Check if depixilation is complete */
+    if ( _elapsedTime >= _depixilationDuration ) {
+        _imageLabel->setPixmap(_originalPixmap.scaled(labelSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        _updateTimer->stop();
+        return;
+    }
 
 	/** Calculate progress */
 	const double progress = static_cast<double>(_elapsedTime) / static_cast<double>(_depixilationDuration);
@@ -146,13 +163,15 @@ void media::ImagePlayer::updateImagePixilation()
 	const double factor = minimumFactor + easedProgress * ( 1.0 - minimumFactor );
 
 	/** Calculate new size */
-	const int newWidth = static_cast<int>( _imageLabel->width() * factor );
-	const int newHeight = static_cast<int>( _imageLabel->height() * factor );
-	const QSize newSize(newWidth, newHeight);
+    int newWidth = static_cast<int>( labelSize.width() * factor );
+    int newHeight = static_cast<int>( labelSize.height() * factor );
+    newWidth = std::max(1, newWidth);
+    newHeight = std::max(1, newHeight);
+    const QSize newSize(newWidth, newHeight);
 
 	/** Downscale original to small size(keep aspect ratio), then scale back up. */
-	const QPixmap downScaledImage = _originalPixmap.scaled(newSize, Qt::KeepAspectRatio, Qt::FastTransformation);
-	const QPixmap upScaledImage = downScaledImage.scaled(_imageLabel->size(), Qt::KeepAspectRatio, Qt::FastTransformation);
+    const QPixmap downScaledImage = _originalPixmap.scaled(newSize, Qt::KeepAspectRatio, Qt::FastTransformation);
+    const QPixmap upScaledImage = downScaledImage.scaled(labelSize, Qt::KeepAspectRatio, Qt::FastTransformation);
 
 	/** Update image */
 	_imageLabel->setPixmap(upScaledImage);
