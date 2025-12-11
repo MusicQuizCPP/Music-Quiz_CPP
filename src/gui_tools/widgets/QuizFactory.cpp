@@ -152,6 +152,9 @@ MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const size_t idx, const
 
 				/** Hidden Answers */
 				quizEntry->setHiddenAnswer(settings.hiddenAnswers);
+
+				/** Show Entry Type Icon */
+				quizEntry->setShowEntryTypeIcon(settings.showEntryTypeIcon);
 			}
 			++counter;
 		}

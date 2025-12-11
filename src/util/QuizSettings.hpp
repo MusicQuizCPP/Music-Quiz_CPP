@@ -30,5 +30,8 @@ namespace MusicQuiz {
 		/** Guess time Limit */
 		bool guessTimeLimit = true;
 		size_t timeLimit = 10000;
+
+		/** Show Entry Type Icon */
+		bool showEntryTypeIcon = false;
 	};
 }

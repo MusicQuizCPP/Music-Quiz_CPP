@@ -191,6 +191,13 @@ namespace MusicQuiz {
 		 */
 		void setTriplePointsEnabled(bool enabled, bool hidden = true);
 
+		/**
+		 * @brief Enables / disables that the entry type icon is displayed.
+		 *
+		 * @param[in] showIcons If true the entry type icon will be displayed.
+		 */
+		void setShowEntryTypeIcon(bool showIcons);
+
 	signals:
 		void answered(size_t points);
 		void played();
@@ -230,6 +237,11 @@ namespace MusicQuiz {
 		 * @param[in] color The color.
 		 */
 		void applyColor(const QColor& color);
+
+		/**
+		 * @brief Crreates and shows the entry type icon.
+		 */
+		void showEntryTypeIcon();
 
 		/** Variables */
 		size_t _points = 0;

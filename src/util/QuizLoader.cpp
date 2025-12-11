@@ -71,8 +71,12 @@ MusicQuiz::util::QuizLoader::QuizPreview MusicQuiz::util::QuizLoader::getQuizPre
 	/** Author */
 	quizPreview.quizAuthor = sub_tree.get< std::string >("QuizAuthor");
 
+	/** Show Entry Type Icons */
+	quizPreview.showEntryTypeIcons = sub_tree.get("QuizShowEntryTypeIcons", false);
+
 	/** Guess the Category */
 	quizPreview.guessTheCategory = sub_tree.get("QuizGuessTheCategory.<xmlattr>.enabled", false);
+	quizPreview.guessTheCategoryPoints = sub_tree.get("QuizGuessTheCategory", 500);
 
 	/** Categories & Row Categories */
 	boost::property_tree::ptree::const_iterator ctrl = sub_tree.begin();

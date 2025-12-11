@@ -138,6 +138,11 @@ void MusicQuiz::QuizCreator::createLayout()
 	label->setObjectName("quizCreatorLabel");
 	setupTabLayout->addWidget(label, ++row, 0, 1, 2, Qt::AlignLeft);
 
+	/** Setup Tab - Settings - Show Entry Type Icons */
+	_showEntryTypeIconsCheckbox = new QCheckBox("Display Entry Type Icons");
+	_showEntryTypeIconsCheckbox->setObjectName("quizCreatorCheckbox");
+	setupTabLayout->addWidget(_showEntryTypeIconsCheckbox, ++row, 0, 1, 2, Qt::AlignLeft);
+
 	/** Setup Tab - Settings - Guess the Categories */
 	_guessTheCategoriesCheckbox = new QCheckBox("Guess the Categories");
 	_guessTheCategoriesCheckbox->setObjectName("quizCreatorCheckbox");
@@ -590,6 +595,9 @@ void MusicQuiz::QuizCreator::saveQuiz()
 	/** Quiz Author */
 	quizData.setAuthor(_quizAuthorLineEdit->text().toStdString());
 
+	/** Show Entry Type Icons */
+	quizData.setShowEntryTypeIcons(_showEntryTypeIconsCheckbox->isChecked());
+
 	/** Guess the Categoies */
 	quizData.setGuessTheCategory(_guessTheCategoriesCheckbox->isChecked(), _guessTheCategoriesPointsSpinbox->value());
 
@@ -733,9 +741,19 @@ void MusicQuiz::QuizCreator::loadQuizData(const QuizData& quizData)
 		_quizAuthorLineEdit->setText(QString::fromStdString(quizData.getAuthor()));
 	}
 
+	/** Show Entry Type Icons */
+	if ( _showEntryTypeIconsCheckbox != nullptr ) {
+		_showEntryTypeIconsCheckbox->setChecked(quizData.getShowEntryTypeIcons());
+	}
+
 	/** Guess the Categories */
 	if ( _guessTheCategoriesCheckbox != nullptr ) {
 		_guessTheCategoriesCheckbox->setChecked(quizData.getGuessTheCategory());
+	}
+
+	/** Guess the Categories Points */
+	if ( _guessTheCategoriesPointsSpinbox != nullptr ) {
+		_guessTheCategoriesPointsSpinbox->setValue(quizData.getGuessTheCategoryPoints());
 	}
 
 	/** Add Categories */
@@ -852,6 +870,7 @@ void MusicQuiz::QuizCreator::previewQuiz()
 	MusicQuiz::QuizSettings settings;
 	settings.guessTimeLimit = false;
 	settings.guessTheCategory = _guessTheCategoriesCheckbox->isChecked();
+	settings.showEntryTypeIcon = _showEntryTypeIconsCheckbox->isChecked();
 
 	/** Check that quiz is valid */
 	try {
@@ -1032,9 +1051,19 @@ void MusicQuiz::QuizCreator::newQuiz()
 		_quizAuthorLineEdit->setText("");
 	}
 
-	/** Guess Categories */
+	/** Show Entry Type Icons */
+	if ( _showEntryTypeIconsCheckbox != nullptr ) {
+		_showEntryTypeIconsCheckbox->setChecked(false);
+	}
+
+	/** Guess The Categories */
 	if (_guessTheCategoriesCheckbox != nullptr) {
 		_guessTheCategoriesCheckbox->setChecked(false);
+	}
+
+	/** Guess The Categories Points */
+	if ( _guessTheCategoriesPointsSpinbox != nullptr ) {
+		_guessTheCategoriesPointsSpinbox->setValue(500);
 	}
 }
 

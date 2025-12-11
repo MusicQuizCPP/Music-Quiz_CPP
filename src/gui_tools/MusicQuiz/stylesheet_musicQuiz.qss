@@ -67,7 +67,7 @@ QPushButton[objectName^="QuizEntry"]
 
 	border-color		: rgb(0, 0, 255);
 	border-radius		: 0px;
-	border-width		: 1px;
+	border-width		: 3px;
 	border-style		: solid;
 	margin				: 0px;
 	padding				: 0px;

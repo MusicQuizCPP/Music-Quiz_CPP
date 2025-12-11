@@ -202,6 +202,8 @@ namespace MusicQuiz {
 		QLineEdit* _quizNameLineEdit = nullptr;
 		QLineEdit* _quizAuthorLineEdit = nullptr;
 
+		QCheckBox* _showEntryTypeIconsCheckbox = nullptr;
+
 		QCheckBox* _guessTheCategoriesCheckbox = nullptr;
 		QLabel* _guessTheCategoriesPointsLabel = nullptr;
 		QSpinBox* _guessTheCategoriesPointsSpinbox = nullptr;

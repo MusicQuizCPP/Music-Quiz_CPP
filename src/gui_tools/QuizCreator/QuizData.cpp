@@ -50,7 +50,11 @@ MusicQuiz::QuizData::QuizData(const common::Configuration& config, const std::st
 
     setAuthor(ini_ctrl->second.get< std::string >("QuizAuthor"));
 
-    setGuessTheCategory(ini_ctrl->second.get("QuizGuessTheCategory.<xmlattr>.enabled", false), 500);
+    setShowEntryTypeIcons(ini_ctrl->second.get("QuizShowEntryTypeIcons", false));
+
+    const bool guessTheCategoryEnabled = ini_ctrl->second.get("QuizGuessTheCategory.<xmlattr>.enabled", false);
+    const int guessTheCategoryPoints = ini_ctrl->second.get("QuizGuessTheCategory", 500);
+    setGuessTheCategory(guessTheCategoryEnabled, guessTheCategoryPoints);
 
     setCategories(loadCategories(tree.get_child("MusicQuiz"), audioPlayer, textToSpeechPlayer, skipEntries, categoryNameRegex, parent));
 
@@ -140,8 +144,11 @@ boost::property_tree::ptree MusicQuiz::QuizData::constructPtree(const std::strin
     /** Quiz Author */
     main_tree.put("QuizAuthor", _author);
 
+    /** Show Entry Type Icons Setting */
+    main_tree.put("QuizShowEntryTypeIcons", _showEntryTypeIcons);
+
     /** Guess the Category Setting */
-    boost::property_tree::ptree& guessTheCategory_tree = main_tree.add("QuizGuessTheCategory", 500);
+    boost::property_tree::ptree& guessTheCategory_tree = main_tree.add("QuizGuessTheCategory", _guessTheCategoryPoints);
     guessTheCategory_tree.put<bool>("<xmlattr>.enabled", _guessTheCategory);
 
     if ( !areCategoryNamesUnique() ) {

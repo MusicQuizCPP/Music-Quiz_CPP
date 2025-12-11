@@ -273,7 +273,13 @@ void MusicQuiz::QuizSelector::quizSelected()
 	const QString quizAuthor = QString::fromStdString(_quizPreviews[currentIndex].quizAuthor);
 
 	/** Guess The Category */
+	_settings.showEntryTypeIcon = _quizPreviews[currentIndex].showEntryTypeIcons;
+
+	/** Guess The Category */
 	_settings.guessTheCategory = _quizPreviews[currentIndex].guessTheCategory;
+
+	/** Guess The Category */
+	_settings.pointsPerCategory = _quizPreviews[currentIndex].guessTheCategoryPoints;
 
 	/** Popup Messagebox */
 	QString msg = "Are you sure you want to select quiz '" + quizName + "'?";

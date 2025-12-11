@@ -31,7 +31,9 @@ namespace MusicQuiz {
 				bool includeTextToSpeech = false;
 				bool includeImages = false;
 				bool includeText = false;
+				bool showEntryTypeIcons = false;
 				bool guessTheCategory = false;
+				int guessTheCategoryPoints = 500;
 				std::vector<std::string> categories;
 				std::vector<std::string> rowCategories;
 
@@ -58,6 +60,7 @@ namespace MusicQuiz {
 					out << "Quiz Include Text To Speech: " << (quizPreview.includeTextToSpeech ? "Yes" : "No") << "\n";
 					out << "Quiz Include Images: " << (quizPreview.includeImages ? "Yes" : "No") << "\n";
 					out << "Quiz Include Text: " << (quizPreview.includeText ? "Yes" : "No") << "\n";
+					out << "Quiz Show Entry Type Icons: " << (quizPreview.showEntryTypeIcons ? "Yes" : "No") << "\n";
 					out << "Quiz Quess the Category: " << (quizPreview.guessTheCategory ? "Yes" : "No") << "\n\n";
 					return out;
 				}

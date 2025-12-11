@@ -76,6 +76,20 @@ namespace MusicQuiz {
             std::string getName() const {return _name;}
 
             /**
+             * @brief Sets if show entry type icons should be enabled
+             *
+             * @param[in] enabled whether show the entry type icons should be enabled
+             */
+            void setShowEntryTypeIcons(bool enabled) {_showEntryTypeIcons = enabled;}
+
+            /**
+             * @brief Check whether show entry type icons is enabled
+             *
+             * @return is show entry type icons enabled
+             */
+            bool getShowEntryTypeIcons() const {return _showEntryTypeIcons;}
+
+            /**
              * @brief Sets if guess the category should be enabled
              * 
              * @param[in] enabled whether guess the category should be enabled
@@ -228,6 +242,9 @@ namespace MusicQuiz {
 
             /** The Quiz Author */
             std::string _author = "";
+
+            /** Show entry type icons flag */
+            bool _showEntryTypeIcons = false;
 
             /** Guess the category flag */
             bool _guessTheCategory = false;

@@ -4,10 +4,12 @@
 #include <stdexcept>
 #include <functional>
 
+#include <QLabel>
 #include <QPainter>
 #include <QMouseEvent>
 #include <QSizePolicy>
 #include <QApplication>
+#include <QHBoxLayout>
 
 #include "common/Log.hpp"
 
@@ -472,6 +474,12 @@ void MusicQuiz::QuizEntry::applyColor(const QColor& color)
 	ss << "font-size: " << _fontSize << "px;";
 
 	setStyleSheet(QString::fromStdString(ss.str()));
+
+	/** Ensure icon border is not changed */
+	QLabel* label = findChild<QLabel*>("QuizEntryCategoryIcon");
+	if ( label != nullptr ) {
+		label->setStyleSheet("border: none;");
+	}
 }
 
 MusicQuiz::QuizEntry::EntryState MusicQuiz::QuizEntry::getEntryState()
@@ -506,4 +514,62 @@ void MusicQuiz::QuizEntry::setTriplePointsEnabled(bool enabled, bool hidden)
 
 	/** Apply Color */
 	applyColor(QColor(0, 0, 255));
+}
+
+void MusicQuiz::QuizEntry::setShowEntryTypeIcon(bool showIcons)
+{
+	if ( showIcons ) {
+		showEntryTypeIcon();
+	}
+}
+
+void MusicQuiz::QuizEntry::showEntryTypeIcon()
+{
+	/** Create icon label */
+	QLabel* iconLabel = new QLabel(this);
+	const int iconSize = this->rect().width() * 0.05;
+	iconLabel->setFixedSize(iconSize, iconSize);
+	iconLabel->setObjectName("QuizEntryCategoryIcon");
+	iconLabel->setStyleSheet("background: transparent;");
+	iconLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
+
+	/** Create icon layout */
+	QHBoxLayout* iconLayout = new QHBoxLayout(this);
+	iconLayout->addStretch();
+	iconLayout->setContentsMargins(5, 5, 5, 5);
+	iconLayout->addWidget(iconLabel, 0, Qt::AlignTop | Qt::AlignRight);
+
+	/** Load icon based on entry type */
+	QString iconPath = "";
+	switch ( _type ) {
+	case MusicQuiz::QuizEntry::EntryType::Song:
+		iconPath = QStringLiteral(":/imgs/music_icon.png");
+		break;
+	case MusicQuiz::QuizEntry::EntryType::Video:
+		iconPath = QStringLiteral(":/imgs/video_icon.png");
+		break;
+	case MusicQuiz::QuizEntry::EntryType::TextToSpeech:
+		iconPath = QStringLiteral(":/imgs/text-to-speech_icon.png");
+		break;
+	case MusicQuiz::QuizEntry::EntryType::Image:
+		iconPath = QStringLiteral(":/imgs/image_icon.png");
+		break;
+	case MusicQuiz::QuizEntry::EntryType::Text:
+		iconPath = QStringLiteral(":/imgs/text_icon.png");
+		break;
+	default:
+		return;
+	}
+
+	/** Load icon pixmap */
+	QPixmap iconPixmap(iconPath);
+	if ( iconPixmap.isNull() ) {
+		return;
+	}
+
+	/** Scale icon to the correct size */
+	const QPixmap scaledIconPixmap = iconPixmap.scaled(iconLabel->width(), iconLabel->width(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+	/** Set icon pixmap */
+	iconLabel->setPixmap(scaledIconPixmap);
 }
