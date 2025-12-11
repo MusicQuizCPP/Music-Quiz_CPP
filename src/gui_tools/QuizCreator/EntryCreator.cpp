@@ -2338,7 +2338,7 @@ void MusicQuiz::EntryCreator::loadImageFromXml(const boost::property_tree::ptree
 
 	/** Set Pixilation Settings */
 	try {
-		const int pixilationDuration = tree.get<int>("PixilationDuration", 30000) / 1000;
+		const int pixilationDuration = tree.get<int>("PixilationDuration") / 1000;
 		setImagePixilationEnabled(pixilationDuration > 0);
 		setImagePixilationDuration(pixilationDuration);
 	} catch ( ... ) {}
