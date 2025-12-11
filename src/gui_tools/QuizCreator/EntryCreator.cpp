@@ -658,12 +658,6 @@ QGridLayout* MusicQuiz::EntryCreator::createImageLayout()
 	imageAnswerSongFileLayout->addWidget(_browseImageAnswerSongBtn);
 	mainlayout->addItem(imageAnswerSongFileLayout, ++row, 0, 1, 2);
 
-	/** Add layout to settings widget */
-	_textToSpeechSettings = new QWidget;
-	_textToSpeechSettings->setEnabled(false);
-	_textToSpeechSettings->setLayout(imageAnswerSettingsLayout);
-	mainlayout->addWidget(_textToSpeechSettings, ++row, 0, 1, 2);
-
 	/** Song - Set Answer Start */
 	label = new QLabel("Answer:");
 	label->setObjectName("quizCreatorLabel");
