@@ -108,25 +108,82 @@ bool MusicQuiz::QuizData::areCategoryNamesUnique() const
 
 void MusicQuiz::QuizData::save() const
 {
+    /** Sanity Check */
     if ( _name.empty() ) {
         throw std::runtime_error("The quiz name needs to be set before saving.");
     }
-    
+
+    /** Create Quiz Directory */
     createQuizDirectory();
-    QTemporaryDir tmpMediaDir(QString::fromStdString(getQuizPath() + "/tmp"));
+
+    /** Create tempory directory outside the quiz folder */
+    const std::filesystem::path quizPath = getQuizPath();
+    QTemporaryDir tmpMediaDir(QString::fromStdString(quizPath.parent_path().string() + "/tmp"));
     if ( !tmpMediaDir.isValid() ) {
-        throw std::runtime_error("Failed to create directory to save the media files in.");
+        throw std::runtime_error("Failed to create temporary directory to save the media files in.");
     }
 
-    boost::property_tree::ptree tree = constructPtree(tmpMediaDir.path().toStdString());
+    /** Create property tree */
+    const std::string tmpPath = tmpMediaDir.path().toStdString();
+    boost::property_tree::ptree tree = constructPtree(tmpPath);
 
-    /** Move media from tmp path to final path */
-    deleteDirectory(getMediaPath());
-    std::filesystem::rename(tmpMediaDir.path().toStdString(), getMediaPath());
+    /** Move media from tmp path to final path.Try rename first, fallback to recursive copy */
+    const std::string finalMediaPath = getMediaPath();
+    try {
+        /** Remove existing media directory(best - effort) before move */
+        try {
+            deleteDirectory(finalMediaPath);
+        } catch ( const std::exception& e ) {
+            /** Log and continue; rename may still fail and be handled below */
+            LOG_ERROR("Failed to delete existing media directory: " << e.what());
+        }
+
+        /** Try rename */
+        try {
+            std::filesystem::rename(tmpPath, finalMediaPath);
+        } catch ( const std::filesystem::filesystem_error& e ) {
+            LOG_ERROR("Rename failed: " << e.what() << " - attempting recursive copy");
+
+            /** Fallback: create destination and copy all files from tmpPath */
+            std::error_code ec;
+            std::filesystem::create_directories(finalMediaPath, ec);
+            if ( ec ) {
+                throw std::runtime_error(std::string("Failed to create media directory: ") + ec.message());
+            }
+
+            for ( auto it = std::filesystem::recursive_directory_iterator(tmpPath); it != std::filesystem::recursive_directory_iterator(); ++it ) {
+                const std::filesystem::path src = it->path();
+                const std::filesystem::path relative = std::filesystem::relative(src, tmpPath);
+                const std::filesystem::path dest = std::filesystem::path(finalMediaPath) / relative;
+
+                if ( std::filesystem::is_directory(src) ) {
+                    std::filesystem::create_directories(dest, ec);
+                    if ( ec ) {
+                        throw std::runtime_error(std::string("Failed to create directory '") + dest.string() + "': " + ec.message());
+                    }
+                } else {
+                    std::filesystem::create_directories(dest.parent_path(), ec);
+                    if ( ec ) {
+                        throw std::runtime_error(std::string("Failed to create directory '") + dest.parent_path().string() + "': " + ec.message());
+                    }
+                    std::filesystem::copy_file(src, dest, std::filesystem::copy_options::overwrite_existing, ec);
+                    if ( ec ) {
+                        throw std::runtime_error(std::string("Failed to copy file '") + src.string() + "' -> '" + dest.string() + "': " + ec.message());
+                    }
+                }
+            }
+        }
+    } catch ( const std::exception& e ) {
+        throw std::runtime_error(std::string("Failed to move media files: ") + e.what());
+    }
 
     /** Save ptree to XML */
-    boost::property_tree::xml_writer_settings< std::string > settings('\t', 1);
-    boost::property_tree::write_xml(getQuizPath() + "/" + _name + ".quiz.xml", tree, std::locale(), settings);
+    try {
+        boost::property_tree::xml_writer_settings< std::string > settings('\t', 1);
+        boost::property_tree::write_xml(getQuizPath() + "/" + _name + ".quiz.xml", tree, std::locale(), settings);
+    } catch ( const std::exception& e ) {
+        throw std::runtime_error(std::string("Failed to write quiz xml: ") + e.what());
+    }
 
     /** Save cheatsheet */
     saveCheatSheet(getQuizPath() + "/" + _name + ".cheatsheet.txt");
