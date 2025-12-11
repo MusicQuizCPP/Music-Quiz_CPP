@@ -159,7 +159,7 @@ void media::ImagePlayer::updateImagePixilation()
 	const double easedProgress = std::pow(progress, 2.0);
 
 	/** Interpolate factor from minFactor -> 1.0 using eased progress */
-	const double minimumFactor = 0.02;
+	const double minimumFactor = 0.005;
 	const double factor = minimumFactor + easedProgress * ( 1.0 - minimumFactor );
 
 	/** Calculate new size */
