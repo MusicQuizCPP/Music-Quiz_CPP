@@ -453,8 +453,8 @@ void MusicQuiz::CategoryCreator::clearEntries()
 {
 	/** Delete Entries */
 	for ( size_t i = 0; i < _entries.size(); ++i ) {
-		_entries[i] = nullptr;
-		delete _entries[i];
+        delete _entries[i];
+        _entries[i] = nullptr;
 	}
 
 	/** Clear Vector */

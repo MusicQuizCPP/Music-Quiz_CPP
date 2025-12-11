@@ -715,12 +715,12 @@ void MusicQuiz::QuizCreator::loadQuizData(const QuizData& quizData)
 		_tabWidget->removeTab(1);
 	}
 
-	/** Clear Categories */
-	for ( size_t i = 0; i < _categories.size(); ++i ) {
-		_categories[i]->clearEntries();
-		_categories[i] = nullptr;
-		delete _categories[i];
-	}
+    /** Clear Categories */
+    for ( size_t i = 0; i < _categories.size(); ++i ) {
+        _categories[i]->clearEntries();
+        delete _categories[i];
+        _categories[i] = nullptr;
+    }
 	_categories.clear();
 	_categoriesTable->clear();
 	_categoriesTable->clearContents();
