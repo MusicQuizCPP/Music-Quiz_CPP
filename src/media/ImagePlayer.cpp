@@ -152,7 +152,7 @@ void media::ImagePlayer::updateImagePixilation()
 
 	/** Downscale original to small size(keep aspect ratio), then scale back up. */
 	const QPixmap downScaledImage = _originalPixmap.scaled(newSize, Qt::KeepAspectRatio, Qt::FastTransformation);
-	const QPixmap upScaledImage = downScaledImage.scaled(_imageLabel->size(), Qt::IgnoreAspectRatio, Qt::FastTransformation);
+	const QPixmap upScaledImage = downScaledImage.scaled(_imageLabel->size(), Qt::KeepAspectRatio, Qt::FastTransformation);
 
 	/** Update image */
 	_imageLabel->setPixmap(upScaledImage);
