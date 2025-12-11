@@ -136,6 +136,9 @@ MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const size_t idx, const
 		for ( size_t j = 0; j < categories[i]->getSize(); ++j ) {
 			MusicQuiz::QuizEntry* quizEntry = (*categories[i])[j];
 			if ( quizEntry != nullptr ) {
+				/** Show Entry Type Icon */
+				quizEntry->setShowEntryTypeIcon(settings.showEntryTypeIcon);
+
 				/** Double Points */
 				for ( size_t k = 0; k < dailyDoubleSelectedElements.size(); ++k ) {
 					if ( counter == dailyDoubleSelectedElements[k] ) {
@@ -152,9 +155,6 @@ MusicQuiz::QuizBoard* MusicQuiz::QuizFactory::createQuiz(const size_t idx, const
 
 				/** Hidden Answers */
 				quizEntry->setHiddenAnswer(settings.hiddenAnswers);
-
-				/** Show Entry Type Icon */
-				quizEntry->setShowEntryTypeIcon(settings.showEntryTypeIcon);
 			}
 			++counter;
 		}
