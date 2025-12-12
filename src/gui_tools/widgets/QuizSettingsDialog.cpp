@@ -26,15 +26,6 @@ MusicQuiz::QuizSettingsDialog::QuizSettingsDialog(const MusicQuiz::QuizSettings&
 	/** Set Title */
 	setWindowTitle("Settings");
 
-	/** Set Size */
-	const int width = 400;
-	const int height = 425;
-	if ( parent == nullptr ) {
-		resize(width, height);
-	} else {
-		setGeometry(parent->x() + parent->width() / 2 - width / 2, parent->y() + parent->height() / 2 - height / 2, width, height);
-	}
-
 	/** Create Layout */
 	createLayout(settings);
 }
@@ -83,6 +74,18 @@ void MusicQuiz::QuizSettingsDialog::createLayout(const MusicQuiz::QuizSettings& 
 	QWidget* guessTimeLimit = getGuessTimeLimitLayout(settings);
 	if ( guessTimeLimit != nullptr ) {
 		mainlayout->addWidget(guessTimeLimit);
+	}
+
+	/** Line */
+	line = new QFrame;
+	line->setObjectName("settingsLine");
+	line->setFrameShape(QFrame::HLine);
+	mainlayout->addWidget(line);
+
+	/** Bingo */
+	QWidget* bingo = getBingoLayout(settings);
+	if ( bingo != nullptr ) {
+		mainlayout->addWidget(bingo);
 	}
 
 	/** Line */
@@ -201,6 +204,62 @@ QWidget* MusicQuiz::QuizSettingsDialog::getGuessTimeLimitLayout(const MusicQuiz:
 	return widget;
 }
 
+QWidget* MusicQuiz::QuizSettingsDialog::getBingoLayout(const MusicQuiz::QuizSettings& settings)
+{
+	/** Layout */
+	QGridLayout* mainlayout = new QGridLayout;
+	mainlayout->setColumnStretch(1, 1);
+	mainlayout->setVerticalSpacing(10);
+	mainlayout->setHorizontalSpacing(0);
+	mainlayout->setContentsMargins(0, 10, 0, 10);
+
+	/** Enable Checkbox */
+	QHBoxLayout* checkBoxLayout = new QHBoxLayout;
+	_bingoEnabledCheckbox = new QCheckBox("Bingo");
+	_bingoEnabledCheckbox->setChecked(settings.bingoEnabled);
+	_bingoEnabledCheckbox->setObjectName("settingsCheckbox");
+	connect(_bingoEnabledCheckbox, SIGNAL(toggled(bool)), this, SLOT(setBingoEnabled(bool)));
+	checkBoxLayout->addWidget(_bingoEnabledCheckbox);
+
+	QPushButton* infoBtn = new QPushButton;
+	infoBtn->setObjectName("settingsInfo");
+	connect(infoBtn, SIGNAL(released()), this, SLOT(showBingoInfo()));
+	checkBoxLayout->addWidget(infoBtn, Qt::AlignRight);
+	mainlayout->addItem(checkBoxLayout, 0, 0, 1, 2, Qt::AlignLeft);
+
+	/** Spacer */
+	mainlayout->addItem(new QSpacerItem(35, 0, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 0);
+
+	/** Options Layout */
+	_bingoLayout = new QHBoxLayout;
+	_bingoLayout->setSpacing(10);
+	mainlayout->addItem(_bingoLayout, 1, 1);
+
+	/** Points */
+	QLabel* label = new QLabel("Points");
+	label->setObjectName("settingsLabel");
+	label->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+	_bingoLayout->addWidget(label);
+
+	_bingoPointsSpinbox = new QSpinBox(this);
+	_bingoPointsSpinbox->setAlignment(Qt::AlignCenter);
+	_bingoPointsSpinbox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+	_bingoPointsSpinbox->setObjectName("settingsSpinbox");
+	_bingoPointsSpinbox->setRange(0, 10000);
+	_bingoPointsSpinbox->setSingleStep(50); 
+	_bingoPointsSpinbox->setValue(settings.bingoPoints);
+	connect(_bingoPointsSpinbox, SIGNAL(valueChanged(int)), this, SLOT(pointsChanged(int)));
+	_bingoLayout->addWidget(_bingoPointsSpinbox);
+
+	/** Set Options Enabled / Disabled */
+	setBingoEnabled(settings.bingoEnabled);
+
+	/** Return Layout Widget */
+	QWidget* widget = new QWidget;
+	widget->setLayout(mainlayout);
+	return widget;
+}
+
 QWidget* MusicQuiz::QuizSettingsDialog::getDailyDoubleLayout(const MusicQuiz::QuizSettings& settings)
 {
 	/** Layout */
@@ -267,60 +326,6 @@ QWidget* MusicQuiz::QuizSettingsDialog::getDailyDoubleLayout(const MusicQuiz::Qu
 
 	/** Set Options Enabled / Disabled */
 	setDailyDoubleEnabled(settings.dailyDouble);
-
-	/** Return Layout Widget */
-	QWidget* widget = new QWidget;
-	widget->setLayout(mainlayout);
-	return widget;
-}
-
-QWidget* MusicQuiz::QuizSettingsDialog::getLightInterfaceLayout(const MusicQuiz::QuizSettings& settings)
-{
-	/** Layout */
-	QGridLayout* mainlayout = new QGridLayout;
-	mainlayout->setColumnStretch(1, 1);
-	mainlayout->setVerticalSpacing(10);
-	mainlayout->setHorizontalSpacing(10);
-	mainlayout->setContentsMargins(0, 10, 0, 10);
-
-	/** Discovered devices dropdown */
-	QHBoxLayout* discoveredLayout = new QHBoxLayout;
-	discoveredLayout->setSpacing(10);
-	QLabel* label = new QLabel("Discovered Devices:");
-	label->setObjectName("settingsLabel");
-
-	discoveredLayout->setStretch(1, 1);
-	discoveredLayout->setContentsMargins(0, 10, 0, 10);
-
-	_discoveredList = new QComboBox();
-	_discoveredList->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-	connect(_discoveredList, QOverload<int>::of(&QComboBox::activated), this, &MusicQuiz::QuizSettingsDialog::updateIP);
-
-	discoveredLayout->addWidget(label);
-	discoveredLayout->addWidget(_discoveredList);
-
-	mainlayout->addItem(discoveredLayout, 0, 0, 1, 2);
-
-	/** IP input */
-	QHBoxLayout* ipLayout = new QHBoxLayout;
-	ipLayout->setSpacing(10);
-	label = new QLabel("Device IP:");
-	label->setObjectName("settingsLabel");
-
-	ipLayout->setStretch(1, 1);
-	ipLayout->setContentsMargins(0, 10, 0, 10);
-
-	_ipInput = new QLineEdit(QString::fromStdString(settings.deviceIP));
-	ipLayout->addWidget(label);
-	ipLayout->addWidget(_ipInput);
-
-	mainlayout->addItem(ipLayout, 1, 0, 1, 2, Qt::AlignLeft);
-
-	mainlayout->addItem(new QSpacerItem(35, 0, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 0);
-
-	_listUpdateTimer.setInterval(std::chrono::milliseconds(500));
-	_listUpdateTimer.callOnTimeout(this, &MusicQuiz::QuizSettingsDialog::updateLightDevices);
-	_listUpdateTimer.start();
 
 	/** Return Layout Widget */
 	QWidget* widget = new QWidget;
@@ -401,6 +406,60 @@ QWidget* MusicQuiz::QuizSettingsDialog::getDailyTripleLayout(const MusicQuiz::Qu
 	return widget;
 }
 
+QWidget* MusicQuiz::QuizSettingsDialog::getLightInterfaceLayout(const MusicQuiz::QuizSettings& settings)
+{
+	/** Layout */
+	QGridLayout* mainlayout = new QGridLayout;
+	mainlayout->setColumnStretch(1, 1);
+	mainlayout->setVerticalSpacing(10);
+	mainlayout->setHorizontalSpacing(10);
+	mainlayout->setContentsMargins(0, 10, 0, 10);
+
+	/** Discovered devices dropdown */
+	QHBoxLayout* discoveredLayout = new QHBoxLayout;
+	discoveredLayout->setSpacing(10);
+	QLabel* label = new QLabel("Discovered Devices:");
+	label->setObjectName("settingsLabel");
+
+	discoveredLayout->setStretch(1, 1);
+	discoveredLayout->setContentsMargins(0, 10, 0, 10);
+
+	_discoveredList = new QComboBox();
+	_discoveredList->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+	connect(_discoveredList, QOverload<int>::of(&QComboBox::activated), this, &MusicQuiz::QuizSettingsDialog::updateIP);
+
+	discoveredLayout->addWidget(label);
+	discoveredLayout->addWidget(_discoveredList);
+
+	mainlayout->addItem(discoveredLayout, 0, 0, 1, 2);
+
+	/** IP input */
+	QHBoxLayout* ipLayout = new QHBoxLayout;
+	ipLayout->setSpacing(10);
+	label = new QLabel("Device IP:");
+	label->setObjectName("settingsLabel");
+
+	ipLayout->setStretch(1, 1);
+	ipLayout->setContentsMargins(0, 10, 0, 10);
+
+	_ipInput = new QLineEdit(QString::fromStdString(settings.deviceIP));
+	ipLayout->addWidget(label);
+	ipLayout->addWidget(_ipInput);
+
+	mainlayout->addItem(ipLayout, 1, 0, 1, 2, Qt::AlignLeft);
+
+	mainlayout->addItem(new QSpacerItem(35, 0, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 0);
+
+	_listUpdateTimer.setInterval(std::chrono::milliseconds(500));
+	_listUpdateTimer.callOnTimeout(this, &MusicQuiz::QuizSettingsDialog::updateLightDevices);
+	_listUpdateTimer.start();
+
+	/** Return Layout Widget */
+	QWidget* widget = new QWidget;
+	widget->setLayout(mainlayout);
+	return widget;
+}
+
 void MusicQuiz::QuizSettingsDialog::setGuessTimeLimitEnabled(bool enabled)
 {
 	/** Sanity Check */
@@ -421,6 +480,17 @@ void MusicQuiz::QuizSettingsDialog::setGuessTimeLimitTime(int value)
 
 	/** Set Value */
 	_guessTimeLimitLineEdit->setText(QString::number(value) + " seconds");
+}
+
+void MusicQuiz::QuizSettingsDialog::setBingoEnabled(bool enabled)
+{
+	/** Sanity Check */
+	if ( _bingoLayout == nullptr ) {
+		return;
+	}
+
+	/** Enable / Disable */
+	setLayoutEnabled(_bingoLayout, enabled);
 }
 
 void MusicQuiz::QuizSettingsDialog::setDailyDoubleEnabled(bool enabled)
@@ -493,6 +563,10 @@ void MusicQuiz::QuizSettingsDialog::saveSettings()
 	settings.dailyTriplePercentage = _dailyTriplePercentage->value();
 	settings.deviceIP = _ipInput->text().toStdString();
 
+	/** Bingo */
+	settings.bingoEnabled = _bingoEnabledCheckbox->isChecked();
+	settings.bingoPoints = _bingoPointsSpinbox->value();
+
 	/** Emit Signal with settings */
 	emit settingsUpdated(settings);
 
@@ -539,6 +613,11 @@ void MusicQuiz::QuizSettingsDialog::showHiddenAnswersInfo()
 void MusicQuiz::QuizSettingsDialog::showGuessTimeLimitInfo()
 {
 	informationMessageBox("If enabled the a countdown clock will be displayed during the quiz when a paticipant has to guess. This can be used to help determine when they are out of time.");
+}
+
+void MusicQuiz::QuizSettingsDialog::showBingoInfo()
+{
+	informationMessageBox("If enabled, when a team completes an entire row, column, or diagonal (if an equal amount of rows and columns), they will score extra points.");
 }
 
 void MusicQuiz::QuizSettingsDialog::showDailyDoubleInfo()

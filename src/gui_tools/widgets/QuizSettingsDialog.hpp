@@ -3,17 +3,18 @@
 #include <string>
 #include <vector>
 
+#include <QTimer>
 #include <QObject>
 #include <QWidget>
 #include <QDialog>
 #include <QSlider>
 #include <QLayout>
+#include <QSpinBox>
+#include <QComboBox>
 #include <QLineEdit>
 #include <QCheckBox>
 #include <QKeyEvent>
 #include <QGridLayout>
-#include <QComboBox>
-#include <QTimer>
 
 #include "util/QuizSettings.hpp"
 
@@ -66,6 +67,13 @@ namespace MusicQuiz {
 		 * @param[in] value The new value.
 		 */
 		void setGuessTimeLimitTime(int value);
+
+		/**
+		 * @brief Enables / diables the bingo settings.
+		 *
+		 * @param[in] enabled If true the bingo settings will be enabled.
+		 */
+		void setBingoEnabled(bool enabled);
 
 		/**
 		 * @brief Enables / diables the daily double settings.
@@ -130,6 +138,7 @@ namespace MusicQuiz {
 		void showHiddenTeamsInfo();
 		void showHiddenAnswersInfo();
 		void showGuessTimeLimitInfo();
+		void showBingoInfo();
 		void showDailyDoubleInfo();
 		void showDailyTripleInfo();
 		void showDailyDoubleHiddenInfo();
@@ -155,6 +164,15 @@ namespace MusicQuiz {
 		 * @return The guess time limit  layout.
 		 */
 		QWidget* getGuessTimeLimitLayout(const MusicQuiz::QuizSettings& settings);
+
+		/**
+		 * @brief Creates the bingo layout.
+		 *
+		 * @param[in] settings The currently set settings.
+		 *
+		 * @return The bingo layout.
+		 */
+		QWidget* getBingoLayout(const MusicQuiz::QuizSettings& settings);
 
 		/**
 		 * @brief Creates the daily double layout.
@@ -223,5 +241,10 @@ namespace MusicQuiz {
 		LightControl::LightControlDiscover lightcontrolDiscover;
 		QLineEdit* _ipInput = nullptr;
 		QComboBox* _discoveredList = nullptr;
+
+		/** Bingo */
+		QCheckBox* _bingoEnabledCheckbox = nullptr;
+		QSpinBox* _bingoPointsSpinbox = nullptr;
+		QHBoxLayout* _bingoLayout = nullptr;
 	};
 }

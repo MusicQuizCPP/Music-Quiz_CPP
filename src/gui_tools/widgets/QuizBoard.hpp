@@ -16,6 +16,8 @@
 
 #include "lightcontrol/client/LightControlClient.hpp"
 
+#include "gui_tools/widgets/QuizTeam.hpp"
+#include "gui_tools/widgets/QuizEntry.hpp"
 #include "gui_tools/GuiUtil/QExtensions/QCountDownClock.hpp"
 
 
@@ -90,6 +92,14 @@ namespace MusicQuiz {
 		void handleGameComplete();
 
 		/**
+		 * @brief Checks if a bingo was completed.
+		 * 
+		 * @param[in] entry The quiz entry that was answered.
+		 * @param[in] team  The team that answered the entry.
+		 */
+		void handleBingo(QuizEntry* entry, QuizTeam* team);
+
+		/**
 		 * @brief Handles the close event.
 		 *
 		 * @param[in] event The event.
@@ -158,6 +168,13 @@ namespace MusicQuiz {
 		std::vector<QString> _rowCategories;
 		std::vector<QPushButton*> _rowCategoryButtons;
 		std::vector<MusicQuiz::QuizCategory*> _categories;
+
+		/*/ Bingo tracking */
+		std::vector< std::vector<int> > _cellOwner;
+		std::vector< std::vector<bool> > _bingoRowAwarded; // [team][row]
+		std::vector< std::vector<bool> > _bingoColAwarded; // [team][col]
+		std::vector< std::vector<bool> > _bingoDiagAwarded; // [team][diag(0..1)]
+		QPixmap _bingoPixmap = QPixmap(":/imgs/bingo.png");
 
 		std::shared_ptr<LightControl::LightControlClient> _lightClient;
 

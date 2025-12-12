@@ -5,6 +5,7 @@
 
 #include <QLabel>
 #include <QWidget>
+#include <QScreen>
 #include <QCheckBox>
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -15,6 +16,7 @@
 #include <QSpacerItem>
 #include <QMessageBox>
 #include <QListWidgetItem>
+#include <QGuiApplication>
 
 #include "common/Log.hpp"
 #include "common/Configuration.hpp"
@@ -296,6 +298,8 @@ void MusicQuiz::QuizSelector::openSettingsDialog()
 	MusicQuiz::QuizSettingsDialog* settingsDialog = new MusicQuiz::QuizSettingsDialog(_settings, this);
 	settingsDialog->setObjectName("settingsDialog");
 	connect(settingsDialog, SIGNAL(settingsUpdated(const MusicQuiz::QuizSettings&)), this, SLOT(updateSettings(const MusicQuiz::QuizSettings&)));
+	settingsDialog->show();
+	settingsDialog->move(QGuiApplication::primaryScreen()->geometry().center() - settingsDialog->rect().center());
 	settingsDialog->exec();
 }
 

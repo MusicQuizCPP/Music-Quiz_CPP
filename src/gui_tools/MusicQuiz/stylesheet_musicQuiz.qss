@@ -670,6 +670,12 @@ QSpinBox#quizCreatorSpinbox
 	min-height						: 40px;
 }
 
+QSpinBox#settingsSpinbox
+{
+	font-size						: 18px;
+	min-height						: 28px;
+}
+
 
 
 /****************************************/

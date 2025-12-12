@@ -13,12 +13,11 @@
 #include <QMessageBox>
 #include <QGuiApplication>
 #include <QGraphicsBlurEffect>
+#include <QPainter>
 
 #include "common/Log.hpp"
 
 #include "util/QuizSettings.hpp"
-#include "gui_tools/widgets/QuizTeam.hpp"
-#include "gui_tools/widgets/QuizEntry.hpp"
 #include "gui_tools/widgets/QuizCategory.hpp"
 
 #include "gui_tools/GuiUtil/QExtensions/QPushButtonExtender.hpp"
@@ -85,6 +84,18 @@ MusicQuiz::QuizBoard::QuizBoard(const std::vector<MusicQuiz::QuizCategory*>& cat
 		const int clockSize = screenRect.height() * 0.08;
 		_countdownClock = new MusicQuiz::QExtensions::QCountDownClock(_settings.timeLimit, clockSize);
 		_countdownClock->move(QPoint(screenRect.width() - (clockSize + screenRect.width() * 0.01), screenRect.height() * 0.02));
+	}
+
+	/** Initialize bingo if enabled */
+	if ( _settings.bingoEnabled ) {
+		const int cols = static_cast<int>( _categories.size() );
+		const int rows = static_cast<int>( _categories[0]->getSize() );
+		_cellOwner.assign(cols, std::vector<int>(rows, -1));
+
+		/** Initialize bingo awarded trackers per team */
+		_bingoRowAwarded.assign(_teams.size(), std::vector<bool>(rows, false));
+		_bingoColAwarded.assign(_teams.size(), std::vector<bool>(cols, false));
+		_bingoDiagAwarded.assign(_teams.size(), std::vector<bool>(2, false));
 	}
 }
 
@@ -254,15 +265,18 @@ void MusicQuiz::QuizBoard::handleAnswer(const size_t points)
 	MusicQuiz::QuizEntry* entryButton = dynamic_cast<MusicQuiz::QuizEntry*>(sender());
 	if ( entryButton != nullptr ) {
 		entryButton->setColor(buttonColor);
-		return;
 	}
 
+	/** Set Category button color */
 	MusicQuiz::QuizCategory* categoryLabel = dynamic_cast<MusicQuiz::QuizCategory*>(sender());
 	if ( _settings.guessTheCategory && categoryLabel != nullptr ) {
 		categoryLabel->setCategoryColor(buttonColor);
 		handleGameComplete();
 		return;
 	}
+
+	/** Handle Bingo */
+	handleBingo(entryButton, team);
 }
 
 void MusicQuiz::QuizBoard::handleGameComplete()
@@ -304,6 +318,172 @@ void MusicQuiz::QuizBoard::handleGameComplete()
 		emit gameComplete(winningTeams);
 	} else if ( isGameComplete || _quizStopped ) {
 		emit gameComplete({});
+	}
+}
+
+void MusicQuiz::QuizBoard::handleBingo(MusicQuiz::QuizEntry* entry, MusicQuiz::QuizTeam* team)
+{
+	/** Sanity Check */
+	if ( entry == nullptr || team == nullptr || _bingoPixmap.isNull() || !_settings.bingoEnabled ) {
+		return;
+	}
+
+	/** Loop through the quiz and find the row and column that was answered */
+	int foundColumn = -1;
+	int foundRow = -1;
+	for ( int column = 0; column < static_cast<int>(_categories.size()); ++column ) {
+		for ( int row = 0; row < static_cast<int>(_categories[column]->getSize()); ++row ) {
+			if ( ( *_categories[column] )[row] == entry ) {
+				foundColumn = column;
+				foundRow = row;
+				break;
+			}
+		}
+
+		if ( foundColumn != -1 ) {
+			break;
+		}
+	}
+
+	/** Check if column and row was found */
+	if ( foundColumn == -1 && foundRow == -1 ) {
+		return;
+	}
+
+	/** Get team index */
+	int teamIdx = -1;
+	for ( size_t t = 0; t < _teams.size(); ++t ) {
+		if ( _teams[t] == team ) {
+			teamIdx = static_cast<int>(t);
+			break;
+		}
+	}
+
+	if ( teamIdx == -1 ) {
+		return;
+	}
+
+	/** Check for bingo */
+	int newBingo = 0;
+	_cellOwner[foundColumn][foundRow] = teamIdx;
+
+	/** Check row bingo */
+	bool rowBingo = true;
+	for ( int column = 0; column < static_cast<int>(_categories.size()); ++column ) {
+		if ( _cellOwner[column][foundRow] != teamIdx ) {
+			rowBingo = false;
+			break;
+		}
+	}
+
+	if ( rowBingo && !_bingoRowAwarded[teamIdx][foundRow] ) {
+		_bingoRowAwarded[teamIdx][foundRow] = true;
+		++newBingo;
+	}
+
+	/** Check column bingo */
+	bool columnBingo = true;
+	for ( int row = 0; row < static_cast<int>(_categories[0]->getSize()); ++row ) {
+		if ( _cellOwner[foundColumn][row] != teamIdx ) {
+			columnBingo = false;
+			break;
+		}
+	}
+
+	if ( columnBingo && !_bingoColAwarded[teamIdx][foundColumn] ) {
+		_bingoColAwarded[teamIdx][foundColumn] = true;
+		++newBingo;
+	}
+
+	/** Check diagonals */
+	if ( static_cast<int>( _categories.size() ) == static_cast<int>( _categories[0]->getSize() ) ) {
+		bool diagMain = true;
+		for ( int i = 0; i < static_cast<int>(_categories.size()); ++i ) {
+			if ( _cellOwner[i][i] != teamIdx ) {
+				diagMain = false;
+				break;
+			}
+		}
+
+		if ( diagMain && !_bingoDiagAwarded[teamIdx][0] ) {
+			_bingoDiagAwarded[teamIdx][0] = true;
+			++newBingo;
+		}
+
+		// anti-diagonal: col + row == n-1
+		bool diagAnti = true;
+		int n = static_cast<int>( _categories.size() );
+		for ( int i = 0; i < n; ++i ) {
+			if ( _cellOwner[i][n - 1 - i] != teamIdx ) {
+				diagAnti = false;
+				break;
+			}
+		}
+
+		if ( diagAnti && !_bingoDiagAwarded[teamIdx][1] ) {
+			_bingoDiagAwarded[teamIdx][1] = true;
+			++newBingo;
+		}
+	}
+
+	/** Show Bingo Image On screen for a few seconds then remove it with a timer */
+	if ( newBingo > 0 ) {
+		/** Create Image Label */
+		QVBoxLayout* layout = new QVBoxLayout;
+		QLabel* imageLabel = new QLabel(this);
+		layout->addWidget(imageLabel);
+		
+		/** Set Atributes */
+		imageLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
+		imageLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		imageLabel->setAlignment(Qt::AlignCenter);
+
+		/** Set Size and Position */
+		const QRect screenRec = QGuiApplication::primaryScreen()->geometry();
+		const int width = static_cast<int>( screenRec.width() * 0.7 );
+		const int height = static_cast<int>( screenRec.height() * 0.7 );
+		imageLabel->setMinimumSize(QSize(width, height));
+		imageLabel->resize(QSize(width, height));
+		imageLabel->move(QGuiApplication::primaryScreen()->geometry().center() - imageLabel->rect().center());
+
+		/** Set Image and draw points text */
+		QPixmap bingoOverlayPixmap = _bingoPixmap.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+		/** Setup painter */
+		QPainter painter(&bingoOverlayPixmap);
+		painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
+
+		/** Setup font */
+		QFont font = painter.font();
+		font.setBold(true);
+		int fontPointSize = std::max(12, static_cast<int>( bingoOverlayPixmap.height() * 0.06));
+		font.setPointSize(fontPointSize);
+		painter.setFont(font);
+
+		QRect rect = bingoOverlayPixmap.rect();
+		QRect textRect(rect.left(), rect.bottom() - (fontPointSize * 2) - 10, rect.width(), fontPointSize * 2 + 10);
+
+		/** Add text */
+		QPen yellowPen(Qt::yellow);
+		yellowPen.setWidth(1);
+		painter.setPen(yellowPen);
+		painter.drawText(textRect, Qt::AlignHCenter | Qt::AlignVCenter, "+" + QString::number(static_cast<int>( _settings.bingoPoints * newBingo )));
+		painter.end();
+
+		/** Show image */
+		imageLabel->setPixmap(bingoOverlayPixmap);
+		imageLabel->show();
+
+		/** Remove image after 5 seconds and clean up */
+		QTimer::singleShot(5000, this, [imageLabel, this]() {
+			if ( imageLabel != nullptr ) {
+				imageLabel->hide();
+				imageLabel->deleteLater();
+			}
+		});
+
+		/** Add points */
+		team->addPoints(_settings.bingoPoints * newBingo);
 	}
 }
 

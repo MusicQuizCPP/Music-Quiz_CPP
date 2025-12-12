@@ -33,5 +33,9 @@ namespace MusicQuiz {
 
 		/** Show Entry Type Icon */
 		bool showEntryTypeIcon = false;
+
+		/** Bingo */
+		bool bingoEnabled = false;
+		size_t bingoPoints = 100;
 	};
 }
