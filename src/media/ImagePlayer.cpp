@@ -50,6 +50,7 @@ void media::ImagePlayer::showImage(const std::filesystem::path& imageFile, const
 		/** Set parameters */
 		_elapsedTime = 0;
 		_depixilationDuration = depixilationDuration;
+		updateImagePixilation();
 
 		/** Start update timer */
 		_updateTimer->start();
