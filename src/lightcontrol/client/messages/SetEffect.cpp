@@ -1,20 +1,20 @@
 #include "SetEffect.hpp"
 
+#include <vector>
+
 #include "common/Log.hpp"
 #include <nlohmann/json.hpp>
 
-using namespace LightControl;
-using json = nlohmann::json;
 
-std::shared_ptr<std::string> SetEffect::compose() const
+std::shared_ptr<std::string> LightControl::SetEffect::compose() const
 {
-	std::vector<json> segments;
+	std::vector<nlohmann::json> segments;
 	segments.push_back({
 		{"fx", _effect},
 		{"sx", _speed},
 		{"ix", _intensity},
 	});
-	json data;
+	nlohmann::json data;
 	data["seg"] = segments;
 
 	return std::make_shared<std::string>(data.dump());

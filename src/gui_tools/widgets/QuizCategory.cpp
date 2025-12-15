@@ -145,8 +145,12 @@ void MusicQuiz::QuizCategory::updateTextSize()
 	_categoryBtn->setStyleSheet(QString::fromStdString(stylesheetString));
 }
 
-void MusicQuiz::QuizCategory::showEvent(QShowEvent*)
+void MusicQuiz::QuizCategory::showEvent(QShowEvent* event)
 {
+	/** Accept the event */
+	event->accept();
+
+	/** Update Text Size if not in guess the category mode */
 	if ( !_guessTheCategory ) {
 		updateTextSize();
 	}

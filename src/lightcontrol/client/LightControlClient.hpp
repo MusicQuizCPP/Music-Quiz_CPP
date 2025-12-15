@@ -1,10 +1,12 @@
 #pragma once
 
-#include <string>
-#include <cstdint>
-#include <thread>
 #include <mutex>
 #include <queue>
+#include <string>
+#include <memory>
+#include <vector>
+#include <thread>
+#include <cstdint>
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/beast/websocket.hpp>
@@ -21,7 +23,6 @@ namespace LightControl {
 		typedef void (*connected_callback)(LightControlClient*);
 
 	public:
-
 		/**
 		 * @brief Constructor
 		 *

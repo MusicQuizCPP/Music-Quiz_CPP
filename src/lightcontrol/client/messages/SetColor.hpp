@@ -2,11 +2,14 @@
 
 #include <boost/asio/buffer.hpp>
 
+#include <memory>
+#include <string>
 #include <cstdint>
 
-#include "SerializableMessage.hpp"
 #include <inttypes.h>
+#include "SerializableMessage.hpp"
 #include "lightcontrol/client/DeviceState.hpp"
+
 
 namespace LightControl {
 	class SetColor : public SerializableMessage {
@@ -14,7 +17,7 @@ namespace LightControl {
 		/**
 		 * @brief default Constructor
 		 */
-		SetColor() {};
+		SetColor() {}
 
 		/**
 		 * @brief Constructor
