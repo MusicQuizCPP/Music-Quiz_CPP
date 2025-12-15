@@ -4,14 +4,15 @@ cmake_policy(SET CMP0074 NEW)
 project(MusicQuiz)
 
 ### Options
-OPTION(BUILD_TESTS "Build tests" ON)
+OPTION(BUILD_LIGHT_CONTROL "Build Light Control" OFF)
+OPTION(BUILD_TESTS "Build tests" OFF)
 
 ### Set ROOT
 SET(ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 
-set (CMAKE_AUTOMOC ON)
-set (CMAKE_AUTOUIC ON)
-set (CMAKE_AUTORCC ON)
+SET(CMAKE_AUTOMOC ON)
+SET(CMAKE_AUTOUIC ON)
+SET(CMAKE_AUTORCC ON)
 
 ### Set build type
 IF( NOT CMAKE_BUILD_TYPE )
@@ -29,24 +30,27 @@ include("cmake/FindBoost.cmake")
 
 INCLUDE_DIRECTORIES( src )
 
-### Zeroconf
-include_directories(SYSTEM submodules/mdns/)
-
-### cereal serialisation library
-include_directories(SYSTEM submodules/cereal/include)
+### Light Control Modules 
+MESSAGE("-- Build Light Control: " ${BUILD_LIGHT_CONTROL})
+IF( BUILD_LIGHT_CONTROL )
+    ### Zeroconf
+    include_directories(SYSTEM submodules/mdns/)
+    
+    ### Cereal serialisation library
+    include_directories(SYSTEM submodules/cereal/include)
+ENDIF()
 
 ### Set the output dir for generated libraries and binaries
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime directory" FORCE)
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/libs" CACHE PATH "Library directory" FORCE)
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/libs" CACHE PATH "Archive directory" FORCE)
 
-
 ### add extra definitions. c++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if( MSVC )
+IF( MSVC )
     # Using c++17.
     # -permissive- Forces C++ standards in the code.
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /permissive- ")
@@ -56,19 +60,15 @@ if( MSVC )
     add_compile_definitions(BOOST_ALL_NO_LIB)    #Don't autolink boost libraries
     add_compile_definitions(_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING) #shut up MSVC
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)                           #shut up MSVC
+ELSE()
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wconversion -Werror -Wpointer-arith -Wcast-qual -Wall -Wextra -Wshadow -Wold-style-cast -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -pthread -g")
 
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wconversion -Werror -Wpointer-arith -Wcast-qual -Wall -Wextra -Wshadow -Wold-style-cast -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -pthread -g")
-
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wlogical-op")
-    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-conversion")
-    endif()
-endif()
-
-
-
+    IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wlogical-op")
+    ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-conversion")
+    ENDIF()
+ENDIF()
 
 ### find the files
 SET(SRC_FILES CACHE INTERNAL "" FORCE)
