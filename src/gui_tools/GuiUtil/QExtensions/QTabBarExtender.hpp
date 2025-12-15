@@ -12,7 +12,6 @@ namespace MusicQuiz {
 			Q_OBJECT
 
 		public:
-
 			/**
 			 * @brief Default constructor.
 			 */
