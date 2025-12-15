@@ -2,11 +2,14 @@
 
 #include <boost/asio/buffer.hpp>
 
+#include <memory>
+#include <string>
 #include <cstdint>
 
 #include "SerializableMessage.hpp"
 #include <inttypes.h>
 #include "lightcontrol/client/DeviceState.hpp"
+
 
 namespace LightControl {
 	class SetOn : public SerializableMessage {
@@ -14,7 +17,7 @@ namespace LightControl {
 		/**
 		 * @brief default Constructor
 		 */
-		SetOn() {};
+		SetOn() {}
 
 		/**
 		 * @brief Constructor

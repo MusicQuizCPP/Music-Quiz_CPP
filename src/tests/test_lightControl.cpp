@@ -8,7 +8,6 @@
 #include "lightcontrol/client/messages/SetEffect.hpp"
 #include "lightcontrol/client/messages/SetColor.hpp"
 
-using namespace LightControl;
 
 int main()
 {
@@ -33,14 +32,14 @@ int main()
 	// client->sendMessage(GlitterMessage(std::chrono::milliseconds(50), true, 10));
 	// client->sendMessage(PulseMessage(std::chrono::milliseconds(5000), PulseMessage::PulseDirection::PULSE_IN, true));
 
-	client->sendMessage(SetOn(true, 255));
-    client->sendMessage(SetEffect(static_cast<WledEffects>(1), 128, 128));
+	client->sendMessage(LightControl::SetOn(true, 255));
+    client->sendMessage(LightControl::SetEffect(static_cast<LightControl::WledEffects>(1), 128, 128));
 
 	uint8_t b = 0;
 	while(true)
 	{
 	    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		client->sendMessage(SetColor(50, 50, b++));
+		client->sendMessage(LightControl::SetColor(50, 50, b++));
 
 	}
 }

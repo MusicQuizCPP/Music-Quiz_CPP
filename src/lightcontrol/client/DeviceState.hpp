@@ -1,8 +1,11 @@
 #pragma once
 
-#include <boost/asio/buffer.hpp>
 #include <string>
 #include <vector>
+
+#include <boost/asio/buffer.hpp>
+
+
 namespace LightControl {
 	class DeviceState {
 	public:
@@ -16,6 +19,5 @@ namespace LightControl {
 		std::string name;
 		std::vector<std::string> effects;
 		std::vector<std::string> palettes;
-
 	};
 }

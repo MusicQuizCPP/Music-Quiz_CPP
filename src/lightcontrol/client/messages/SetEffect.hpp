@@ -2,11 +2,14 @@
 
 #include <boost/asio/buffer.hpp>
 
+#include <memory>
+#include <string>
 #include <cstdint>
 
-#include "SerializableMessage.hpp"
 #include <inttypes.h>
+#include "SerializableMessage.hpp"
 #include "lightcontrol/client/DeviceState.hpp"
+
 
 namespace LightControl {
 	enum WledEffects {
@@ -21,7 +24,7 @@ namespace LightControl {
 		/**
 		 * @brief default Constructor
 		 */
-		SetEffect() {};
+		SetEffect() {}
 
 		/**
 		 * @brief Constructor

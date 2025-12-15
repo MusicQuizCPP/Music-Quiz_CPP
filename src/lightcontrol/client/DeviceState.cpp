@@ -2,21 +2,18 @@
 
 #include "common/Log.hpp"
 
-#include <boost/iostreams/stream.hpp>
-#include <boost/iostreams/stream_buffer.hpp>
 #include <boost/asio.hpp>
 #include <nlohmann/json.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/stream_buffer.hpp>
 
-using namespace LightControl;
-using namespace boost::asio;
-using json = nlohmann::json;
 
-void DeviceState::parseMessage(boost::asio::mutable_buffer& buffer)
+void LightControl::DeviceState::parseMessage(boost::asio::mutable_buffer& buffer)
 {
 	std::string s(static_cast<char*>(buffer.data()), buffer.size());
-	json data = json::parse(s);
+	nlohmann::json data = nlohmann::json::parse(s);
 	
-	// info
+	/** Info */
 	if(data.contains("info")) {
 		if(data["info"].contains("name")) {
 			name = data["info"]["name"].get<std::string>();
