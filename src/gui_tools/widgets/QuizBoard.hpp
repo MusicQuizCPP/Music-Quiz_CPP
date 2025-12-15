@@ -116,8 +116,10 @@ namespace MusicQuiz {
 	protected:
 		/**
 		 * @brief Overrides the show event to update the text size.
+		 * 
+		 * @param[in] event The event.
 		 */
-		void showEvent(QShowEvent*) override;
+		void showEvent(QShowEvent* event) override;
 
 		/**
 		 * @brief Creates the category layout.
