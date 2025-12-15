@@ -550,7 +550,7 @@ void MusicQuiz::QuizSettingsDialog::saveSettings()
 
 	/** Guess Time Limit */
 	settings.guessTimeLimit = _guessTimeLimit->isChecked();
-	settings.timeLimit = static_cast<size_t>( _guessTimeLimitSlider->value() ) * 1000;
+	settings.timeLimit = static_cast<size_t>(_guessTimeLimitSlider->value()) * 1000;
 
 	/** Daily Double */
 	settings.dailyDouble = _dailyDouble->isChecked();

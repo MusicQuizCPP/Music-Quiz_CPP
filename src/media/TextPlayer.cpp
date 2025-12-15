@@ -1,5 +1,6 @@
 #include "TextPlayer.hpp"
 
+#include <utility>
 #include <stdexcept>
 
 #include <QScreen>

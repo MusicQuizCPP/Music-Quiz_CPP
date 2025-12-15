@@ -1,5 +1,6 @@
 #include "VideoPlayer.hpp"
 
+#include <string>
 #include <stdexcept>
 
 #include <QVBoxLayout>

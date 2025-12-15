@@ -30,7 +30,12 @@ namespace MusicQuiz {
 			QSize tabSizeHint(int index) const;
 
 		protected:
-			void paintEvent(QPaintEvent* /*event*/);
+			/**
+			 * @brief Paint event.
+			 *
+			 * @param[in] event The paint event.
+			 */
+			void paintEvent(QPaintEvent* event);
 		};
 	}
 }

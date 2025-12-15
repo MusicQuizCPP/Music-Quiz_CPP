@@ -66,13 +66,13 @@ void MusicQuiz::QExtensions::QCountDownClock::updateClock()
 	}
 }
 
-void MusicQuiz::QExtensions::QCountDownClock::paintEvent(QPaintEvent*) 
+void MusicQuiz::QExtensions::QCountDownClock::paintEvent(QPaintEvent* event) 
 {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);
 	const QRectF rectangle = rect();
 	const int startAngle = 90 * 16;
-	const float value = 1.0f - static_cast<float>( _elapsedTime ) / static_cast<float>( _countdown );
+	const float value = 1.0f - static_cast<float>(_elapsedTime) / static_cast<float>(_countdown);
 	const int spanAngle = static_cast<int>(value * 360 * 16);
 
 	/** Draw circle */

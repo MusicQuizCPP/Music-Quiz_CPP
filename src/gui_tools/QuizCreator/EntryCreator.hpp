@@ -648,7 +648,7 @@ namespace MusicQuiz {
 		 *
 		 * @return True is name is valid.
 		 */
-		bool isImageFileValid( const QString& fileName ) const;
+		bool isImageFileValid(const QString& fileName) const;
 
 		/**
 		 * @brief Gets the time in msec from a QTime.

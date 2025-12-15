@@ -13,7 +13,7 @@ QSize MusicQuiz::QExtensions::QTabBarExtender::tabSizeHint(int index) const
 	return s;
 }
 
-void MusicQuiz::QExtensions::QTabBarExtender::paintEvent(QPaintEvent* /*event*/)
+void MusicQuiz::QExtensions::QTabBarExtender::paintEvent(QPaintEvent* event)
 {
 	QStylePainter painter(this);
 	QStyleOptionTab opt;

@@ -88,8 +88,8 @@ MusicQuiz::QuizBoard::QuizBoard(const std::vector<MusicQuiz::QuizCategory*>& cat
 
 	/** Initialize bingo if enabled */
 	if ( _settings.bingoEnabled ) {
-		const int cols = static_cast<int>( _categories.size() );
-		const int rows = static_cast<int>( _categories[0]->getSize() );
+		const int cols = static_cast<int>(_categories.size());
+		const int rows = static_cast<int>(_categories[0]->getSize());
 		_cellOwner.assign(cols, std::vector<int>(rows, -1));
 
 		/** Initialize bingo awarded trackers per team */
@@ -396,7 +396,7 @@ void MusicQuiz::QuizBoard::handleBingo(MusicQuiz::QuizEntry* entry, MusicQuiz::Q
 	}
 
 	/** Check diagonals */
-	if ( static_cast<int>( _categories.size() ) == static_cast<int>( _categories[0]->getSize() ) ) {
+	if ( static_cast<int>(_categories.size()) == static_cast<int>(_categories[0]->getSize()) ) {
 		bool diagMain = true;
 		for ( int i = 0; i < static_cast<int>(_categories.size()); ++i ) {
 			if ( _cellOwner[i][i] != teamIdx ) {
@@ -412,7 +412,7 @@ void MusicQuiz::QuizBoard::handleBingo(MusicQuiz::QuizEntry* entry, MusicQuiz::Q
 
 		// anti-diagonal: col + row == n-1
 		bool diagAnti = true;
-		int n = static_cast<int>( _categories.size() );
+		int n = static_cast<int>(_categories.size());
 		for ( int i = 0; i < n; ++i ) {
 			if ( _cellOwner[i][n - 1 - i] != teamIdx ) {
 				diagAnti = false;
@@ -440,8 +440,8 @@ void MusicQuiz::QuizBoard::handleBingo(MusicQuiz::QuizEntry* entry, MusicQuiz::Q
 
 		/** Set Size and Position */
 		const QRect screenRec = QGuiApplication::primaryScreen()->geometry();
-		const int width = static_cast<int>( screenRec.width() * 0.7 );
-		const int height = static_cast<int>( screenRec.height() * 0.7 );
+		const int width = static_cast<int>(screenRec.width() * 0.7);
+		const int height = static_cast<int>(screenRec.height() * 0.7);
 		imageLabel->setMinimumSize(QSize(width, height));
 		imageLabel->resize(QSize(width, height));
 		imageLabel->move(QGuiApplication::primaryScreen()->geometry().center() - imageLabel->rect().center());
@@ -456,7 +456,7 @@ void MusicQuiz::QuizBoard::handleBingo(MusicQuiz::QuizEntry* entry, MusicQuiz::Q
 		/** Setup font */
 		QFont font = painter.font();
 		font.setBold(true);
-		int fontPointSize = std::max(12, static_cast<int>( bingoOverlayPixmap.height() * 0.04));
+		int fontPointSize = std::max(12, static_cast<int>(bingoOverlayPixmap.height() * 0.04));
 		font.setPointSize(fontPointSize);
 		painter.setFont(font);
 
@@ -467,7 +467,7 @@ void MusicQuiz::QuizBoard::handleBingo(MusicQuiz::QuizEntry* entry, MusicQuiz::Q
 		QPen yellowPen(Qt::yellow);
 		yellowPen.setWidth(1);
 		painter.setPen(yellowPen);
-		painter.drawText(textRect, Qt::AlignHCenter | Qt::AlignVCenter, "+" + QString::number(static_cast<int>( _settings.bingoPoints * newBingo )));
+		painter.drawText(textRect, Qt::AlignHCenter | Qt::AlignVCenter, "+" + QString::number(static_cast<int>(_settings.bingoPoints * newBingo)));
 		painter.end();
 
 		/** Show image */

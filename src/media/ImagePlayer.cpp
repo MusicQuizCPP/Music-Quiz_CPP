@@ -1,5 +1,7 @@
 #include "ImagePlayer.hpp"
 
+#include <string>
+#include <algorithm>
 #include <stdexcept>
 
 #include <QVBoxLayout>
@@ -164,8 +166,8 @@ void media::ImagePlayer::updateImagePixilation()
 	const double factor = minimumFactor + easedProgress * ( 1.0 - minimumFactor );
 
 	/** Calculate new size */
-    int newWidth = static_cast<int>( labelSize.width() * factor );
-    int newHeight = static_cast<int>( labelSize.height() * factor );
+    int newWidth = static_cast<int>(labelSize.width() * factor);
+    int newHeight = static_cast<int>(labelSize.height() * factor);
     newWidth = std::max(1, newWidth);
     newHeight = std::max(1, newHeight);
     const QSize newSize(newWidth, newHeight);

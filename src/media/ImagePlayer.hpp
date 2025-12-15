@@ -17,6 +17,7 @@
 namespace media {
 	class ImagePlayer : public QWidget {
 		Q_OBJECT
+
 	public:
 		/**
 		 * @brief Constructor

@@ -14,7 +14,6 @@ namespace MusicQuiz {
 			Q_OBJECT
 
 		public:
-
 			/**
 			 * @brief Constructor.
 			 * 
@@ -22,7 +21,7 @@ namespace MusicQuiz {
 			 * @param[in] widgetSize  The size of the clock widget.
 			 * @param[in] parent      The parent widget.
 			 */
-			QCountDownClock(const int countdown, const int widgetSize = 100, QWidget* parent = nullptr);
+			explicit QCountDownClock(const int countdown, const int widgetSize = 100, QWidget* parent = nullptr);
 
 			/**
 			 * @brief Default destructor.
@@ -51,7 +50,7 @@ namespace MusicQuiz {
 			 * 
 			 * @param[in] event The paint event.
 			 */
-			void paintEvent(QPaintEvent*) override;
+			void paintEvent(QPaintEvent* event) override;
 
 		private slots:
 			/**

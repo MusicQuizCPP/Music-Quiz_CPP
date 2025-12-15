@@ -16,6 +16,7 @@
 namespace media {
 	class VideoPlayer : public QWidget {
 		Q_OBJECT
+
 	public:
 		enum class VideoPlayState {
 			IDLE = 1,		// Default

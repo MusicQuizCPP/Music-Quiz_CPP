@@ -52,8 +52,8 @@ MusicQuiz::MusicQuizController::MusicQuizController(const common::Configuration&
 		Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
 
 	/** Set Image Player Size */
-	const int imagePlayerWidth = static_cast<int>( screenRec.width() * 0.8 );
-	const int imagePlayerHeight = static_cast<int>( screenRec.height() * 0.8 );
+	const int imagePlayerWidth = static_cast<int>(screenRec.width() * 0.8);
+	const int imagePlayerHeight = static_cast<int>(screenRec.height() * 0.8);
 	_imagePlayer->setMinimumSize(QSize(imagePlayerWidth, imagePlayerHeight));
 	_imagePlayer->resize(QSize(imagePlayerWidth, imagePlayerHeight));
 
@@ -66,8 +66,8 @@ MusicQuiz::MusicQuizController::MusicQuizController(const common::Configuration&
 		Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
 
 	/** Set Image Player Size */
-	const int textPlayerWidth = static_cast<int>( screenRec.width() * 0.8 );
-	const int textPlayerHeight = static_cast<int>( screenRec.height() * 0.8 );
+	const int textPlayerWidth = static_cast<int>(screenRec.width() * 0.8);
+	const int textPlayerHeight = static_cast<int>(screenRec.height() * 0.8);
 	_textPlayer->setMinimumSize(QSize(textPlayerWidth, textPlayerHeight));
 	_textPlayer->resize(QSize(textPlayerWidth, textPlayerHeight));
 

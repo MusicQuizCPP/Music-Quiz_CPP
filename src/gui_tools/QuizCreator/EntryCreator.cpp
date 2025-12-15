@@ -44,7 +44,7 @@ MusicQuiz::EntryCreator::EntryCreator(const boost::property_tree::ptree &tree, c
 		loadVideoFromXml(tree);
 	} else if ( type == "textToSpeech" ) {
 		loadTextToSpeechFromXml(tree);
-	} else if( type == "image" ) {
+	} else if ( type == "image" ) {
 		loadImageFromXml(tree);
 	} else if ( type == "text" ) {
 		loadTextFromXml(tree);
@@ -861,10 +861,10 @@ void MusicQuiz::EntryCreator::playSong()
 		fileName = _textToSpeechAnswerSongFileLineEdit->text().toStdString();
 
 		/** Get Start and End Time */
-		startTime = toMSec( _textToSpeechAnswerStartTimeEdit->time() );
-	} else if( type == "imageSongAnswer" ) {
+		startTime = toMSec(_textToSpeechAnswerStartTimeEdit->time());
+	} else if ( type == "imageSongAnswer" ) {
 		/** Sanity Check */
-		if( _imageAnswerStartTimeEdit == nullptr || _imageAnswerSongFileLineEdit == nullptr ) {
+		if ( _imageAnswerStartTimeEdit == nullptr || _imageAnswerSongFileLineEdit == nullptr ) {
 			return;
 		}
 
@@ -1369,8 +1369,7 @@ void MusicQuiz::EntryCreator::checkImageFiles()
 		if ( isImageValid ) {
 			/** Set Line Edit Color */
 			_imageFileLineEdit->setStyleSheet("color: black;");
-		}
-		else {
+		} else {
 			/** Set Line Edit Color */
 			_imageFileLineEdit->setStyleSheet("color: red;");
 		}
@@ -1379,7 +1378,7 @@ void MusicQuiz::EntryCreator::checkImageFiles()
 	}
 
 	/** Image Answer Song File Line Edit */
-	if ( _imageAnswerSongFileLineEdit->isEnabled()) {
+	if ( _imageAnswerSongFileLineEdit->isEnabled() ) {
 		if ( isAnswerSongValid ) {
 			/** Set Line Edit Color */
 			_imageAnswerSongFileLineEdit->setStyleSheet("color: black;");
@@ -1411,8 +1410,7 @@ void MusicQuiz::EntryCreator::checkTextAnswerSongFileName()
 	if ( isValid ) {
 		/** Line Edit Color */
 		textColor = QColor(0, 0, 0);
-	}
-	else {
+	} else {
 		/** Line Edit Color */
 		textColor = QColor(255, 0, 0);
 	}
@@ -1425,8 +1423,7 @@ void MusicQuiz::EntryCreator::checkTextAnswerSongFileName()
 	/** Set Line Edit Color */
 	if ( !_textAnswerSongFileLineEdit->isEnabled() ) {
 		_textAnswerSongFileLineEdit->setStyleSheet("color: rgb(150, 150, 150);");
-	}
-	else {
+	} else {
 		_textAnswerSongFileLineEdit->setStyleSheet("color: rgb(" + QString::number(textColor.red()) + "," + QString::number(textColor.green()) + "," + QString::number(textColor.blue()) + ");");
 	}
 }
@@ -1481,19 +1478,19 @@ bool MusicQuiz::EntryCreator::isImageFileValid( const QString& fileName ) const
 {
 	/** Check if file has a valid format */
 	bool validFormat = false;
-	for( size_t i = 0; i < _validImageFormats.size(); ++i ) {
+	for ( size_t i = 0; i < _validImageFormats.size(); ++i ) {
 		if( fileName.toLower().contains( _validImageFormats[i] ) ) {
 			validFormat = true;
 			break;
 		}
 	}
 
-	if( !validFormat ) {
+	if ( !validFormat ) {
 		return false;
 	}
 
 	/** Check if file exists */
-	if( !std::filesystem::exists( fileName.toStdString() ) ) {
+	if ( !std::filesystem::exists( fileName.toStdString() ) ) {
 		return false;
 	}
 

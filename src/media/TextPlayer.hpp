@@ -16,6 +16,7 @@
 namespace media {
 	class TextPlayer : public QWidget {
 		Q_OBJECT
+
 	public:
 		/**
 		 * @brief Constructor

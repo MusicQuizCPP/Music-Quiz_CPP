@@ -1,5 +1,6 @@
 #include "AudioPlayer.hpp"
 
+#include <string>
 #include <stdexcept>
 
 #include <QMediaContent>
