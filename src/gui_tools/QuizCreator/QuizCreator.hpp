@@ -1,10 +1,14 @@
 #pragma once
 
+#include <memory>
 #include <vector>
+#include <string>
 
+#include <QLabel>
 #include <QObject>
 #include <QWidget>
 #include <QDialog>
+#include <QSpinBox>
 #include <QTextEdit>
 #include <QLineEdit>
 #include <QCheckBox>
@@ -13,6 +17,8 @@
 
 #include "media/AudioPlayer.hpp"
 #include "media/VideoPlayer.hpp"
+#include "media/TextToSpeechPlayer.hpp"
+
 #include "QuizData.hpp"
 
 
@@ -20,15 +26,14 @@ namespace common {
 	class Configuration;
 }
 
-
 namespace MusicQuiz {
 	class QuizBoard;
 	class CategoryCreator;
 
 	class QuizCreator : public QDialog {
 		Q_OBJECT
-	public:
 
+	public:
 		/**
 		 * @brief Constructor
 		 *
@@ -46,8 +51,6 @@ namespace MusicQuiz {
 		 */
 		QuizCreator(const QuizCreator&) = delete;
 		QuizCreator& operator=(const QuizCreator&) = delete;
-
-	public slots:
 
 	private slots:
 		/**
@@ -154,24 +157,40 @@ namespace MusicQuiz {
 		void stopQuizPreview();
 
 		/**
+		 * @brief Resets everything so a new quiz can be created.
+		 */
+		void newQuiz();
+
+		/**
 		 * @brief Quits the quiz creator.
 		 */
 		void quitCreator();
-
-		void categoryOrderChanged(int, int, int);
 
 		/**
 		 * @brief handle keypresses.
 		 */
 		void keyPressEvent(QKeyEvent* event);
 
-	signals:
+		/**
+		 * @brief Shows the settings for guess the categories if the checkbox is enabled.
+		 * 
+		 * @param[in] show True if the settings should be shown.
+		 */
+		void showGuessTheCategoriesSettings(const bool show);
 
 	protected:
 		/**
 		 * @brief Creates the category layout.
 		 */
 		void createLayout();
+
+		/**
+		 * @brief Checks that the quiz is valid, and throws otherwise.
+		 *
+		 * @param[in] categories The quiz categories.
+		 */
+		void checkThatQuizIsValid(const std::vector< MusicQuiz::CategoryCreator* >& categories);
+
 
 		/** Variables */
 		std::string _quizSavedName = "";
@@ -180,9 +199,10 @@ namespace MusicQuiz {
 
 		QLineEdit* _quizNameLineEdit = nullptr;
 		QLineEdit* _quizAuthorLineEdit = nullptr;
-		QTextEdit* _quizDescriptionTextEdit = nullptr;
 
-		QCheckBox* _hiddenCategoriesCheckbox = nullptr;
+		QCheckBox* _guessTheCategoriesCheckbox = nullptr;
+		QLabel* _guessTheCategoriesPointsLabel = nullptr;
+		QSpinBox* _guessTheCategoriesPointsSpinbox = nullptr;
 
 		QTableWidget* _categoriesTable = nullptr;
 		QTableWidget* _rowCategoriesTable = nullptr;
@@ -192,6 +212,7 @@ namespace MusicQuiz {
 		/** Audio Player */
 		std::shared_ptr<media::AudioPlayer> _audioPlayer = nullptr;
 		std::shared_ptr<media::VideoPlayer> _videoPlayer = nullptr;
+		std::shared_ptr<media::TextToSpeechPlayer> _textToSpeechPlayer = nullptr;
 
 		/** Preview Quiz Board */
 		MusicQuiz::QuizBoard* _previewQuizBoard = nullptr;

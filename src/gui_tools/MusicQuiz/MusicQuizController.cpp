@@ -27,11 +27,12 @@ MusicQuiz::MusicQuizController::MusicQuizController(const common::Configuration&
 	_introScreenDone(false), _gameCompleted(false), _config(config)
 {
 	/** Create Audio Player */
-	_audioPlayer = std::make_shared<media::AudioPlayer>();
+	_audioPlayer = std::make_shared< media::AudioPlayer >();
 
 	/** Create Video Player */
-	_videoPlayer = std::make_shared<media::VideoPlayer>();
-	_videoPlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint | Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+	_videoPlayer = std::make_shared< media::VideoPlayer >();
+	_videoPlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint |
+		Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
 
 	/** Set Video Player Size */
 	const QRect screenRec = QGuiApplication::primaryScreen()->geometry();
@@ -40,6 +41,9 @@ MusicQuiz::MusicQuizController::MusicQuizController(const common::Configuration&
 
 	/** Center Video Player */
 	_videoPlayer->move(0, 0);
+
+	/** Create Text to Speech Player */
+	_textToSpeechPlayer = std::make_shared< media::TextToSpeechPlayer >();
 
 	/** Connect Update Timer */
 	connect(&_updateTimer, SIGNAL(timeout()), this, SLOT(executeQuiz()));
@@ -110,7 +114,8 @@ void MusicQuiz::MusicQuizController::executeQuiz()
 
 		/** Connect Signals */
 		connect(_quizSelector, SIGNAL(quitSignal()), this, SLOT(quitQuiz()));
-		connect(_quizSelector, SIGNAL(quizSelectedSignal(size_t, const QString&, const QString&, const MusicQuiz::QuizSettings&)), this, SLOT(quizSelected(size_t, const QString&, const QString&, const MusicQuiz::QuizSettings&)));
+		connect(_quizSelector, SIGNAL(quizSelectedSignal(size_t, const QString&, const QString&, const MusicQuiz::QuizSettings&)),
+			this, SLOT(quizSelected(size_t, const QString&, const QString&, const MusicQuiz::QuizSettings&)));
 
 		/** Show widget */
 		_quizSelector->exec();
@@ -179,7 +184,7 @@ void MusicQuiz::MusicQuizController::executeQuiz()
 
 		try {
 			/** Create Quiz Board */
-			_quizBoard = MusicQuiz::QuizFactory::createQuiz(_selectedQuizIdx, _settings, _audioPlayer, _videoPlayer, _config, _teams);
+			_quizBoard = MusicQuiz::QuizFactory::createQuiz(_selectedQuizIdx, _settings, _audioPlayer, _videoPlayer, _textToSpeechPlayer, _config, _teams);
 
 			/** Connect Signals */
 			connect(_quizBoard, SIGNAL(quitSignal()), this, SLOT(quitQuiz()));

@@ -13,15 +13,13 @@ static int queryCallback(int sock, const struct sockaddr* from, size_t addrlen, 
 	size_t record_length, void* user_data);
 
 
-using namespace LightControl;
-
-LightControlDiscover::LightControlDiscover() :
+LightControl::LightControlDiscover::LightControlDiscover() :
 	shouldStop(false), discover_thread(&LightControlDiscover::run, this)
 {
 	init();
 }
 
-LightControlDiscover::~LightControlDiscover()
+LightControl::LightControlDiscover::~LightControlDiscover()
 {
 	shouldStop = true;
 	discover_thread.join();
@@ -44,7 +42,7 @@ int queryCallback(int sock, const struct sockaddr* from, size_t addrlen, mdns_en
 
 	char entrybuffer[256];
 	char namebuffer[256];
-	LightControlDiscover* instance = static_cast<LightControlDiscover*>(user_data);
+	LightControl::LightControlDiscover* instance = static_cast<LightControl::LightControlDiscover*>(user_data);
 
 
 	mdns_string_t entrystr = mdns_string_extract(data, size, &name_offset, entrybuffer, sizeof(entrybuffer));
@@ -65,25 +63,25 @@ int queryCallback(int sock, const struct sockaddr* from, size_t addrlen, mdns_en
 	return 0;
 }
 
-void LightControlDiscover::clearDevices()
+void LightControl::LightControlDiscover::clearDevices()
 {
 	const std::lock_guard<std::mutex> lock(_deviceLock);
 	_devices.clear();
 }
 
-void LightControlDiscover::addDevice(std::string name, std::string address)
+void LightControl::LightControlDiscover::addDevice(std::string name, std::string address)
 {
 	const std::lock_guard<std::mutex> lock(_deviceLock);
 	_devices[name] = address;
 }
 
 
-std::map<std::string, std::string> LightControlDiscover::getDevices()
+std::map<std::string, std::string> LightControl::LightControlDiscover::getDevices()
 {
 	return _devices;
 }
 
-void LightControlDiscover::init()
+void LightControl::LightControlDiscover::init()
 {
 	//Initialize windows socket API
 #ifdef _WIN32
@@ -96,9 +94,9 @@ void LightControlDiscover::init()
 #endif
 }
 
-void LightControlDiscover::run()
+void LightControl::LightControlDiscover::run()
 {
-	const char* service = "_ws._tcp.local.";
+	const char* service = "_wled._tcp.local.";
 	int sockets[32];
 	int query_id[32];
 	int num_sockets = open_client_sockets(sockets, sizeof(sockets) / sizeof(sockets[0]), 0);

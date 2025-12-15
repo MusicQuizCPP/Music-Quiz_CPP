@@ -11,8 +11,10 @@
 #include "common/Log.hpp"
 
 
-MusicQuiz::QuizEntry::QuizEntry(const QString& audioFile, const QString& answer, const size_t points, const size_t startTime, const size_t answerStartTime, const media::AudioPlayer::Ptr& audioPlayer, QWidget* parent) :
-	QPushButton(parent), _points(points), _startTime(startTime), _answerStartTime(answerStartTime), _answer(answer), _audioFile(audioFile), _audioPlayer(audioPlayer)
+MusicQuiz::QuizEntry::QuizEntry(const QString& audioFile, const QString& answer, const size_t points, const size_t startTime, const size_t answerStartTime,
+	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, QWidget* parent) :
+	QPushButton(parent), _points(points), _startTime(startTime), _answerStartTime(answerStartTime), _answer(answer), _audioFile(audioFile),
+	_audioPlayer(audioPlayer), _videoPlayer(videoPlayer), _textToSpeechPlayer(textToSpeechPlayer)
 {
 	/** Sanity Check */
 	if ( _audioPlayer == nullptr ) {
@@ -33,16 +35,13 @@ MusicQuiz::QuizEntry::QuizEntry(const QString& audioFile, const QString& answer,
 
 	/** Set Entry Type */
 	_type = EntryType::Song;
-
-	/** Set Start Width */
-	//_startWidth = width();
 }
 
 MusicQuiz::QuizEntry::QuizEntry(const QString& audioFile, const QString& videoFile, const QString& answer, size_t points, size_t songStartTime, size_t videoStartTime, size_t answerStartTime,
-	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, QWidget* parent) :
+	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, QWidget* parent) :
 	QPushButton(parent), _points(points), _startTime(songStartTime), _videoStartTime(videoStartTime),
 	_answerStartTime(answerStartTime), _answer(answer), _audioFile(audioFile),
-	_videoFile(videoFile), _audioPlayer(audioPlayer), _videoPlayer(videoPlayer)
+	_videoFile(videoFile), _audioPlayer(audioPlayer), _videoPlayer(videoPlayer), _textToSpeechPlayer(textToSpeechPlayer)
 {
 	/** Sanity Check */
 	if ( _audioPlayer == nullptr ) {
@@ -70,6 +69,33 @@ MusicQuiz::QuizEntry::QuizEntry(const QString& audioFile, const QString& videoFi
 
 	/** Create Callback Function */
 	_mouseEventCallback = std::bind(&MusicQuiz::QuizEntry::handleMouseEvent, this, std::placeholders::_1);
+}
+
+MusicQuiz::QuizEntry::QuizEntry(const QString& string, const QString& audioFile, const QString& answer, const size_t points, size_t answerStartTime,
+	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer,
+	const media::TextToSpeechPlayer::TextToSpeechSettings& textToSpeechSettings, QWidget* parent) :
+	QPushButton(parent), _points(points), _speechString(string), _answerStartTime(answerStartTime), _answer(answer), _audioFile(audioFile),
+	_audioPlayer(audioPlayer), _videoPlayer(videoPlayer), _textToSpeechPlayer(textToSpeechPlayer), _textToSpeechSettings(textToSpeechSettings)
+{
+	/** Sanity Check */
+	if ( _textToSpeechPlayer == nullptr ) {
+		throw std::runtime_error("Failed to create quiz entry. Invalid text to speech player.");
+	}
+
+	/** Set Button Text */
+	setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
+
+	/** Set Start State */
+	_state = EntryState::IDLE;
+
+	/** Set Object Name */
+	setObjectName("QuizEntry");
+
+	/** Set Size Policy */
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+	/** Set Entry Type */
+	_type = EntryType::TextToSpeech;
 }
 
 void MusicQuiz::QuizEntry::mouseReleaseEvent(QMouseEvent* event)
@@ -132,29 +158,45 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 	case EntryState::IDLE: // Start Media
 		_state = EntryState::PLAYING;
 		if ( _type == EntryType::Song ) {
+			_videoPlayer->stop();
+			_textToSpeechPlayer->stop();
 			_audioPlayer->play(_audioFile, _startTime);
 		} else if ( _type == EntryType::Video ) {
 			_audioPlayer->stop();
+			_textToSpeechPlayer->stop();
 			_videoPlayer->play(_videoFile, _videoStartTime, true);
 			_videoPlayer->show();
 			_audioPlayer->play(_audioFile, _startTime);
+		} else if ( _type == EntryType::TextToSpeech ) {
+			_audioPlayer->stop();
+			_videoPlayer->stop();
+			_textToSpeechPlayer->play(_speechString, _textToSpeechSettings);
 		}
+
 		break;
 	case EntryState::PLAYING: // Pause Media
 		_state = EntryState::PAUSED;
+
 		_audioPlayer->pause();
-		if ( _videoPlayer != nullptr ) {
-			_videoPlayer->pause();
-		}
+		_videoPlayer->pause();
+		_textToSpeechPlayer->pause();
+
 		break;
 	case EntryState::PAUSED: // Play Answer
 		_textSizeSet = false;
 		_state = EntryState::PLAYING_ANSWER;
 		if ( _type == EntryType::Song ) {
+			_videoPlayer->stop();
+			_textToSpeechPlayer->stop();
 			_audioPlayer->play(_audioFile, _answerStartTime);
 		} else if ( _type == EntryType::Video ) {
+			_audioPlayer->stop();
+			_textToSpeechPlayer->stop();
 			_videoPlayer->play(_videoFile, _answerStartTime);
 			_videoPlayer->show();
+		} else if ( _type == EntryType::TextToSpeech ) {
+			_videoPlayer->stop();
+			_audioPlayer->play(_audioFile, _answerStartTime);
 		}
 
 		if ( !_hiddenAnswer ) {
@@ -163,19 +205,28 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 		break;
 	case EntryState::PLAYING_ANSWER: // Entry Answered
 		_state = EntryState::PLAYED;
+
 		_audioPlayer->stop();
-		if ( _videoPlayer != nullptr ) {
-			_videoPlayer->stop();
-			_videoPlayer->hide();
-		}
+		_videoPlayer->stop();
+		_videoPlayer->hide();
+		_textToSpeechPlayer->stop();
+
 		break;
 	case QuizEntry::EntryState::PLAYED: // Play Answer Again
 		if ( _type == EntryType::Song ) {
+			_videoPlayer->stop();
+			_textToSpeechPlayer->stop();
 			_audioPlayer->play(_audioFile, _answerStartTime);
 		} else if ( _type == EntryType::Video ) {
+			_audioPlayer->stop();
+			_textToSpeechPlayer->stop();
 			_videoPlayer->play(_videoFile, _answerStartTime);
 			_videoPlayer->show();
+		} else if ( _type == EntryType::TextToSpeech ) {
+			_videoPlayer->stop();
+			_audioPlayer->play(_audioFile, _answerStartTime);
 		}
+
 		_state = EntryState::PLAYING_ANSWER;
 		break;
 	default:
@@ -191,27 +242,41 @@ void MusicQuiz::QuizEntry::rightClickEvent()
 		break;
 	case EntryState::PLAYING: // Back to initial state
 		_state = EntryState::IDLE;
+
 		_audioPlayer->pause();
-		if ( _videoPlayer != nullptr ) {
-			_videoPlayer->pause();
+		_videoPlayer->pause();
+		_textToSpeechPlayer->pause();
+
+		if ( _type == EntryType::Video ) {
 			_videoPlayer->show();
 		}
+
 		break;
 	case EntryState::PAUSED: // Continue playing
 		_state = EntryState::PLAYING;
-		_audioPlayer->resume();
-		if ( _videoPlayer != nullptr ) {
+		
+		if ( _type == EntryType::Song ) {
+			_audioPlayer->resume();
+		} else if ( _type == EntryType::Video ) {
 			_videoPlayer->resume();
+			_audioPlayer->resume();
 			_videoPlayer->show();
+		} else if ( _type == EntryType::TextToSpeech ) {
+			_textToSpeechPlayer->resume();
 		}
+
 		break;
 	case EntryState::PLAYING_ANSWER: // Pause Media
 		_state = EntryState::PAUSED;
+
 		_audioPlayer->pause();
-		if ( _videoPlayer != nullptr ) {
-			_videoPlayer->pause();
+		_videoPlayer->pause();
+		_textToSpeechPlayer->pause();
+
+		if ( _type == EntryType::Video ) {
 			_videoPlayer->show();
 		}
+
 		_fontSize = 40;
 		setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
 		break;

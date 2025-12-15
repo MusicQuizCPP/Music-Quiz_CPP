@@ -9,6 +9,7 @@
 
 #include "media/AudioPlayer.hpp"
 #include "media/VideoPlayer.hpp"
+#include "media/TextToSpeechPlayer.hpp"
 #include "gui_tools/widgets/QuizCategory.hpp"
 
 namespace common {
@@ -25,8 +26,8 @@ namespace MusicQuiz {
 				std::string quizAuthor = "";
 				bool includeSongs = false;
 				bool includeVideos = false;
+				bool includeTextToSpeech = false;
 				bool guessTheCategory = false;
-				std::string quizDescription = "";
 				std::vector<std::string> categories;
 				std::vector<std::string> rowCategories;
 
@@ -34,7 +35,6 @@ namespace MusicQuiz {
 				{
 					out << "\n\nQuiz Name: " << quizPreview.quizName << "\n";
 					out << "Quiz Author: " << quizPreview.quizAuthor << "\n";
-					out << "Quiz Description: " << quizPreview.quizDescription << "\n";
 					if ( !quizPreview.categories.empty() ) {
 						out << "Quiz Categories:\n";
 						for ( size_t i = 0; i < quizPreview.categories.size(); ++i ) {
@@ -51,6 +51,7 @@ namespace MusicQuiz {
 
 					out << "Quiz Include Songs: " << (quizPreview.includeSongs ? "Yes" : "No") << "\n";
 					out << "Quiz Include Videos: " << (quizPreview.includeVideos ? "Yes" : "No") << "\n";
+					out << "Quiz Include Text To Speech: " << (quizPreview.includeTextToSpeech ? "Yes" : "No") << "\n";
 					out << "Quiz Quess the Category: " << (quizPreview.guessTheCategory ? "Yes" : "No") << "\n\n";
 					return out;
 				}
@@ -91,13 +92,17 @@ namespace MusicQuiz {
 			/**
 			* @brief Returns a list of the categories.
 			*
-			* @param[in] idx The index of the quiz to load the categories from.
-			* @param[out] err The error message.
+			* @param[in] idx                The index of the quiz to load the categories from.
+			* @param[in] audioPlayer        The audio player.
+			* @param[in] videoPlayer        The video player.
+			* @param[in] textToSpeechPlayer The text to speech player.
+			* @param[out] err               The error message.
 			*
 			* @return The quiz categories.
 			*/
 			static std::vector<MusicQuiz::QuizCategory*> loadQuizCategories(size_t idx, const std::shared_ptr< media::AudioPlayer >& audioPlayer,
-				const std::shared_ptr< media::VideoPlayer >& videoPlayer, const common::Configuration& config, std::string& err);
+				const std::shared_ptr< media::VideoPlayer >& videoPlayer, const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer,
+				const common::Configuration& config, std::string& err);
 
 			/**
 			* @brief Returns a list of the row categories.

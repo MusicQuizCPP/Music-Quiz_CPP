@@ -1,5 +1,7 @@
 #include "CategoryCreator.hpp"
 
+#include <regex>
+#include <utility>
 #include <filesystem>
 
 #include <QLabel>
@@ -18,19 +20,17 @@
 #include "gui_tools/QuizCreator/EntryCreator.hpp"
 
 
-MusicQuiz::CategoryCreator::CategoryCreator(const QString& name, const media::AudioPlayer::Ptr& audioPlayer, const common::Configuration& config, QWidget* parent) :
-	QWidget(parent), _categoryName(name), _audioPlayer(audioPlayer), _config(config)
+MusicQuiz::CategoryCreator::CategoryCreator(const QString& name, const media::AudioPlayer::Ptr& audioPlayer,
+	const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, QWidget* parent) :
+	QWidget(parent), _categoryName(name), _audioPlayer(audioPlayer), _textToSpeechPlayer(textToSpeechPlayer), _config(config)
 {
 	/** Create Layout */
 	createLayout();
 }
 
-MusicQuiz::CategoryCreator::CategoryCreator(const boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, 
-	const common::Configuration& config, bool skipEntries, QWidget* parent) :
-	QWidget(parent), 
-	_categoryName(QString::fromStdString(tree.get<std::string>("<xmlattr>.name"))),
-	_audioPlayer(audioPlayer),
-	_config(config)
+MusicQuiz::CategoryCreator::CategoryCreator(const boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer,
+	const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const common::Configuration& config, bool skipEntries, QWidget* parent) :
+	QWidget(parent), _categoryName(QString::fromStdString(tree.get<std::string>("<xmlattr>.name"))), _audioPlayer(audioPlayer), _textToSpeechPlayer(textToSpeechPlayer), _config(config)
 {
 	createLayout();
 	if(!skipEntries) {
@@ -39,10 +39,11 @@ MusicQuiz::CategoryCreator::CategoryCreator(const boost::property_tree::ptree &t
 		for ( ; it != tree.end(); ++it ) {
 			try {
 				if ( it->first == "QuizEntry" ) {
-					categorieEntries.push_back(new MusicQuiz::EntryCreator(it->second, _audioPlayer, _config, this));
+					categorieEntries.push_back(new MusicQuiz::EntryCreator(it->second, _audioPlayer, _textToSpeechPlayer, _config, this));
 				}
 			} catch ( ... ) {}
 		}
+
 		setEntries(categorieEntries);
 	}
 }
@@ -93,7 +94,6 @@ void MusicQuiz::CategoryCreator::createLayout()
 	_entriesTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
 	_entriesTable->horizontalHeader()->setSectionResizeMode(4, QHeaderView::ResizeToContents);
 	_entriesTable->verticalHeader()->setFixedWidth(40);
-	_entriesTable->verticalHeader()->setSectionsMovable(false); // \todo set this to true to enable dragging.
 	_entriesTable->verticalHeader()->setDefaultSectionSize(40);
 	_entriesTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 	setupTabLayout->addWidget(_entriesTable, ++row, 0, 1, 2);
@@ -104,20 +104,20 @@ void MusicQuiz::CategoryCreator::createLayout()
 
 void MusicQuiz::CategoryCreator::addEntry(MusicQuiz::EntryCreator* entry, int entryIndex)
 {
-	QString entryNameStr;
-
 	/** Get Number of Entries */
-
 	if(entryIndex < 0) {
 	 	entryIndex = _entriesTable->rowCount();
 	}
+
+	QString entryNameStr;
 	if(entry == nullptr) {
 		entryNameStr = "Entry " + QString::number(entryIndex + 1);
 		const int points = (entryIndex + 1) * 100;
-		entry = new MusicQuiz::EntryCreator(entryNameStr, points, _audioPlayer, _config, this);
+		entry = new MusicQuiz::EntryCreator(entryNameStr, points, _audioPlayer, _textToSpeechPlayer, _config, this);
 	} else {
 		entryNameStr = entry->getName();
 	}
+
 	/** Sanity Check */
 	if ( _entriesTable == nullptr ) {
 		return;
@@ -152,6 +152,7 @@ void MusicQuiz::CategoryCreator::addEntry(MusicQuiz::EntryCreator* entry, int en
 	_entries.insert(_entries.begin() + entryIndex, entry);
 	_tabWidget->insertTab(entryIndex + 1, entry, entryNameStr);
 
+	/** Update indices */
 	updateIndices();
 }
 
@@ -218,6 +219,7 @@ void MusicQuiz::CategoryCreator::removeEntry()
 
 	removeEntry(index);
 }
+
 void MusicQuiz::CategoryCreator::removeEntry(int index)
 {
 	/** Sanity Check */
@@ -225,7 +227,7 @@ void MusicQuiz::CategoryCreator::removeEntry(int index)
 		return;
 	}
 
-	if ( index >= _tabWidget->count() || index >= _entriesTable->rowCount() || index < 0) {
+	if ( index >= _tabWidget->count() || index >= _entriesTable->rowCount() || index < 0 ) {
 		return;
 	}
 
@@ -277,7 +279,6 @@ void MusicQuiz::CategoryCreator::moveEntryDown()
 	swapEntries(idx, idx + 1);
 }
 
-
 int MusicQuiz::CategoryCreator::getSenderIdx() const
 {
 	const QPushButton* const button = qobject_cast<QPushButton*>(sender());
@@ -296,7 +297,7 @@ void MusicQuiz::CategoryCreator::swapEntries(int firstIdx, int secondIdx)
 	}
 
 	std::vector<int> indexes {firstIdx, secondIdx};
-	for(auto idx : indexes) {
+	for ( auto idx : indexes ) {
 		if ( idx < 0                          ||
 			 idx >= _tabWidget->count()       || 
 			 idx >= _entriesTable->rowCount() || 
@@ -304,10 +305,10 @@ void MusicQuiz::CategoryCreator::swapEntries(int firstIdx, int secondIdx)
 			return; 
 		}
 	}
-	if(firstIdx == secondIdx) {
+
+	if ( firstIdx == secondIdx ) {
 		return;
-	}
-	if(firstIdx > secondIdx) {
+	} else if ( firstIdx > secondIdx ) {
 		std::swap(firstIdx, secondIdx);
 	}
 
@@ -377,7 +378,7 @@ void MusicQuiz::CategoryCreator::setEntries(const std::vector< MusicQuiz::EntryC
 	_entries.clear();
 
 	/** Add Entries to Table */
-	for ( auto entry : entries) {
+	for ( auto entry : entries ) {
 		addEntry(entry);
 	}
 }
@@ -389,13 +390,14 @@ const std::vector< MusicQuiz::EntryCreator* > MusicQuiz::CategoryCreator::getEnt
 
 bool MusicQuiz::CategoryCreator::areEntryNamesUnique() const
 {
-	for(size_t i = 0; i < _entries.size(); ++i) {
+	for ( size_t i = 0; i < _entries.size(); ++i ) {
 		for ( size_t j = 0; j < _entries.size(); ++j ) {
 			if ( i != j && _entries[i]->getName().toStdString() == _entries[j]->getName().toStdString() ) {
 				return false;
 			}
 		}
 	}
+
 	return true;
 }
 
@@ -405,7 +407,8 @@ boost::property_tree::ptree MusicQuiz::CategoryCreator::saveToXml(const std::str
 	if ( name.empty() ) {
 		throw std::runtime_error("Failed to save quiz. All categories must have a name");
 	}
-	if(!areEntryNamesUnique()) {
+
+	if ( !areEntryNamesUnique() ) {
 		throw std::runtime_error("Failed to save quiz. " + name + ": All entires in a category must have a unique name.");
 	}
 
@@ -418,12 +421,31 @@ boost::property_tree::ptree MusicQuiz::CategoryCreator::saveToXml(const std::str
 	if ( filesystem_error ) {
 		throw std::runtime_error("Failed to create directory to save the category files in.");
 	}
-	for ( auto entry : _entries) {
-		if(entry->getName().toStdString().empty()) {
+
+	for ( auto entry : _entries ) {
+		/** Check name */
+		const std::string entryName = entry->getName().toStdString();
+		if ( entryName.empty() ) {
 			throw std::runtime_error("Failed to save quiz. " + name + ": All entries needs to have a name.");
 		}
+
+		/** Remove leading, trailing and extra spaces */
+		std::string fixedEntryname = std::regex_replace(entryName, std::regex("^ +| +$|( ) +"), "$1"); 
+		if ( entryName != fixedEntryname ) {
+			entry->setName(QString::fromStdString(fixedEntryname));
+			for ( int i = 0; i < _entriesTable->rowCount(); ++i ) {
+				QLineEdit* tmpLineEdit = qobject_cast<QLineEdit*>(_entriesTable->cellWidget(i, 0));
+				if ( tmpLineEdit != nullptr && tmpLineEdit->text().toStdString() == entryName ) {
+					tmpLineEdit->setText(QString::fromStdString(fixedEntryname));
+					break;
+				}
+			}
+		}
+		
+		/** Add child to tree */
 		tree.add_child("QuizEntry", entry->toXml(savePath + "/" + name, xmlPath + "/" + name));
 	}
+
 	return tree;
 }
 

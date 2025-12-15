@@ -2,7 +2,6 @@
 
 #include <stdexcept>
 
-#include <QVBoxLayout>
 #include <QMediaContent>
 
 #include "common/Log.hpp"
@@ -28,7 +27,7 @@ void media::AudioPlayer::play(const QString& audioFile, const size_t startTime)
 {
 	/** Sanity Check */
 	if ( audioFile.isEmpty() ) {
-		throw std::runtime_error("Video File Name is empty.");
+		throw std::runtime_error("Audio File Name is empty.");
 	}
 
 	/** Stop audio if any is playing and close file */
@@ -46,7 +45,7 @@ void media::AudioPlayer::play(const QString& audioFile, const size_t startTime)
 	/** Set State */
 	_state = AudioPlayState::PAUSED;
 
-	//The playback will be started in handleMediaStatus when file has been loaded.
+	// The playback will be started in handleMediaStatus when file has been loaded.
 }
 
 void media::AudioPlayer::pause()
@@ -79,7 +78,7 @@ void media::AudioPlayer::resume()
 
 void media::AudioPlayer::stop()
 {
-	/** Stop Video */
+	/** Stop Audio */
 	_player->stop();
 	_player->setMedia(QMediaContent());
 

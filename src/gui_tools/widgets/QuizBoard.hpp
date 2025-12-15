@@ -9,15 +9,20 @@
 #include <QObject>
 #include <QDialog>
 #include <QKeyEvent>
+#include <QShowEvent>
+#include <QPushButton>
 
 #include "util/QuizSettings.hpp"
+
 #include "lightcontrol/client/LightControlClient.hpp"
+
 
 namespace MusicQuiz {
 	class QuizTeam;
 	class QuizCategory;
 	class QuizBoard : public QDialog {
 		Q_OBJECT
+
 	public:
 		/**
 		 * @brief Constructor
@@ -110,6 +115,13 @@ namespace MusicQuiz {
 
 	protected:
 		/**
+		 * @brief Overrides the show event to update the text size.
+		 * 
+		 * @param[in] event The event.
+		 */
+		void showEvent(QShowEvent* event) override;
+
+		/**
 		 * @brief Creates the category layout.
 		 */
 		void createLayout();
@@ -124,7 +136,9 @@ namespace MusicQuiz {
 
 		std::vector<QuizTeam*> _teams;
 		std::vector<QString> _rowCategories;
+		std::vector<QPushButton*> _rowCategoryButtons;
 		std::vector<MusicQuiz::QuizCategory*> _categories;
+
 		std::shared_ptr<LightControl::LightControlClient> _lightClient;
 	};
 }

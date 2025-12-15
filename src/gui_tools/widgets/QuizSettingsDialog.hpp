@@ -16,12 +16,14 @@
 #include <QTimer>
 
 #include "util/QuizSettings.hpp"
+
 #include "lightcontrol/discover/LightControlDiscover.hpp"
 
 
 namespace MusicQuiz {
 	class QuizSettingsDialog : public QDialog {
 		Q_OBJECT
+
 	public:
 		/**
 		 * @brief Constructor
@@ -121,6 +123,7 @@ namespace MusicQuiz {
 	signals:
 		void quitSignal();
 		void settingsUpdated(MusicQuiz::QuizSettings settings);
+
 	protected:
 		/**
 		 * @brief Creates the category layout.
@@ -185,8 +188,8 @@ namespace MusicQuiz {
 		const int _minTriplePercentage = 5, _maxTriplePercentage = 25;
 
 		/**LightInterface */
-		LightControl::LightControlDiscover lightcontrolDiscover;
 		QTimer _listUpdateTimer;
+		LightControl::LightControlDiscover lightcontrolDiscover;
 		QLineEdit* _ipInput = nullptr;
 		QComboBox* _discoveredList = nullptr;
 	};
