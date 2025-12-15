@@ -456,7 +456,7 @@ void MusicQuiz::QuizBoard::handleBingo(MusicQuiz::QuizEntry* entry, MusicQuiz::Q
 		/** Setup font */
 		QFont font = painter.font();
 		font.setBold(true);
-		int fontPointSize = std::max(12, static_cast<int>( bingoOverlayPixmap.height() * 0.06));
+		int fontPointSize = std::max(12, static_cast<int>( bingoOverlayPixmap.height() * 0.04));
 		font.setPointSize(fontPointSize);
 		painter.setFont(font);
 
@@ -544,11 +544,11 @@ void MusicQuiz::QuizBoard::showEvent(QShowEvent*)
 
 	/** Resize Row Category Fonts */
 	for ( size_t i = 0; i < _rowCategoryButtons.size(); ++i ) {
-		int textWidth = _rowCategoryButtons[i]->fontMetrics().boundingRect(_rowCategoryButtons[i]->text()).width();
+		int textWidth = _rowCategoryButtons[i]->fontMetrics().horizontalAdvance(_rowCategoryButtons[i]->text());
 		size_t fontSize = 40;
 		while ( textWidth > _rowCategoryButtons[i]->width() - 40 && fontSize > 10U ) {
 			_rowCategoryButtons[i]->setStyleSheet("font-size: " + QString::number(fontSize) + "px;");
-			textWidth = _rowCategoryButtons[i]->fontMetrics().boundingRect(_rowCategories[i]).width();
+			textWidth = _rowCategoryButtons[i]->fontMetrics().horizontalAdvance(_rowCategories[i]);
 			--fontSize;
 		}
 

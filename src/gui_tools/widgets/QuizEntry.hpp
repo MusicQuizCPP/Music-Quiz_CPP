@@ -245,7 +245,6 @@ namespace MusicQuiz {
 
 		/** Variables */
 		size_t _points = 0;
-		size_t _fontSize = 40;
 		bool _textSizeSet = false;
 
 		size_t _startTime = 0;

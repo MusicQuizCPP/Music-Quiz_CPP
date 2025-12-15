@@ -133,11 +133,11 @@ bool MusicQuiz::QuizCategory::hasCateogryBeenGuessed()
 void MusicQuiz::QuizCategory::updateTextSize()
 {
 	/** Text Size */
-	int textWidth = _categoryBtn->fontMetrics().boundingRect(_name).width();
+	int textWidth = _categoryBtn->fontMetrics().horizontalAdvance(_name);
 	size_t fontSize = 40;
 	while ( textWidth > _categoryBtn->width() - 40 && fontSize > 10U ) {
 		_categoryBtn->setStyleSheet("font-size: " + QString::number(fontSize) + "px;");
-		textWidth = _categoryBtn->fontMetrics().boundingRect(_name).width();
+		textWidth = _categoryBtn->fontMetrics().horizontalAdvance(_name);
 		--fontSize;
 	}
 

@@ -411,11 +411,9 @@ void MusicQuiz::QuizEntry::rightClickEvent()
 			_videoPlayer->show();
 		}
 
-		_fontSize = 40;
 		setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
 		break;
 	case QuizEntry::EntryState::PLAYED: // Back to idle
-		_fontSize = 40;
 		_entryAnswered = false;
 		_state = EntryState::IDLE;
 		setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
@@ -459,19 +457,17 @@ void MusicQuiz::QuizEntry::applyColor(const QColor& color)
 	}
 
 	/** Text Size */
-	int textWidth = fontMetrics().boundingRect(text()).width();
+	int textWidth = fontMetrics().horizontalAdvance(text());
 	if ( _state != QuizEntry::EntryState::PLAYED && !_textSizeSet ) {
 		size_t fontSize = 40;
 		while ( textWidth > width() - 40 && fontSize > 10U ) {
 			setStyleSheet("font-size: " + QString::number(fontSize) + "px;");
-			textWidth = fontMetrics().boundingRect(text()).width();
+			textWidth = fontMetrics().horizontalAdvance(text());
 			--fontSize;
 		}
 
 		_textSizeSet = true;
-		_fontSize = fontSize;
 	}
-	ss << "font-size: " << _fontSize << "px;";
 
 	setStyleSheet(QString::fromStdString(ss.str()));
 
