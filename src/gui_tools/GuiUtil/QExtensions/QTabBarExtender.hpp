@@ -9,6 +9,8 @@ namespace MusicQuiz {
 		 * @brief \hack Tab bar specifically to get the tab on left side.
 		 */
 		class QTabBarExtender : public QTabBar {
+			Q_OBJECT
+
 		public:
 
 			/**
@@ -35,7 +37,7 @@ namespace MusicQuiz {
 			 *
 			 * @param[in] event The paint event.
 			 */
-			void paintEvent(QPaintEvent* event);
+			void paintEvent(QPaintEvent* event) override;
 		};
 	}
 }

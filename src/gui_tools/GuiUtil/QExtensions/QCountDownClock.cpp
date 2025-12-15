@@ -94,6 +94,6 @@ void MusicQuiz::QExtensions::QCountDownClock::paintEvent(QPaintEvent* event)
 	font.setBold(true);
 	painter.setFont(font);
 	painter.setPen(Qt::yellow);
-	const int timeLeft = std::ceil(( _countdown - _elapsedTime ) / 1000.0);
+	const int timeLeft = std::ceil((_countdown - _elapsedTime) / 1000.0);
 	painter.drawText(rectangle, Qt::AlignCenter, QString::number(timeLeft));
 }

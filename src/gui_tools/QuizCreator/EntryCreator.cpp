@@ -872,7 +872,7 @@ void MusicQuiz::EntryCreator::playSong()
 		fileName = _imageAnswerSongFileLineEdit->text().toStdString();
 
 		/** Get Start and End Time */
-		startTime = toMSec( _imageAnswerStartTimeEdit->time() );
+		startTime = toMSec(_imageAnswerStartTimeEdit->time());
 	} else if ( type == "textSongAnswer" ) {
 		/** Sanity Check */
 		if ( _textAnswerStartTimeEdit == nullptr || _textAnswerSongFileLineEdit == nullptr ) {
@@ -1474,12 +1474,12 @@ bool MusicQuiz::EntryCreator::isVideoFileValid(const QString& fileName) const
 	return true;
 }
 
-bool MusicQuiz::EntryCreator::isImageFileValid( const QString& fileName ) const
+bool MusicQuiz::EntryCreator::isImageFileValid(const QString& fileName) const
 {
 	/** Check if file has a valid format */
 	bool validFormat = false;
 	for ( size_t i = 0; i < _validImageFormats.size(); ++i ) {
-		if( fileName.toLower().contains( _validImageFormats[i] ) ) {
+		if( fileName.toLower().contains(_validImageFormats[i]) ) {
 			validFormat = true;
 			break;
 		}
@@ -1490,7 +1490,7 @@ bool MusicQuiz::EntryCreator::isImageFileValid( const QString& fileName ) const
 	}
 
 	/** Check if file exists */
-	if ( !std::filesystem::exists( fileName.toStdString() ) ) {
+	if ( !std::filesystem::exists(fileName.toStdString()) ) {
 		return false;
 	}
 
