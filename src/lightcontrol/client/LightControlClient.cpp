@@ -89,7 +89,8 @@ void LightControl::LightControlClient::on_connect(boost::beast::error_code ec, b
 			"MusicQuiz");
 	}));
 
-	/** Update the host string. This will provide the value of the Host HTTP header during the WebSocket handshake. See https://tools.ietf.org/html/rfc7230#section-5.4 */
+	/** Update the host string. This will provide the value of the Host HTTP header during the WebSocket handshake. */
+	// See https://tools.ietf.org/html/rfc7230#section-5.4
 	std::string host_header = _hostname + ":" + std::to_string(_port);
 
 	/** Perform the websocket handshake */
