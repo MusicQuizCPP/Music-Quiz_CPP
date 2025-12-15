@@ -1,8 +1,11 @@
 #include "QuizCreator.hpp"
 
+#include <regex>
+
 #include <QList>
-#include <QLabel>
 #include <QString>
+#include <QScreen>
+#include <QSlider>
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QSpacerItem>
@@ -13,7 +16,6 @@
 #include <QTableWidgetItem>
 #include <QAbstractItemView>
 #include <QGuiApplication>
-#include <QScreen>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -33,7 +35,6 @@
 
 #include "gui_tools/QuizCreator/CategoryCreator.hpp"
 
-using namespace std;
 
 MusicQuiz::QuizCreator::QuizCreator(const common::Configuration& config, QWidget* parent) :
 	QDialog(parent), _config(config)
@@ -57,16 +58,35 @@ MusicQuiz::QuizCreator::QuizCreator(const common::Configuration& config, QWidget
 	}
 
 	/** Create Audio Player */
-	_audioPlayer = make_shared<media::AudioPlayer>();
+	_audioPlayer = std::make_shared< media::AudioPlayer >();
 
 	/** Create Video Player */
-	_videoPlayer = make_shared<media::VideoPlayer>();
+	_videoPlayer = std::make_shared< media::VideoPlayer >();
 	_videoPlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint);
 
 	/** Set Video Player Size */
 	const QRect screenRec = QGuiApplication::primaryScreen()->geometry();
 	_videoPlayer->setMinimumSize(QSize(screenRec.width() / 4, screenRec.height() / 4));
 	_videoPlayer->resize(QSize(screenRec.width() / 4, screenRec.height() / 4));
+
+	/** Create Text To Speech Player */
+	_textToSpeechPlayer = std::make_shared< media::TextToSpeechPlayer >();
+
+	/** Create Image Player */
+	_imagePlayer = std::make_shared< media::ImagePlayer >();
+	_imagePlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint);
+
+	/** Set Image Player Size */
+	_imagePlayer->setMinimumSize(QSize(screenRec.width() / 4, screenRec.height() / 4));
+	_imagePlayer->resize(QSize(screenRec.width() / 4, screenRec.height() / 4));
+
+	/** Create Text Player */
+	_textPlayer = std::make_shared< media::TextPlayer >();
+	_textPlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint);
+
+	/** Set Image Player Size */
+	_textPlayer->setMinimumSize(QSize(screenRec.width() / 4, screenRec.height() / 4));
+	_textPlayer->resize(QSize(screenRec.width() / 4, screenRec.height() / 4));
 
 	/** Create Layout */
 	createLayout();
@@ -76,10 +96,13 @@ void MusicQuiz::QuizCreator::createLayout()
 {
 	/** Layout */
 	QGridLayout* mainlayout = new QGridLayout;
+	QHBoxLayout* guessTheCategoryLayout = new QHBoxLayout;
+	guessTheCategoryLayout->setSpacing(10);
+	mainlayout->setVerticalSpacing(15);
 
 	/** Tab Widget */
 	_tabWidget = new QTabWidget;
-	mainlayout->addWidget(_tabWidget, 0, 0, 1, 5);
+	mainlayout->addWidget(_tabWidget, 0, 0, 1, 6);
 
 	/** Setup Tab */
 	QWidget* setupTab = new QWidget;
@@ -110,23 +133,39 @@ void MusicQuiz::QuizCreator::createLayout()
 	_quizAuthorLineEdit->setObjectName("quizCreatorLineEdit");
 	setupTabLayout->addWidget(_quizAuthorLineEdit, ++row, 0, 1, 2);
 
-	/** Setup Tab - Quiz Description */
-	label = new QLabel("Quiz Description:");
-	label->setObjectName("quizCreatorLabel");
-	setupTabLayout->addWidget(label, ++row, 0, 1, 2, Qt::AlignLeft);
-
-	_quizDescriptionTextEdit = new QTextEdit;
-	_quizDescriptionTextEdit->setObjectName("quizCreatorTextEdit");
-	setupTabLayout->addWidget(_quizDescriptionTextEdit, ++row, 0, 1, 2);
-
 	/** Setup Tab - Settings */
 	label = new QLabel("Settings:");
 	label->setObjectName("quizCreatorLabel");
 	setupTabLayout->addWidget(label, ++row, 0, 1, 2, Qt::AlignLeft);
 
-	_hiddenCategoriesCheckbox = new QCheckBox("Hidden Categories");
-	_hiddenCategoriesCheckbox->setObjectName("quizCreatorCheckbox");
-	setupTabLayout->addWidget(_hiddenCategoriesCheckbox, ++row, 0, 1, 2);
+	/** Setup Tab - Settings - Show Entry Type Icons */
+	_showEntryTypeIconsCheckbox = new QCheckBox("Display Entry Type Icons");
+	_showEntryTypeIconsCheckbox->setObjectName("quizCreatorCheckbox");
+	setupTabLayout->addWidget(_showEntryTypeIconsCheckbox, ++row, 0, 1, 2, Qt::AlignLeft);
+
+	/** Setup Tab - Settings - Guess the Categories */
+	_guessTheCategoriesCheckbox = new QCheckBox("Guess the Categories");
+	_guessTheCategoriesCheckbox->setObjectName("quizCreatorCheckbox");
+	connect(_guessTheCategoriesCheckbox, SIGNAL(toggled(bool)), this, SLOT(showGuessTheCategoriesSettings(bool)));
+	guessTheCategoryLayout->addWidget(_guessTheCategoriesCheckbox);
+	guessTheCategoryLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+
+	/** Setup Tab - Settings - Guess the Categories Points */
+	_guessTheCategoriesPointsLabel = new QLabel("Points:");
+	_guessTheCategoriesPointsLabel->setStyleSheet("font-size: 20px;");
+	_guessTheCategoriesPointsLabel->setVisible(false);
+	guessTheCategoryLayout->addWidget(_guessTheCategoriesPointsLabel);
+
+	_guessTheCategoriesPointsSpinbox = new QSpinBox;
+	_guessTheCategoriesPointsSpinbox->setAlignment(Qt::AlignCenter);
+	_guessTheCategoriesPointsSpinbox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+	_guessTheCategoriesPointsSpinbox->setObjectName("quizCreatorGuessTheCategoriesPointsSpinbox");
+	_guessTheCategoriesPointsSpinbox->setRange(0, 10000);
+	_guessTheCategoriesPointsSpinbox->setSingleStep(50);
+	_guessTheCategoriesPointsSpinbox->setValue(500);
+	_guessTheCategoriesPointsSpinbox->setVisible(false);
+	guessTheCategoryLayout->addWidget(_guessTheCategoriesPointsSpinbox);
+	setupTabLayout->addLayout(guessTheCategoryLayout, ++row, 0, 1, 2);
 
 	/** Setup Tab - Categories */
 	label = new QLabel("Categories:");
@@ -150,10 +189,8 @@ void MusicQuiz::QuizCreator::createLayout()
 	_categoriesTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 	_categoriesTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 	_categoriesTable->verticalHeader()->setFixedWidth(40);
-	_categoriesTable->verticalHeader()->setSectionsMovable(false); // \todo set this to true to enable dragging.
 	_categoriesTable->verticalHeader()->setDefaultSectionSize(40);
 	_categoriesTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-	connect(_categoriesTable->verticalHeader(), SIGNAL(sectionMoved(int, int, int)), this, SLOT(categoryOrderChanged(int, int, int)));
 	setupTabLayout->addWidget(_categoriesTable, ++row, 0, 1, 2);
 
 	/** Setup Tab - Row Categories */
@@ -177,36 +214,75 @@ void MusicQuiz::QuizCreator::createLayout()
 	_rowCategoriesTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
 	_rowCategoriesTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 	_rowCategoriesTable->verticalHeader()->setFixedWidth(40);
-	_rowCategoriesTable->verticalHeader()->setSectionsMovable(false); // \todo set this to true to enable dragging.
 	_rowCategoriesTable->verticalHeader()->setDefaultSectionSize(40);
 	_rowCategoriesTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 	setupTabLayout->addWidget(_rowCategoriesTable, ++row, 0, 1, 2);
+
+	/** Volume control */
+	QHBoxLayout* volumeLayout = new QHBoxLayout;
+	volumeLayout->setSpacing(6);
+
+	QPushButton* voluemeIcon = new QPushButton;
+	voluemeIcon->setObjectName("quizCreatorVolumeIconBtn");
+	voluemeIcon->setFocusPolicy(Qt::FocusPolicy::NoFocus);
+	volumeLayout->addWidget(voluemeIcon);
+
+	QSlider* volumeSlider = new QSlider(Qt::Horizontal);
+	volumeSlider->setObjectName("quizCreatorVolumeSlider");
+	volumeSlider->setRange(0, 100);
+	volumeSlider->setValue(100);
+	volumeSlider->setTickInterval(10);
+	volumeSlider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	volumeLayout->addWidget(volumeSlider);
+
+	QLabel* volumeLabel = new QLabel(QString::number(volumeSlider->value()) + "%");
+	volumeLabel->setObjectName("quizCreatorSmallLabel");
+	volumeLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+	volumeLayout->addWidget(volumeLabel);
+
+	/** Connect slider : apply volume to players in real - time and update percent label */
+	connect(volumeSlider, &QSlider::valueChanged, this, [this, volumeLabel](int val) {
+		if ( volumeLabel != nullptr ) {
+			volumeLabel->setText(QString::number(val) + "%");
+		}
+		_audioPlayer->setVolume(val);
+		_videoPlayer->setVolume(val);
+		_textToSpeechPlayer->setVolume(val);
+		}
+	);
+
+	mainlayout->addLayout(volumeLayout, 1, 0, 1, 6);
 
 	/** Bottom Buttons */
 	QPushButton* previewQuizBtn = new QPushButton("Preview");
 	previewQuizBtn->setObjectName("quizCreatorBtn");
 	connect(previewQuizBtn, SIGNAL(released()), this, SLOT(previewQuiz()));
-	mainlayout->addWidget(previewQuizBtn, 1, 0, 1, 1);
+	mainlayout->addWidget(previewQuizBtn, 2, 0, 1, 1);
 
 	QPushButton* saveQuizBtn = new QPushButton("Save Quiz");
 	saveQuizBtn->setObjectName("quizCreatorBtn");
 	connect(saveQuizBtn, SIGNAL(released()), this, SLOT(saveQuiz()));
-	mainlayout->addWidget(saveQuizBtn, 1, 1, 1, 1);
+	mainlayout->addWidget(saveQuizBtn, 2, 1, 1, 1);
+
+	QPushButton* newQuizBtn = new QPushButton("New Quiz");
+	newQuizBtn->setObjectName("quizCreatorBtn");
+	connect(newQuizBtn, SIGNAL(released()), this, SLOT(newQuiz()));
+	mainlayout->addWidget(newQuizBtn, 2, 2, 1, 1);
 
 	QPushButton* loadQuizBtn = new QPushButton("Load Quiz");
 	loadQuizBtn->setObjectName("quizCreatorBtn");
 	connect(loadQuizBtn, SIGNAL(released()), this, SLOT(openLoadQuizDialog()));
-	mainlayout->addWidget(loadQuizBtn, 1, 2, 1, 1);
+	mainlayout->addWidget(loadQuizBtn, 2, 3, 1, 1);
 
 	QPushButton* loadQuizCategoryBtn = new QPushButton("Load Category");
 	loadQuizCategoryBtn->setObjectName("quizCreatorBtn");
 	connect(loadQuizCategoryBtn, SIGNAL(released()), this, SLOT(openLoadCategoryDialog()));
-	mainlayout->addWidget(loadQuizCategoryBtn, 1, 3, 1, 1);
+	mainlayout->addWidget(loadQuizCategoryBtn, 2, 4, 1, 1);
 
 	QPushButton* quitCreatorBtn = new QPushButton("Quit");
 	quitCreatorBtn->setObjectName("quizCreatorBtn");
 	connect(quitCreatorBtn, SIGNAL(released()), this, SLOT(quitCreator()));
-	mainlayout->addWidget(quitCreatorBtn, 1, 4, 1, 1);
+	mainlayout->addWidget(quitCreatorBtn, 2, 5, 1, 1);
 
 	/** Set Layout */
 	setLayout(mainlayout);
@@ -263,7 +339,7 @@ void MusicQuiz::QuizCreator::addCategory()
 	_categoriesTable->setCellWidget(categoryCount, 2, layoutWidget);
 
 	/** Add Tab */
-	MusicQuiz::CategoryCreator* category = new MusicQuiz::CategoryCreator(categoryNameStr, _audioPlayer, _config);
+	MusicQuiz::CategoryCreator* category = new MusicQuiz::CategoryCreator(categoryNameStr, _audioPlayer, _textToSpeechPlayer, _config);
 	_categories.push_back(category);
 	_tabWidget->addTab(category, categoryNameStr);
 }
@@ -472,18 +548,18 @@ void MusicQuiz::QuizCreator::updateCategoryTabName(const QString& str)
 	}
 }
 
-const vector< QString > MusicQuiz::QuizCreator::getRowCategories() const
+const std::vector< QString > MusicQuiz::QuizCreator::getRowCategories() const
 {
 	/** Sanity Check */
 	if ( _rowCategoriesTable == nullptr ) {
-		return vector< QString >();
+		return std::vector< QString >();
 	}
 
 	/** Get Number of Row Categories */
 	const int rowCategoryCount = _rowCategoriesTable->rowCount();
 
 	/** Get Row Category Name */
-	vector< QString > rowCategories;
+	std::vector< QString > rowCategories;
 	for ( int i = 0; i < rowCategoryCount; ++i ) {
 		QLineEdit* lineEdit = qobject_cast<QLineEdit*>(_rowCategoriesTable->cellWidget(i, 0));
 		if ( lineEdit == nullptr ) {
@@ -512,16 +588,18 @@ void MusicQuiz::QuizCreator::saveQuiz()
 	QuizData quizData(_config);
 
 	/** Quiz Name */
-	quizData.setName(_quizNameLineEdit->text().toStdString());
+	const std::string quizName = std::regex_replace(_quizNameLineEdit->text().toStdString(), std::regex("^ +| +$|( ) +"), "$1"); // Remove leading, trailing and extra spaces 
+	_quizNameLineEdit->setText(QString::fromStdString(quizName));
+	quizData.setName(quizName);
 
 	/** Quiz Author */
 	quizData.setAuthor(_quizAuthorLineEdit->text().toStdString());
 
-	/** Quiz Description */
-	quizData.setDescription(_quizDescriptionTextEdit->toPlainText().toStdString());
+	/** Show Entry Type Icons */
+	quizData.setShowEntryTypeIcons(_showEntryTypeIconsCheckbox->isChecked());
 
-	/** Hidden Categoies */
-	quizData.setGuessTheCategory(_hiddenCategoriesCheckbox->isChecked(), 500);
+	/** Guess the Categoies */
+	quizData.setGuessTheCategory(_guessTheCategoriesCheckbox->isChecked(), _guessTheCategoriesPointsSpinbox->value());
 
 	/** Quiz Categories */
 	quizData.setCategories(_categories);
@@ -530,7 +608,7 @@ void MusicQuiz::QuizCreator::saveQuiz()
 	quizData.setRowCategories(getRowCategories());
 
 	/** Save Quiz */
-	if(quizData.doesQuizDirectoryExist()) {
+	if ( !quizName.empty() && quizData.doesQuizDirectoryExist() ) {
 		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Overwrite Quiz?", "Quiz already exists, do you want to overwrite existing quiz?",
 			QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
 		if ( resBtn != QMessageBox::Yes ) {
@@ -540,8 +618,9 @@ void MusicQuiz::QuizCreator::saveQuiz()
 
 	try {
 		quizData.save();
-		QMessageBox::information(this, "Info", "Quiz saves successfully.");
-	} catch ( const exception& err ) {
+		loadQuizData(QuizData(_config, quizData.getQuizPath() + "/" + quizData.getName() + ".quiz.xml", _audioPlayer, _textToSpeechPlayer, this)); // Reload quiz to update any file paths
+		QMessageBox::information(this, "Info", "Quiz saved successfully.");
+	} catch ( const std::exception& err ) {
 		QMessageBox::warning(this, "Failed to Save Quiz", QString::fromStdString(err.what()));
 	} catch ( ... ) {
 		QMessageBox::warning(this, "Failed to Save Quiz", "Failed to save the quiz. Unkown Error.");
@@ -577,7 +656,7 @@ void MusicQuiz::QuizCreator::openLoadCategoryDialog()
 }
 
 
-void MusicQuiz::QuizCreator::loadQuiz(const string& quizName)
+void MusicQuiz::QuizCreator::loadQuiz(const std::string& quizName)
 {
 	/** Sanity Check */
 	if ( quizName.empty() ) {
@@ -585,17 +664,19 @@ void MusicQuiz::QuizCreator::loadQuiz(const string& quizName)
 	}
 
 	/** Popup to ensure the user wants to load the quiz */
-	QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Load Quiz?", "Are you sure you want to load the quiz? Any unsaved progress will be lost!",
-		QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
-	if ( resBtn == QMessageBox::No ) {
-		return;
+	if ( !_categories.empty() || _rowCategoriesTable->rowCount() != 0 || !_quizNameLineEdit->text().isEmpty() || !_quizAuthorLineEdit->text().isEmpty() ) {
+		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Load Quiz?", "Are you sure you want to load '" + QString::fromStdString(quizName) + "' quiz ? Any unsaved progress will be lost!",
+			QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
+		if ( resBtn == QMessageBox::No ) {
+			return;
+		}
 	}
 
 	/** Load Quiz */
 	LOG_INFO("Loading quiz '" << quizName << "'");
 	try {
-		loadQuizData(QuizData(_config, quizName, _audioPlayer, this));
-	} catch ( const exception& err ) {
+		loadQuizData(QuizData(_config, quizName, _audioPlayer, _textToSpeechPlayer, this));
+	} catch ( const std::exception& err ) {
 		QMessageBox::warning(this, "Info", "Failed to load quiz. " + QString::fromStdString(err.what()));
 		return;
 	} catch ( ... ) {
@@ -604,22 +685,21 @@ void MusicQuiz::QuizCreator::loadQuiz(const string& quizName)
 	}
 }
 
-void MusicQuiz::QuizCreator::loadQuizCategory(const string& quizName, const string& categoryName)
+void MusicQuiz::QuizCreator::loadQuizCategory(const std::string& quizName, const std::string& categoryName)
 {
 	/** Sanity Check */
-	if ( quizName.empty() || categoryName.empty()) {
+	if ( quizName.empty() || categoryName.empty() ) {
 		return;
 	}
-
 
 	/** Load Quiz */
 	LOG_INFO("Loading quiz '" << quizName << "'");
 	try {
-		QuizData quizData = QuizData(_config, quizName, _audioPlayer, this, false, regex("^" + categoryName + "$"));
-		for(auto &category : quizData.getCategories()) {
+		QuizData quizData = QuizData(_config, quizName, _audioPlayer, _textToSpeechPlayer, this, false, std::regex("^" + categoryName + "$"));
+		for ( auto &category : quizData.getCategories() ) {
 			loadCategory(category);
 		}
-	} catch ( const exception& err ) {
+	} catch ( const std::exception& err ) {
 		QMessageBox::warning(this, "Info", "Failed to load quiz. " + QString::fromStdString(err.what()));
 		return;
 	} catch ( ... ) {
@@ -627,7 +707,6 @@ void MusicQuiz::QuizCreator::loadQuizCategory(const string& quizName, const stri
 		return;
 	}
 }
-
 
 void MusicQuiz::QuizCreator::loadQuizData(const QuizData& quizData)
 {
@@ -636,12 +715,12 @@ void MusicQuiz::QuizCreator::loadQuizData(const QuizData& quizData)
 		_tabWidget->removeTab(1);
 	}
 
-	/** Clear Categories */
-	for ( size_t i = 0; i < _categories.size(); ++i ) {
-		_categories[i]->clearEntries();
-		_categories[i] = nullptr;
-		delete _categories[i];
-	}
+    /** Clear Categories */
+    for ( size_t i = 0; i < _categories.size(); ++i ) {
+        _categories[i]->clearEntries();
+        delete _categories[i];
+        _categories[i] = nullptr;
+    }
 	_categories.clear();
 	_categoriesTable->clear();
 	_categoriesTable->clearContents();
@@ -662,18 +741,22 @@ void MusicQuiz::QuizCreator::loadQuizData(const QuizData& quizData)
 		_quizAuthorLineEdit->setText(QString::fromStdString(quizData.getAuthor()));
 	}
 
-	/** Set Description */
-	if ( _quizDescriptionTextEdit != nullptr ) {
-		_quizDescriptionTextEdit->setText(QString::fromStdString(quizData.getDescription()));
+	/** Show Entry Type Icons */
+	if ( _showEntryTypeIconsCheckbox != nullptr ) {
+		_showEntryTypeIconsCheckbox->setChecked(quizData.getShowEntryTypeIcons());
 	}
 
-	/** Hidden Categories */
-	if ( _hiddenCategoriesCheckbox != nullptr ) {
-		_hiddenCategoriesCheckbox->setChecked(quizData.getGuessTheCategory());
+	/** Guess the Categories */
+	if ( _guessTheCategoriesCheckbox != nullptr ) {
+		_guessTheCategoriesCheckbox->setChecked(quizData.getGuessTheCategory());
 	}
 
-	/**Add Categories */
-	_categories.clear();
+	/** Guess the Categories Points */
+	if ( _guessTheCategoriesPointsSpinbox != nullptr ) {
+		_guessTheCategoriesPointsSpinbox->setValue(quizData.getGuessTheCategoryPoints());
+	}
+
+	/** Add Categories */
 	if ( _categoriesTable != nullptr ) {
 		for( auto& category : quizData.getCategories() ) {
 			loadCategory(category);
@@ -698,6 +781,9 @@ void MusicQuiz::QuizCreator::loadRowCategory(const std::string& rowCategory)
 
 	/** Add Line Edit */
 	QLineEdit* rowCategoryName = new QLineEdit(QString::fromStdString(rowCategory));
+	QRegExp re("^[a-zA-Z0-9\\_\\.\\,\\-\\s\\'\\+\\^\\(\\)]{1,50}");
+	QRegExpValidator* validator = new QRegExpValidator(re);
+	rowCategoryName->setValidator(validator);
 	rowCategoryName->setObjectName("quizCreatorCategoryLineEdit");
 	_rowCategoriesTable->setCellWidget(rowCategoryCount, 0, rowCategoryName);
 
@@ -727,6 +813,9 @@ void MusicQuiz::QuizCreator::loadCategory(MusicQuiz::CategoryCreator* category)
 
 	/** Add Line Edit */
 	QLineEdit* categoryName = new QLineEdit(category->getName());
+	QRegExp re("^[a-zA-Z0-9\\_\\.\\,\\-\\s\\'\\+\\^\\(\\)]{1,50}");
+	QRegExpValidator* validator = new QRegExpValidator(re);
+	categoryName->setValidator(validator);
 	categoryName->setObjectName("quizCreatorCategoryLineEdit");
 	categoryName->setProperty("index", categoryCount);
 	connect(categoryName, SIGNAL(textChanged(const QString&)), this, SLOT(updateCategoryTabName(const QString&)));
@@ -767,22 +856,36 @@ void MusicQuiz::QuizCreator::previewQuiz()
 	/** Stop Song */
 	_audioPlayer->stop();
 	_videoPlayer->stop();
+	_textToSpeechPlayer->stop();
 
 	/** Check that quiz have been saved */
-	const string quizName = _quizNameLineEdit->text().toStdString();
-	const string quizPath = _config.getQuizDataPath() + "/" + quizName + "/" + quizName + ".quiz.xml", tree;
-	if ( !filesystem::exists(quizPath) ) {
+	const std::string quizName = _quizNameLineEdit->text().toStdString();
+	const std::string quizPath = _config.getQuizDataPath() + "/" + quizName + "/" + quizName + ".quiz.xml", tree;
+	if ( !std::filesystem::exists(quizPath) ) {
 		QMessageBox::information(nullptr, "Info", "Quiz must be saved before the preview can be shown.");
 		return;
 	}
 
 	/** Dummy Settings */
 	MusicQuiz::QuizSettings settings;
-	settings.guessTheCategory = _hiddenCategoriesCheckbox->isChecked();
+	settings.guessTimeLimit = false;
+	settings.guessTheCategory = _guessTheCategoriesCheckbox->isChecked();
+	settings.showEntryTypeIcon = _showEntryTypeIconsCheckbox->isChecked();
+
+	/** Check that quiz is valid */
+	try {
+		checkThatQuizIsValid(_categories);
+	} catch ( const std::exception& err ) {
+		QMessageBox::warning(this, "Info", "Failed to preview quiz:\n\n" + QString::fromStdString(err.what()));
+		return;
+	} catch ( ... ) {
+		QMessageBox::warning(this, "Info", "Failed to preview quiz.");
+		return;
+	}
 
 	/** Create Quiz Preview */
 	try {
-		_previewQuizBoard = MusicQuiz::QuizFactory::createQuiz(quizPath, settings, _audioPlayer, _videoPlayer, _config, {}, true, this);
+		_previewQuizBoard = MusicQuiz::QuizFactory::createQuiz(quizPath, settings, _audioPlayer, _videoPlayer, _textToSpeechPlayer, _imagePlayer, _textPlayer, _config, {}, true, this);
 		if ( _previewQuizBoard == nullptr ) {
 			QMessageBox::warning(this, "Info", "Failed to preview quiz.");
 			return;
@@ -793,8 +896,8 @@ void MusicQuiz::QuizCreator::previewQuiz()
 
 		/** Start Preview */
 		_previewQuizBoard->show();
-	} catch ( const exception& err ) {
-		QMessageBox::warning(this, "Info", "Failed to preview quiz. " + QString::fromStdString(err.what()));
+	} catch ( const std::exception& err ) {
+		QMessageBox::warning(this, "Info", "Failed to preview quiz:\n\n" + QString::fromStdString(err.what()));
 		return;
 	} catch ( ... ) {
 		QMessageBox::warning(this, "Info", "Failed to preview quiz.");
@@ -820,11 +923,148 @@ void MusicQuiz::QuizCreator::stopQuizPreview()
 		_videoPlayer->hide();
 	}
 
+	/** Stop Text to Speech */
+	if ( _textToSpeechPlayer != nullptr ) {
+		_textToSpeechPlayer->stop();
+	}
+
 	/** Stop Quiz */
 	_previewQuizBoard->hide();
 	_previewQuizBoard->close();
 	delete _previewQuizBoard;
 	_previewQuizBoard = nullptr;
+}
+
+void MusicQuiz::QuizCreator::checkThatQuizIsValid(const std::vector< MusicQuiz::CategoryCreator* >& categories)
+{
+	/** Check that the quiz has any categories */
+	if ( categories.empty() ) {
+		throw std::runtime_error("The quiz does not have any categories.");
+	}
+
+	/** Loop through the categories */
+	for ( auto& category : categories ) {
+		/** Check category name */
+		if ( category->getName().isEmpty() ) {
+			throw std::runtime_error("All categories must have a name.");
+		}
+
+		/** Check category entries */
+		if ( category->getEntries().empty() ) {
+			throw std::runtime_error("All categories must have at least one entry.");
+		}
+
+		/** Loop through the entries */
+		for ( auto& entry : category->getEntries() ) {
+			/** Check entry name */
+			if ( entry->getName().isEmpty() ) {
+				throw std::runtime_error("All category entries must have a name.");
+			}
+
+			/** Check entry data */
+			const std::string entryName = "Entry '" + entry->getName().toStdString() + "' in category '" + category->getName().toStdString() + "'";
+			switch ( entry->getType() ) {
+			case MusicQuiz::EntryCreator::EntryType::Song:
+				if ( entry->getSongFile().isEmpty() ) {
+					throw std::runtime_error(entryName + " does not have a valid song file.");
+				}
+				break;
+			case MusicQuiz::EntryCreator::EntryType::Video:
+				if ( entry->getVideoFile().isEmpty() ) {
+					throw std::runtime_error(entryName + " does not have a valid video file.");
+				}
+				if ( entry->getVideoSongFile().isEmpty() ) {
+					throw std::runtime_error(entryName + " does not have a valid video song file.");
+				}
+				break;
+			case MusicQuiz::EntryCreator::EntryType::TextToSpeech:
+				if ( entry->getTextToSpeechString().isEmpty() ) {
+					throw std::runtime_error(entryName + " does not have a valid speech string.");
+				}
+				if (entry->getTextToSpeechAnswerSongFile().isEmpty()) {
+					throw std::runtime_error(entryName + " does not have a valid text to speech answer song file.");
+				}
+				break;
+			case MusicQuiz::EntryCreator::EntryType::Image:
+				if( entry->getImageFile().isEmpty() ) {
+					throw std::runtime_error(entryName + " does not have a valid image file.");
+				}
+
+				if( entry->getImageAnswerSongFile().isEmpty() ) {
+					throw std::runtime_error(entryName + " does not have a image answer song file.");
+				}
+				break;
+			case MusicQuiz::EntryCreator::EntryType::Text:
+				if ( entry->getTextString().isEmpty() ) {
+					throw std::runtime_error(entryName + " does not have a valid text string.");
+				}
+				if ( entry->getTextAnswerSongFile().isEmpty() ) {
+					throw std::runtime_error(entryName + " does not have a valid text answer song file.");
+				}
+				break;
+			default:
+				break;
+			}
+		}
+	}
+}
+
+void MusicQuiz::QuizCreator::newQuiz()
+{
+	/** Popup to ensure the user wants to create a new quiz */
+	if (!_categories.empty() || _rowCategoriesTable->rowCount() != 0 || !_quizNameLineEdit->text().isEmpty() || !_quizAuthorLineEdit->text().isEmpty()) {
+		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Create New Quiz?", "Are you sure you want to create a new quiz? Any unsaved progress will be lost!",
+			QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
+		if (resBtn == QMessageBox::No) {
+			return;
+		}
+	}
+
+	/** Remove Tabs */
+	while (_tabWidget->count() > 1) {
+		_tabWidget->removeTab(1);
+	}
+
+	/** Clear Categories */
+	for (size_t i = 0; i < _categories.size(); ++i) {
+		_categories[i]->clearEntries();
+		_categories[i] = nullptr;
+		delete _categories[i];
+	}
+	_categories.clear();
+	_categoriesTable->clear();
+	_categoriesTable->clearContents();
+	_categoriesTable->setRowCount(0);
+
+	/** Clear Row Categories */
+	_rowCategoriesTable->clear();
+	_rowCategoriesTable->clearContents();
+	_rowCategoriesTable->setRowCount(0);
+
+	/** Set Name */
+	if (_quizNameLineEdit != nullptr) {
+		_quizNameLineEdit->setText("");
+	}
+
+	/** Set Author */
+	if (_quizAuthorLineEdit != nullptr) {
+		_quizAuthorLineEdit->setText("");
+	}
+
+	/** Show Entry Type Icons */
+	if ( _showEntryTypeIconsCheckbox != nullptr ) {
+		_showEntryTypeIconsCheckbox->setChecked(false);
+	}
+
+	/** Guess The Categories */
+	if (_guessTheCategoriesCheckbox != nullptr) {
+		_guessTheCategoriesCheckbox->setChecked(false);
+	}
+
+	/** Guess The Categories Points */
+	if ( _guessTheCategoriesPointsSpinbox != nullptr ) {
+		_guessTheCategoriesPointsSpinbox->setValue(500);
+	}
 }
 
 void MusicQuiz::QuizCreator::quitCreator()
@@ -838,16 +1078,6 @@ void MusicQuiz::QuizCreator::quitCreator()
 	}
 }
 
-void MusicQuiz::QuizCreator::categoryOrderChanged(const int, const int, const int)
-{
-	/** Sanity Check */
-	if ( _categoriesTable == nullptr || _tabWidget == nullptr ) {
-		return;
-	}
-
-	// \todo write the code for chaning the order of the tabs and the vector.
-}
-
 void MusicQuiz::QuizCreator::keyPressEvent(QKeyEvent* event)
 {
 	switch ( event->key() ) {
@@ -857,5 +1087,16 @@ void MusicQuiz::QuizCreator::keyPressEvent(QKeyEvent* event)
 	default:
 		QWidget::keyPressEvent(event);
 		break;
+	}
+}
+
+void MusicQuiz::QuizCreator::showGuessTheCategoriesSettings(bool show)
+{
+	if ( _guessTheCategoriesPointsLabel != nullptr ) {
+		_guessTheCategoriesPointsLabel->setVisible(show);
+	}
+
+	if ( _guessTheCategoriesPointsSpinbox != nullptr ) {
+		_guessTheCategoriesPointsSpinbox->setVisible(show);
 	}
 }

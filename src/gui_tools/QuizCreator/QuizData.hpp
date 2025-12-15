@@ -1,15 +1,18 @@
 #pragma once
 
-#include <QString>
-#include <vector>
 #include <regex>
-
-#include "common/Configuration.hpp"
-#include "media/AudioPlayer.hpp"
-#include "media/VideoPlayer.hpp"
+#include <string>
+#include <vector>
+#include <QString>
 
 #include <boost/property_tree/ptree.hpp>
-#include <string>
+
+#include "common/Configuration.hpp"
+
+#include "media/AudioPlayer.hpp"
+#include "media/VideoPlayer.hpp"
+#include "media/TextToSpeechPlayer.hpp"
+
 
 namespace MusicQuiz {
     class CategoryCreator;
@@ -21,19 +24,20 @@ namespace MusicQuiz {
              *
              * @param[in] config configuration.
              */
-            QuizData(const common::Configuration& config) : _config(config) {}
+            explicit QuizData(const common::Configuration& config) : _config(config) {}
 
             /**
              * @brief Constructor create quizdata from existing quiz on disk
              *
-             * @param[in] config configuration.
-             * @param[in] name The quiz name.
-             * @param[in] audioPlayer The audio player.
-             * @param[in] parent The parent widget.
-             * @param[in] skipEntries skip loading entries.
-             * @param[in] categoryNameRegex regex of which categories to load. Categories with a name matching the regex will be loaded.
+             * @param[in] config             The configuration.
+             * @param[in] name               The quiz name.
+             * @param[in] audioPlayer        The audio player.
+             * @param[in] textToSpeechPlayer The text to speech player.
+             * @param[in] parent             The parent widget.
+             * @param[in] skipEntries        Flag to determine whether it should skip loading entries.
+             * @param[in] categoryNameRegex  Regex of which categories to load. Categories with a name matching the regex will be loaded.
              */
-            QuizData(const common::Configuration& config, const std::string& name, const media::AudioPlayer::Ptr& audioPlayer, 
+            QuizData(const common::Configuration& config, const std::string& name, const media::AudioPlayer::Ptr& audioPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer,
                 QWidget* parent = nullptr, bool skipEntries = false, std::regex categoryNameRegex = std::regex(".*"));
             
             /**
@@ -72,18 +76,18 @@ namespace MusicQuiz {
             std::string getName() const {return _name;}
 
             /**
-             * @brief Sets the quiz description
-             * 
-             * @param[in] description description to set
+             * @brief Sets if show entry type icons should be enabled
+             *
+             * @param[in] enabled whether show the entry type icons should be enabled
              */
-            void setDescription(const std::string& description) {_description = description;}
+            void setShowEntryTypeIcons(bool enabled) {_showEntryTypeIcons = enabled;}
 
             /**
-             * @brief Get the quiz description
-             * 
-             * @return The quiz description
+             * @brief Check whether show entry type icons is enabled
+             *
+             * @return is show entry type icons enabled
              */
-            std::string getDescription() const {return _description;}
+            bool getShowEntryTypeIcons() const {return _showEntryTypeIcons;}
 
             /**
              * @brief Sets if guess the category should be enabled
@@ -177,18 +181,6 @@ namespace MusicQuiz {
             std::string getMediaPath() const;
 
         private:
-            const common::Configuration& _config;
-
-            std::string _name = "";
-            std::string _author = "";
-            std::string _description = "";
-
-            bool _guessTheCategory = false;
-            size_t _guessTheCategoryPoints = 0;
-
-            std::vector< std::string > _rowCategories;
-            std::vector< MusicQuiz::CategoryCreator* > _categories;
-
             /**
              * @brief Check if category names are unique
              * 
@@ -230,15 +222,40 @@ namespace MusicQuiz {
             void createDirectory(const std::string& path, const std::string& errorString) const;
 
             /**
-             * @brief Load categories from ptree
-             * @param[in] tree tree to load the categories from
-             * @param[in] audioPlayer Player the entries should use to play audio
-             * @param[in] skipEntries whether to skip loading entries
-             * @param[in] categoryNameRegex regex of which categories to load. Categories with a name matching the regex will be loaded.
-             * @param[in] parent widget to set as parent
+             * @brief Load the quiz categories from a ptree.
+             *
+             * @param[in] tree               The tree to load the categories from
+             * @param[in] audioPlayer        The audio player.
+             * @param[in] textToSpeechPlayer The text to speech player.
+             * @param[in] skipEntries        Flag to determine whether to skip loading entries
+             * @param[in] categoryNameRegex  Regex of which categories to load. Categories with a name matching the regex will be loaded.
+             * @param[in] parent             The parent widget.
              */
             std::vector< MusicQuiz::CategoryCreator* > loadCategories(boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, 
-                bool skipEntries, std::regex categoryNameRegex, QWidget* parent) const;    
+                const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, bool skipEntries, std::regex categoryNameRegex, QWidget* parent) const;
+
+            /** The Configuration */
+            const common::Configuration& _config;
+
+            /** The Quiz Name */
+            std::string _name = "";
+
+            /** The Quiz Author */
+            std::string _author = "";
+
+            /** Show entry type icons flag */
+            bool _showEntryTypeIcons = false;
+
+            /** Guess the category flag */
+            bool _guessTheCategory = false;
+
+            /** Guess the category points */
+            size_t _guessTheCategoryPoints = 0;
+
+            /** The row catergories */
+            std::vector< std::string > _rowCategories;
+
+            /** The catergories */
+            std::vector< MusicQuiz::CategoryCreator* > _categories;
     };
 }
-

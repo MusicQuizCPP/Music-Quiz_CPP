@@ -7,6 +7,7 @@
 #include <QRect>
 #include <QMessageBox>
 #include <QApplication>
+#include <QDesktopWidget>
 
 #include "common/Log.hpp"
 #include "common/Configuration.hpp"
@@ -21,17 +22,18 @@
 
 MusicQuiz::MusicQuizController::MusicQuizController(const common::Configuration& config, QWidget* parent) :
 	QWidget(parent),
-	_themeSongFile((config.getQuizDataPath() + "/default/theme_song.mp3").c_str()),
-	_victorySongFile((config.getQuizDataPath() + "/default/victory_song.mp3").c_str()),
+	_themeSongFile(config.getQuizDataPath() + "/default/theme_song.mp3"),
+	_victorySongFile(config.getQuizDataPath() + "/default/victory_song.mp3"),
 	_updateTimerDelayMs(25), _quizSelected(false), _teamSelected(false),
 	_introScreenDone(false), _gameCompleted(false), _config(config)
 {
 	/** Create Audio Player */
-	_audioPlayer = std::make_shared<media::AudioPlayer>();
+	_audioPlayer = std::make_shared< media::AudioPlayer >();
 
 	/** Create Video Player */
-	_videoPlayer = std::make_shared<media::VideoPlayer>();
-	_videoPlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint | Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+	_videoPlayer = std::make_shared< media::VideoPlayer >();
+	_videoPlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint |
+		Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
 
 	/** Set Video Player Size */
 	const QRect screenRec = QGuiApplication::primaryScreen()->geometry();
@@ -40,6 +42,37 @@ MusicQuiz::MusicQuizController::MusicQuizController(const common::Configuration&
 
 	/** Center Video Player */
 	_videoPlayer->move(0, 0);
+
+	/** Create Text to Speech Player */
+	_textToSpeechPlayer = std::make_shared< media::TextToSpeechPlayer >();
+
+	/** Create Image Player */
+	_imagePlayer = std::make_shared< media::ImagePlayer >();
+	_imagePlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint |
+		Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+
+	/** Set Image Player Size */
+	const int imagePlayerWidth = static_cast<int>(screenRec.width() * 0.8);
+	const int imagePlayerHeight = static_cast<int>(screenRec.height() * 0.8);
+	_imagePlayer->setMinimumSize(QSize(imagePlayerWidth, imagePlayerHeight));
+	_imagePlayer->resize(QSize(imagePlayerWidth, imagePlayerHeight));
+
+	/** Center Image Player */
+	_imagePlayer->move(QApplication::desktop()->screen()->rect().center() - _imagePlayer->rect().center());
+
+	/** Create Text Player */
+	_textPlayer = std::make_shared< media::TextPlayer >();
+	_textPlayer->setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint |
+		Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+
+	/** Set Image Player Size */
+	const int textPlayerWidth = static_cast<int>(screenRec.width() * 0.8);
+	const int textPlayerHeight = static_cast<int>(screenRec.height() * 0.8);
+	_textPlayer->setMinimumSize(QSize(textPlayerWidth, textPlayerHeight));
+	_textPlayer->resize(QSize(textPlayerWidth, textPlayerHeight));
+
+	/** Center Image Player */
+	_textPlayer->move(QApplication::desktop()->screen()->rect().center() - _textPlayer->rect().center());
 
 	/** Connect Update Timer */
 	connect(&_updateTimer, SIGNAL(timeout()), this, SLOT(executeQuiz()));
@@ -110,7 +143,8 @@ void MusicQuiz::MusicQuizController::executeQuiz()
 
 		/** Connect Signals */
 		connect(_quizSelector, SIGNAL(quitSignal()), this, SLOT(quitQuiz()));
-		connect(_quizSelector, SIGNAL(quizSelectedSignal(size_t, const QString&, const QString&, const MusicQuiz::QuizSettings&)), this, SLOT(quizSelected(size_t, const QString&, const QString&, const MusicQuiz::QuizSettings&)));
+		connect(_quizSelector, SIGNAL(quizSelectedSignal(size_t, const QString&, const QString&, const MusicQuiz::QuizSettings&)),
+			this, SLOT(quizSelected(size_t, const QString&, const QString&, const MusicQuiz::QuizSettings&)));
 
 		/** Show widget */
 		_quizSelector->exec();
@@ -179,7 +213,7 @@ void MusicQuiz::MusicQuizController::executeQuiz()
 
 		try {
 			/** Create Quiz Board */
-			_quizBoard = MusicQuiz::QuizFactory::createQuiz(_selectedQuizIdx, _settings, _audioPlayer, _videoPlayer, _config, _teams);
+			_quizBoard = MusicQuiz::QuizFactory::createQuiz(_selectedQuizIdx, _settings, _audioPlayer, _videoPlayer, _textToSpeechPlayer, _imagePlayer, _textPlayer, _config, _teams);
 
 			/** Connect Signals */
 			connect(_quizBoard, SIGNAL(quitSignal()), this, SLOT(quitQuiz()));

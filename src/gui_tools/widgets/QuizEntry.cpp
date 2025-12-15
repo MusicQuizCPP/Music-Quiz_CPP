@@ -4,15 +4,21 @@
 #include <stdexcept>
 #include <functional>
 
+#include <QLabel>
 #include <QPainter>
 #include <QMouseEvent>
 #include <QSizePolicy>
+#include <QApplication>
+#include <QHBoxLayout>
 
 #include "common/Log.hpp"
 
 
-MusicQuiz::QuizEntry::QuizEntry(const QString& audioFile, const QString& answer, const size_t points, const size_t startTime, const size_t answerStartTime, const media::AudioPlayer::Ptr& audioPlayer, QWidget* parent) :
-	QPushButton(parent), _points(points), _startTime(startTime), _answerStartTime(answerStartTime), _answer(answer), _audioFile(audioFile), _audioPlayer(audioPlayer)
+MusicQuiz::QuizEntry::QuizEntry(const std::filesystem::path& audioFile, const QString& answer, const size_t points, const size_t startTime, const size_t answerStartTime,
+	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer,
+	const media::ImagePlayer::Ptr& imagePlayer, const media::TextPlayer::Ptr& textPlayer, QWidget* parent) :
+	QPushButton(parent), _points(points), _startTime(startTime), _answerStartTime(answerStartTime), _answer(answer), _audioFile(audioFile),
+	_audioPlayer(audioPlayer), _videoPlayer(videoPlayer), _textToSpeechPlayer(textToSpeechPlayer), _imagePlayer(imagePlayer), _textPlayer(textPlayer)
 {
 	/** Sanity Check */
 	if ( _audioPlayer == nullptr ) {
@@ -33,16 +39,14 @@ MusicQuiz::QuizEntry::QuizEntry(const QString& audioFile, const QString& answer,
 
 	/** Set Entry Type */
 	_type = EntryType::Song;
-
-	/** Set Start Width */
-	//_startWidth = width();
 }
 
-MusicQuiz::QuizEntry::QuizEntry(const QString& audioFile, const QString& videoFile, const QString& answer, size_t points, size_t songStartTime, size_t videoStartTime, size_t answerStartTime,
-	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, QWidget* parent) :
+MusicQuiz::QuizEntry::QuizEntry(const std::filesystem::path& audioFile, const std::filesystem::path& videoFile, const QString& answer, size_t points, size_t songStartTime,
+	size_t videoStartTime, size_t answerStartTime, const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer,
+	const media::ImagePlayer::Ptr& imagePlayer, const media::TextPlayer::Ptr& textPlayer, QWidget* parent) :
 	QPushButton(parent), _points(points), _startTime(songStartTime), _videoStartTime(videoStartTime),
 	_answerStartTime(answerStartTime), _answer(answer), _audioFile(audioFile),
-	_videoFile(videoFile), _audioPlayer(audioPlayer), _videoPlayer(videoPlayer)
+	_videoFile(videoFile), _audioPlayer(audioPlayer), _videoPlayer(videoPlayer), _textToSpeechPlayer(textToSpeechPlayer), _imagePlayer(imagePlayer), _textPlayer(textPlayer)
 {
 	/** Sanity Check */
 	if ( _audioPlayer == nullptr ) {
@@ -72,11 +76,124 @@ MusicQuiz::QuizEntry::QuizEntry(const QString& audioFile, const QString& videoFi
 	_mouseEventCallback = std::bind(&MusicQuiz::QuizEntry::handleMouseEvent, this, std::placeholders::_1);
 }
 
+MusicQuiz::QuizEntry::QuizEntry(const QString& string, const std::filesystem::path& audioFile, const QString& answer, const size_t points, size_t answerStartTime,
+	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer,
+	const media::TextToSpeechPlayer::TextToSpeechSettings& textToSpeechSettings, const media::ImagePlayer::Ptr& imagePlayer, const media::TextPlayer::Ptr& textPlayer, QWidget* parent) :
+	QPushButton(parent), _points(points), _speechString(string), _answerStartTime(answerStartTime), _answer(answer), _audioFile(audioFile),
+	_audioPlayer(audioPlayer), _videoPlayer(videoPlayer), _textToSpeechPlayer(textToSpeechPlayer), _textToSpeechSettings(textToSpeechSettings), _imagePlayer(imagePlayer), _textPlayer(textPlayer)
+{
+	/** Sanity Check */	
+	if ( _textToSpeechPlayer == nullptr ) {
+		throw std::runtime_error("Failed to create quiz entry. Invalid text to speech player.");
+	}
+
+	/** Set Button Text */
+	setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
+
+	/** Set Start State */
+	_state = EntryState::IDLE;
+
+	/** Set Object Name */
+	setObjectName("QuizEntry");
+
+	/** Set Size Policy */
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+	/** Set Entry Type */
+	_type = EntryType::TextToSpeech;
+}
+
+MusicQuiz::QuizEntry::QuizEntry(const std::filesystem::path& imageFile, const std::filesystem::path& audioFile, const QString& answer, const size_t points, size_t answerStartTime,
+	const int pixilationDuration, const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer,
+	const media::ImagePlayer::Ptr& imagePlayer, const media::TextPlayer::Ptr& textPlayer, QWidget* parent) :
+	QPushButton(parent), _points(points), _imageFile(imageFile), _answerStartTime(answerStartTime), _answer(answer), _pixilationDuration(pixilationDuration), _audioFile(audioFile),
+	_audioPlayer(audioPlayer), _videoPlayer(videoPlayer), _textToSpeechPlayer(textToSpeechPlayer), _imagePlayer(imagePlayer), _textPlayer(textPlayer)
+{
+	/** Sanity Check */
+	if ( _audioPlayer == nullptr ) {
+		throw std::runtime_error("Failed to create quiz entry. Invalid audio player.");
+	}
+
+	if ( _imagePlayer == nullptr ) {
+		throw std::runtime_error("Failed to create quiz entry. Invalid audio player.");
+	}
+
+	/** Set Button Text */
+	setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
+
+	/** Set Start State */
+	_state = EntryState::IDLE;
+
+	/** Set Object Name */
+	setObjectName("QuizEntry");
+
+	/** Set Size Policy */
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+	/** Set Entry Type */
+	_type = EntryType::Image;
+
+	/** Create Callback Function */
+	_mouseEventCallback = std::bind(&MusicQuiz::QuizEntry::handleMouseEvent, this, std::placeholders::_1);
+
+	/** Connect signal */
+	QObject::connect(_imagePlayer.get(), &media::ImagePlayer::shown, this, &MusicQuiz::QuizEntry::blurQuiz);
+	QObject::connect(_imagePlayer.get(), &media::ImagePlayer::hidden, this, &MusicQuiz::QuizEntry::unBlurQuiz);
+}
+
+MusicQuiz::QuizEntry::QuizEntry(const QString& string, const std::filesystem::path& audioFile, const QString& answer, const size_t points, size_t answerStartTime,
+	const media::AudioPlayer::Ptr& audioPlayer, const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer,
+	const media::ImagePlayer::Ptr& imagePlayer, const media::TextPlayer::Ptr& textPlayer, QWidget* parent) :
+	QPushButton(parent), _points(points), _textString(string), _answerStartTime(answerStartTime), _answer(answer), _audioFile(audioFile),
+	_audioPlayer(audioPlayer), _videoPlayer(videoPlayer), _textToSpeechPlayer(textToSpeechPlayer), _imagePlayer(imagePlayer), _textPlayer(textPlayer)
+{
+	/** Sanity Check */
+	if ( _audioPlayer == nullptr ) {
+		throw std::runtime_error("Failed to create quiz entry. Invalid audio player.");
+	}
+
+	if ( _textPlayer == nullptr ) {
+		throw std::runtime_error("Failed to create quiz entry. Invalid text player.");
+	}
+
+	/** Set Button Text */
+	setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
+
+	/** Set Start State */
+	_state = EntryState::IDLE;
+
+	/** Set Object Name */
+	setObjectName("QuizEntry");
+
+	/** Set Size Policy */
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+	/** Set Entry Type */
+	_type = EntryType::Text;
+
+	/** Create Callback Function */
+	_mouseEventCallback = std::bind(&MusicQuiz::QuizEntry::handleMouseEvent, this, std::placeholders::_1);
+
+    /** Connect signal */
+    QObject::connect(_textPlayer.get(), &media::TextPlayer::shown, this, &MusicQuiz::QuizEntry::blurQuiz);
+    QObject::connect(_textPlayer.get(), &media::TextPlayer::hidden, this, &MusicQuiz::QuizEntry::unBlurQuiz);
+}
+
 void MusicQuiz::QuizEntry::mouseReleaseEvent(QMouseEvent* event)
 {
 	/** Install Event Filter in Video Player Widget */
 	if ( _videoPlayer != nullptr ) {
 		_videoPlayer->setMouseEventCallbackFunction(_mouseEventCallback);
+	}
+
+	/** Install Event Filter in Image Player Widget */
+	if ( _imagePlayer != nullptr ) {
+		_imagePlayer->setMouseEventCallbackFunction(_mouseEventCallback);
+	}
+
+	/** Install Event Filter in Text Player Widget */
+	if ( _textPlayer != nullptr ) {
+		_textPlayer->setMouseEventCallbackFunction(_mouseEventCallback);
 	}
 
 	/** Handle Event */
@@ -132,29 +249,76 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 	case EntryState::IDLE: // Start Media
 		_state = EntryState::PLAYING;
 		if ( _type == EntryType::Song ) {
+			_videoPlayer->stop();
+			_textToSpeechPlayer->stop();
 			_audioPlayer->play(_audioFile, _startTime);
+			_imagePlayer->hide();
+			_textPlayer->hide();
 		} else if ( _type == EntryType::Video ) {
 			_audioPlayer->stop();
+			_textToSpeechPlayer->stop();
+			_imagePlayer->hide();
+			_textPlayer->hide();
 			_videoPlayer->play(_videoFile, _videoStartTime, true);
 			_videoPlayer->show();
 			_audioPlayer->play(_audioFile, _startTime);
+		} else if ( _type == EntryType::TextToSpeech ) {
+			_audioPlayer->stop();
+			_videoPlayer->stop();
+			_imagePlayer->hide();
+			_textPlayer->hide();
+			_textToSpeechPlayer->play(_speechString, _textToSpeechSettings);
+		} else if ( _type == EntryType::Image ) {
+			_audioPlayer->stop();
+			_videoPlayer->stop();
+			_textToSpeechPlayer->stop();
+			_textPlayer->hide();
+			_imagePlayer->showImage(_imageFile, _pixilationDuration);
+		} else if ( _type == EntryType::Text ) {
+			_audioPlayer->stop();
+			_videoPlayer->stop();
+			_textToSpeechPlayer->stop();
+			_imagePlayer->hide();
+			_textPlayer->showText(_textString);
 		}
+
 		break;
 	case EntryState::PLAYING: // Pause Media
 		_state = EntryState::PAUSED;
+
 		_audioPlayer->pause();
-		if ( _videoPlayer != nullptr ) {
-			_videoPlayer->pause();
-		}
+		_videoPlayer->pause();
+		_textToSpeechPlayer->pause();
+		_imagePlayer->pause();
+		emit startCountdown();
+
 		break;
 	case EntryState::PAUSED: // Play Answer
+		emit stopCountdown();
 		_textSizeSet = false;
 		_state = EntryState::PLAYING_ANSWER;
 		if ( _type == EntryType::Song ) {
+			_videoPlayer->stop();
+			_textToSpeechPlayer->stop();
 			_audioPlayer->play(_audioFile, _answerStartTime);
 		} else if ( _type == EntryType::Video ) {
+			_audioPlayer->stop();
+			_textToSpeechPlayer->stop();
 			_videoPlayer->play(_videoFile, _answerStartTime);
 			_videoPlayer->show();
+		} else if ( _type == EntryType::TextToSpeech ) {
+			_videoPlayer->stop();
+			_audioPlayer->play(_audioFile, _answerStartTime);
+		} else if ( _type == EntryType::Image ) {
+			_videoPlayer->stop();
+			_textToSpeechPlayer->stop();
+			_audioPlayer->play(_audioFile, _answerStartTime);
+			_imagePlayer->showImage(_imageFile);
+		} else if ( _type == EntryType::Text ) {
+			_videoPlayer->stop();
+			_textToSpeechPlayer->stop();
+			_audioPlayer->play(_audioFile, _answerStartTime);
+			_textPlayer->showText(_textString);
 		}
 
 		if ( !_hiddenAnswer ) {
@@ -163,19 +327,36 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 		break;
 	case EntryState::PLAYING_ANSWER: // Entry Answered
 		_state = EntryState::PLAYED;
+
 		_audioPlayer->stop();
-		if ( _videoPlayer != nullptr ) {
-			_videoPlayer->stop();
-			_videoPlayer->hide();
-		}
+		_videoPlayer->stop();
+		_videoPlayer->hide();
+		_textToSpeechPlayer->stop();
+		_imagePlayer->hide();
+		_textPlayer->hide();
+
 		break;
 	case QuizEntry::EntryState::PLAYED: // Play Answer Again
 		if ( _type == EntryType::Song ) {
+			_videoPlayer->stop();
+			_textToSpeechPlayer->stop();
 			_audioPlayer->play(_audioFile, _answerStartTime);
 		} else if ( _type == EntryType::Video ) {
+			_audioPlayer->stop();
+			_textToSpeechPlayer->stop();
 			_videoPlayer->play(_videoFile, _answerStartTime);
 			_videoPlayer->show();
+		} else if ( _type == EntryType::TextToSpeech ) {
+			_videoPlayer->stop();
+			_audioPlayer->play(_audioFile, _answerStartTime);
+		} else if ( _type == EntryType::Image ) {
+			_audioPlayer->play(_audioFile, _answerStartTime);
+			_imagePlayer->showImage(_imageFile);
+		} else if ( _type == EntryType::Text ) {
+			_audioPlayer->play(_audioFile, _answerStartTime);
+			_textPlayer->showText(_textString);
 		}
+
 		_state = EntryState::PLAYING_ANSWER;
 		break;
 	default:
@@ -191,32 +372,48 @@ void MusicQuiz::QuizEntry::rightClickEvent()
 		break;
 	case EntryState::PLAYING: // Back to initial state
 		_state = EntryState::IDLE;
+
 		_audioPlayer->pause();
-		if ( _videoPlayer != nullptr ) {
-			_videoPlayer->pause();
+		_videoPlayer->pause();
+		_textToSpeechPlayer->pause();
+		_imagePlayer->pause();
+
+		if ( _type == EntryType::Video ) {
 			_videoPlayer->show();
 		}
+
 		break;
 	case EntryState::PAUSED: // Continue playing
+		emit stopCountdown();
 		_state = EntryState::PLAYING;
-		_audioPlayer->resume();
-		if ( _videoPlayer != nullptr ) {
+		
+		if ( _type == EntryType::Song ) {
+			_audioPlayer->resume();
+		} else if ( _type == EntryType::Video ) {
 			_videoPlayer->resume();
+			_audioPlayer->resume();
 			_videoPlayer->show();
+		} else if ( _type == EntryType::TextToSpeech ) {
+			_textToSpeechPlayer->resume();
+		} else if ( _type == EntryType::Image ) {
+			_imagePlayer->resume();
 		}
+
 		break;
 	case EntryState::PLAYING_ANSWER: // Pause Media
 		_state = EntryState::PAUSED;
+
 		_audioPlayer->pause();
-		if ( _videoPlayer != nullptr ) {
-			_videoPlayer->pause();
+		_videoPlayer->pause();
+		_textToSpeechPlayer->pause();
+
+		if ( _type == EntryType::Video ) {
 			_videoPlayer->show();
 		}
-		_fontSize = 40;
+
 		setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
 		break;
 	case QuizEntry::EntryState::PLAYED: // Back to idle
-		_fontSize = 40;
 		_entryAnswered = false;
 		_state = EntryState::IDLE;
 		setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
@@ -260,21 +457,25 @@ void MusicQuiz::QuizEntry::applyColor(const QColor& color)
 	}
 
 	/** Text Size */
-	int textWidth = fontMetrics().boundingRect(text()).width();
+	int textWidth = fontMetrics().horizontalAdvance(text());
 	if ( _state != QuizEntry::EntryState::PLAYED && !_textSizeSet ) {
 		size_t fontSize = 40;
 		while ( textWidth > width() - 40 && fontSize > 10U ) {
 			setStyleSheet("font-size: " + QString::number(fontSize) + "px;");
-			textWidth = fontMetrics().boundingRect(text()).width();
+			textWidth = fontMetrics().horizontalAdvance(text());
 			--fontSize;
 		}
 
 		_textSizeSet = true;
-		_fontSize = fontSize;
 	}
-	ss << "font-size: " << _fontSize << "px;";
 
 	setStyleSheet(QString::fromStdString(ss.str()));
+
+	/** Ensure icon border is not changed */
+	QLabel* label = findChild<QLabel*>("QuizEntryCategoryIcon");
+	if ( label != nullptr ) {
+		label->setStyleSheet("border: none;");
+	}
 }
 
 MusicQuiz::QuizEntry::EntryState MusicQuiz::QuizEntry::getEntryState()
@@ -309,4 +510,62 @@ void MusicQuiz::QuizEntry::setTriplePointsEnabled(bool enabled, bool hidden)
 
 	/** Apply Color */
 	applyColor(QColor(0, 0, 255));
+}
+
+void MusicQuiz::QuizEntry::setShowEntryTypeIcon(bool showIcons)
+{
+	if ( showIcons ) {
+		showEntryTypeIcon();
+	}
+}
+
+void MusicQuiz::QuizEntry::showEntryTypeIcon()
+{
+	/** Create icon label */
+	QLabel* iconLabel = new QLabel(this);
+	const int iconSize = this->rect().width() * 0.05;
+	iconLabel->setFixedSize(iconSize, iconSize);
+	iconLabel->setObjectName("QuizEntryCategoryIcon");
+	iconLabel->setStyleSheet("background: transparent;");
+	iconLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
+
+	/** Create icon layout */
+	QHBoxLayout* iconLayout = new QHBoxLayout(this);
+	iconLayout->addStretch();
+	iconLayout->setContentsMargins(5, 5, 5, 5);
+	iconLayout->addWidget(iconLabel, 0, Qt::AlignTop | Qt::AlignRight);
+
+	/** Load icon based on entry type */
+	QString iconPath = "";
+	switch ( _type ) {
+	case MusicQuiz::QuizEntry::EntryType::Song:
+		iconPath = QStringLiteral(":/imgs/music_icon.png");
+		break;
+	case MusicQuiz::QuizEntry::EntryType::Video:
+		iconPath = QStringLiteral(":/imgs/video_icon.png");
+		break;
+	case MusicQuiz::QuizEntry::EntryType::TextToSpeech:
+		iconPath = QStringLiteral(":/imgs/text-to-speech_icon.png");
+		break;
+	case MusicQuiz::QuizEntry::EntryType::Image:
+		iconPath = QStringLiteral(":/imgs/image_icon.png");
+		break;
+	case MusicQuiz::QuizEntry::EntryType::Text:
+		iconPath = QStringLiteral(":/imgs/text_icon.png");
+		break;
+	default:
+		return;
+	}
+
+	/** Load icon pixmap */
+	QPixmap iconPixmap(iconPath);
+	if ( iconPixmap.isNull() ) {
+		return;
+	}
+
+	/** Scale icon to the correct size */
+	const QPixmap scaledIconPixmap = iconPixmap.scaled(iconLabel->width(), iconLabel->width(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+	/** Set icon pixmap */
+	iconLabel->setPixmap(scaledIconPixmap);
 }

@@ -1,5 +1,6 @@
 #include "QuizCategory.hpp"
 
+#include <string>
 #include <stdexcept>
 
 #include <QLabel>
@@ -76,6 +77,7 @@ void MusicQuiz::QuizCategory::leftClickEvent()
 	case CategoryState::IDLE:
 		_state = CategoryState::GUESSED;
 		_categoryBtn->setText(QString::fromLocal8Bit(_name.toStdString().c_str()));
+		updateTextSize();
 		emit guessed(_points);
 		break;
 	case CategoryState::GUESSED:
@@ -126,4 +128,30 @@ bool MusicQuiz::QuizCategory::hasCateogryBeenGuessed()
 	}
 
 	return false;
+}
+
+void MusicQuiz::QuizCategory::updateTextSize()
+{
+	/** Text Size */
+	int textWidth = _categoryBtn->fontMetrics().horizontalAdvance(_name);
+	size_t fontSize = 40;
+	while ( textWidth > _categoryBtn->width() - 40 && fontSize > 10U ) {
+		_categoryBtn->setStyleSheet("font-size: " + QString::number(fontSize) + "px;");
+		textWidth = _categoryBtn->fontMetrics().horizontalAdvance(_name);
+		--fontSize;
+	}
+
+	const std::string stylesheetString = "font-size: " + std::to_string(fontSize) + "px;";
+	_categoryBtn->setStyleSheet(QString::fromStdString(stylesheetString));
+}
+
+void MusicQuiz::QuizCategory::showEvent(QShowEvent* event)
+{
+	/** Accept the event */
+	event->accept();
+
+	/** Update Text Size if not in guess the category mode */
+	if ( !_guessTheCategory ) {
+		updateTextSize();
+	}
 }

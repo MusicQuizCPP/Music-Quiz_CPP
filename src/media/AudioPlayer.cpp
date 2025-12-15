@@ -1,8 +1,8 @@
 #include "AudioPlayer.hpp"
 
+#include <string>
 #include <stdexcept>
 
-#include <QVBoxLayout>
 #include <QMediaContent>
 
 #include "common/Log.hpp"
@@ -24,18 +24,18 @@ media::AudioPlayer::~AudioPlayer()
 	delete _player;
 }
 
-void media::AudioPlayer::play(const QString& audioFile, const size_t startTime)
+void media::AudioPlayer::play(const std::filesystem::path& audioFile, const size_t startTime)
 {
 	/** Sanity Check */
-	if ( audioFile.isEmpty() ) {
-		throw std::runtime_error("Video File Name is empty.");
+	if ( audioFile.empty() ) {
+		throw std::runtime_error("Audio File Name is empty.");
 	}
 
 	/** Stop audio if any is playing and close file */
 	stop();
 
 	/** Set Audio File */
-	_player->setMedia(QUrl::fromLocalFile(audioFile));
+	_player->setMedia(QUrl::fromLocalFile(QString::fromStdString(audioFile.string())));
 
 	/** Set Start Time */
 	_player->setPosition(startTime);
@@ -46,7 +46,7 @@ void media::AudioPlayer::play(const QString& audioFile, const size_t startTime)
 	/** Set State */
 	_state = AudioPlayState::PAUSED;
 
-	//The playback will be started in handleMediaStatus when file has been loaded.
+	// The playback will be started in handleMediaStatus when file has been loaded.
 }
 
 void media::AudioPlayer::pause()
@@ -79,7 +79,7 @@ void media::AudioPlayer::resume()
 
 void media::AudioPlayer::stop()
 {
-	/** Stop Video */
+	/** Stop Audio */
 	_player->stop();
 	_player->setMedia(QMediaContent());
 
@@ -97,4 +97,9 @@ void media::AudioPlayer::handleMediaStatus(QMediaPlayer::MediaStatus status)
 	if ( status == QMediaPlayer::MediaStatus::BufferedMedia || status == QMediaPlayer::MediaStatus::LoadedMedia ) {
 		this->resume();
 	}
+}
+
+void media::AudioPlayer::setVolume(int volume)
+{
+	_player->setVolume(std::clamp(volume, 0, 100));
 }

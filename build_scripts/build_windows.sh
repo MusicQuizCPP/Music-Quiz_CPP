@@ -4,7 +4,7 @@ set -e
 #Set path and env variables
 export CC=CL.exe 
 export CXX=CL.exe 
-export "PATH=/c/Qt/${QT_VERSION}/msvc2017_64:/c/Qt/5.12.9/msvc2017_64/bin:$PATH"
+export "PATH=/c/Qt/${QT_VERSION}/msvc2022_64:/c/Qt/${QT_VERSION}/msvc2017_64/bin:$PATH"
 export "BOOST_INCLUDEDIR=/c/boost\boost.1.72.0.0\lib\native\include"
 export "BOOST_ROOT=/c/boost\boost.1.72.0.0\lib\native\include"
 

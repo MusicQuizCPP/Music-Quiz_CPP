@@ -1,10 +1,12 @@
 #pragma once
 
-#include <string>
-#include <cstdint>
-#include <thread>
 #include <mutex>
 #include <queue>
+#include <string>
+#include <memory>
+#include <vector>
+#include <thread>
+#include <cstdint>
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/beast/websocket.hpp>
@@ -21,7 +23,6 @@ namespace LightControl {
 		typedef void (*connected_callback)(LightControlClient*);
 
 	public:
-
 		/**
 		 * @brief Constructor
 		 *
@@ -55,7 +56,7 @@ namespace LightControl {
 		 * @param[in] data message to send.
 		 * @param[in] timeout how long the message can be queued before it times out.
 		 */
-		void sendMessage(std::shared_ptr<std::ostringstream> data, std::chrono::milliseconds timeout = std::chrono::milliseconds(1000));
+		void sendMessage(std::shared_ptr<std::string> data, std::chrono::milliseconds timeout = std::chrono::milliseconds(1000));
 
 		/**
 		 * @brief queue a message for sending. The message will not be send imediatly, but be queued
@@ -141,6 +142,6 @@ namespace LightControl {
 
 		boost::beast::flat_buffer _readBuffer;
 		std::queue<PendingMessage> _writeQueue;
-		std::shared_ptr<std::ostringstream> _writeBuffer;
+		std::shared_ptr<std::string> _writeBuffer;
 	};
 }

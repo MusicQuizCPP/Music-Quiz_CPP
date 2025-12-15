@@ -9,30 +9,30 @@ If the 3rd party library does not have an explicit definition of the interface s
 
 ## Naming Convention and Coding Style
 Defines a set of common naming conventions for certain identifiers to avoid confusions.
-Note, the examples do not include comments since these are explained [in the documentation section.](#Documentation)
+Note, the examples do not include comments since these are explained [in the documentation section.](#documentation)
 
 
 ### Classes and Structs
-Class and struct names use the UpperCamelCaseStyle e.g. 
+Class and struct names use the UpperCamelCaseStyle e.g.
 
 ```C++
 class ThisIsMyClass {
-	...
+    ...
 };
 
 struct ThisIsMyStruct {
-	...
+    ...
 };
 ```
 
 **Member variables** follow the `_lowerCamelCaseStyle`, but are preceeded by an underscore.
-**Member functions** use the generic style of [functions](#Functions).
+**Member functions** use the generic style of [functions](#functions).
 ```C++
 class MyClass {
-	double getMemberVariable() const;
+    double getMemberVariable() const;
 
 protected:
-	double _thisIsMyMemberVariable = 0.0;
+    double _thisIsMyMemberVariable = 0.0;
 };
 ```
 
@@ -43,8 +43,8 @@ Instead the needed files can be included in the source files instead when needed
 Classes that are intended to be passed around with pointers must have defined a typdef for `MyClass::Ptr` (pointer to class) and `MyClass::CPtr` (Pointer to class of const type) using the `std::shared_ptr<>` unless it inherits a class from another library using a different convention.
 ```C++
 class MyClass {
-	typedef std::shared_ptr< MyClass > Ptr;
-	typedef std::shared_ptr< const MyClass > CPtr;
+    typedef std::shared_ptr< MyClass > Ptr;
+    typedef std::shared_ptr< const MyClass > CPtr;
 };
 ```
 
@@ -54,7 +54,7 @@ Enum names use the UpperCamelCaseStyle and their enum elements use SCREAMING_SNA
 
 ```C++
 enum ThisIsMyEnum {
-	ENUM_ONE, ENUM_TWO
+    ENUM_ONE, ENUM_TWO
 };
 ```
 
@@ -76,9 +76,9 @@ Namespaces use the lowerCamelCaseStyle e.g.
 
 ```C++
 namespace thisIsMyNamespace {
-	namespace thisIsMyNestedNamespace {
-		...
-	}
+    namespace thisIsMyNestedNamespace {
+        ...
+    }
 }
 ```
 
@@ -94,11 +94,6 @@ The word **Interface** is hence only to be used if a class has only pure virtual
 
 An **Abstraction** is a class much like the Interface, but does also contain some implemented function bodies.
 It is however still required that an **Abstraction** has at least one pure virtual function.
-
-The **Proxy** class is one such that the provides an alternative API to another class that may be more convenient in some use-cases.
-This could be to implement a class that, while providing the basic functions of the hidden class, also allows the class, at runtime, to be replaced by another similar class.
-E.g. a RobotProxy interface which is able to switch between a simulated robot or any other real robot without the user being required to change the class interacting with.
-A **Proxy** class does not have any pure virtual functions and is should hence be possible to create an instant of such.
 
 
 ## Documentation
@@ -124,7 +119,7 @@ As example in for loops the syntax would be as follows:
 
 ```C++
 for ( size_t i = 0; i < 4; ++i ) {
-	...
+    ...
 }
 ```
 

@@ -5,6 +5,7 @@
 
 #include <QLabel>
 #include <QWidget>
+#include <QScreen>
 #include <QCheckBox>
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -15,6 +16,7 @@
 #include <QSpacerItem>
 #include <QMessageBox>
 #include <QListWidgetItem>
+#include <QGuiApplication>
 
 #include "common/Log.hpp"
 #include "common/Configuration.hpp"
@@ -61,7 +63,6 @@ void MusicQuiz::QuizSelector::createLayout()
 	/** Layout */
 	QGridLayout* mainlayout = new QGridLayout;
 	QVBoxLayout* quizSelectionLayout = new QVBoxLayout;
-	QVBoxLayout* descriptionLayout = new QVBoxLayout;
 	QVBoxLayout* infoLayout = new QVBoxLayout;
 	QGridLayout* categoryLayout = new QGridLayout;
 	QHBoxLayout* buttonLayout = new QHBoxLayout;
@@ -70,7 +71,6 @@ void MusicQuiz::QuizSelector::createLayout()
 	quizSelectionLayout->setSpacing(20);
 	buttonLayout->setSpacing(20);
 	infoLayout->setSpacing(30);
-	descriptionLayout->setSpacing(20);
 	categoryLayout->setHorizontalSpacing(20);
 	categoryLayout->setVerticalSpacing(20);
 	mainlayout->setColumnStretch(0, 1);
@@ -92,19 +92,6 @@ void MusicQuiz::QuizSelector::createLayout()
 		quizName->setText(QString(" ") + QString::fromStdString(_quizPreviews[i].quizName));
 		_quizSelectionList->addItem(quizName);
 	}
-
-	/** Description */
-	QLabel* descriptionLabel = new QLabel("Description");
-	descriptionLabel->setObjectName("descriptionLabel");
-	descriptionLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Minimum);
-	descriptionLabel->setAlignment(Qt::AlignHCenter);
-	descriptionLayout->addWidget(descriptionLabel);
-
-	_descriptionText = new QTextEdit;
-	_descriptionText->setReadOnly(true);
-	_descriptionText->setObjectName("descriptionTextLabel");
-	_descriptionText->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
-	descriptionLayout->addWidget(_descriptionText);
 
 	/** Categories */
 	QLabel* categoryLabel = new QLabel("Categories");
@@ -151,6 +138,24 @@ void MusicQuiz::QuizSelector::createLayout()
 	_includeVideosCheckbox->setFocusPolicy(Qt::NoFocus);
 	infoLayout->addWidget(_includeVideosCheckbox, Qt::AlignLeft);
 
+	_includeTextToSpeechCheckbox = new QCheckBox(" Includes Text to Speech");
+	_includeTextToSpeechCheckbox->setObjectName("infoCheckbox");
+	_includeTextToSpeechCheckbox->setAttribute(Qt::WA_TransparentForMouseEvents);
+	_includeTextToSpeechCheckbox->setFocusPolicy(Qt::NoFocus);
+	infoLayout->addWidget(_includeTextToSpeechCheckbox, Qt::AlignLeft);
+
+	_includeImageCheckbox = new QCheckBox(" Includes Images");
+	_includeImageCheckbox->setObjectName("infoCheckbox");
+	_includeImageCheckbox->setAttribute(Qt::WA_TransparentForMouseEvents);
+	_includeImageCheckbox->setFocusPolicy(Qt::NoFocus);
+	infoLayout->addWidget(_includeImageCheckbox, Qt::AlignLeft);
+
+	_includeTextCheckbox = new QCheckBox(" Includes Text");
+	_includeTextCheckbox->setObjectName("infoCheckbox");
+	_includeTextCheckbox->setAttribute(Qt::WA_TransparentForMouseEvents);
+	_includeTextCheckbox->setFocusPolicy(Qt::NoFocus);
+	infoLayout->addWidget(_includeTextCheckbox, Qt::AlignLeft);
+
 	_guessTheCategoryCheckbox = new QCheckBox(" Guess the Category");
 	_guessTheCategoryCheckbox->setObjectName("infoCheckbox");
 	_guessTheCategoryCheckbox->setAttribute(Qt::WA_TransparentForMouseEvents);
@@ -158,7 +163,6 @@ void MusicQuiz::QuizSelector::createLayout()
 	infoLayout->addWidget(_guessTheCategoryCheckbox, Qt::AlignHCenter);
 	infoLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
 	categoryLayout->addItem(infoLayout, 1, 2, Qt::AlignHCenter);
-	descriptionLayout->addItem(categoryLayout);
 
 	/** Buttons */
 	QPushButton* selectBtn = new QPushButton("Select Quiz");
@@ -178,7 +182,7 @@ void MusicQuiz::QuizSelector::createLayout()
 
 	/** Add Widgets */
 	mainlayout->addItem(quizSelectionLayout, 0, 0);
-	mainlayout->addItem(descriptionLayout, 0, 1);
+	mainlayout->addItem(categoryLayout, 0, 1);
 	mainlayout->addItem(buttonLayout, 1, 0, 1, 3);
 
 	/** Set Layout */
@@ -199,7 +203,7 @@ void MusicQuiz::QuizSelector::selectionClicked()
 			return;
 	}
 
-	if ( _descriptionText == nullptr || _quizSelectionList == nullptr ) {
+	if ( _quizSelectionList == nullptr ) {
 		LOG_ERROR("Can not update QuizSelection item are nullptr.")
 			return;
 	}
@@ -211,12 +215,12 @@ void MusicQuiz::QuizSelector::selectionClicked()
 			return;
 	}
 
-	/** Update Description */
-	_descriptionText->setText(QString::fromStdString(_quizPreviews[currentIndex].quizDescription));
-
 	/** Update Info Checkboxes */
 	_includeSongsCheckbox->setChecked(_quizPreviews[currentIndex].includeSongs);
 	_includeVideosCheckbox->setChecked(_quizPreviews[currentIndex].includeVideos);
+	_includeTextToSpeechCheckbox->setChecked(_quizPreviews[currentIndex].includeTextToSpeech);
+	_includeImageCheckbox->setChecked(_quizPreviews[currentIndex].includeImages);
+	_includeTextCheckbox->setChecked(_quizPreviews[currentIndex].includeText);
 	_guessTheCategoryCheckbox->setChecked(_quizPreviews[currentIndex].guessTheCategory);
 
 	/** Update Categories */
@@ -242,7 +246,6 @@ void MusicQuiz::QuizSelector::selectionClicked()
 	} else {
 		_rowCategoryText->clear();
 	}
-
 }
 
 void MusicQuiz::QuizSelector::quizSelected()
@@ -272,7 +275,13 @@ void MusicQuiz::QuizSelector::quizSelected()
 	const QString quizAuthor = QString::fromStdString(_quizPreviews[currentIndex].quizAuthor);
 
 	/** Guess The Category */
+	_settings.showEntryTypeIcon = _quizPreviews[currentIndex].showEntryTypeIcons;
+
+	/** Guess The Category */
 	_settings.guessTheCategory = _quizPreviews[currentIndex].guessTheCategory;
+
+	/** Guess The Category */
+	_settings.pointsPerCategory = _quizPreviews[currentIndex].guessTheCategoryPoints;
 
 	/** Popup Messagebox */
 	QString msg = "Are you sure you want to select quiz '" + quizName + "'?";
@@ -289,6 +298,8 @@ void MusicQuiz::QuizSelector::openSettingsDialog()
 	MusicQuiz::QuizSettingsDialog* settingsDialog = new MusicQuiz::QuizSettingsDialog(_settings, this);
 	settingsDialog->setObjectName("settingsDialog");
 	connect(settingsDialog, SIGNAL(settingsUpdated(const MusicQuiz::QuizSettings&)), this, SLOT(updateSettings(const MusicQuiz::QuizSettings&)));
+	settingsDialog->show();
+	settingsDialog->move(QGuiApplication::primaryScreen()->geometry().center() - settingsDialog->rect().center());
 	settingsDialog->exec();
 }
 

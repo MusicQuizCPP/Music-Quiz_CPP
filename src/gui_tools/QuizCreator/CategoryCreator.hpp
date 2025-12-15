@@ -1,5 +1,9 @@
 #pragma once 
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include <QLabel>
 #include <QObject>
 #include <QWidget>
@@ -9,7 +13,10 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include "media/AudioPlayer.hpp"
+#include "media/TextToSpeechPlayer.hpp"
+
 #include "gui_tools/GuiUtil/QExtensions/QTabWidgetExtender.hpp"
+
 
 namespace common {
 	class Configuration;
@@ -25,25 +32,28 @@ namespace MusicQuiz {
 		/**
 		 * @brief Constructor
 		 *
-		 * @param[in] name The category name.
-		 * @param[in] audioPlayer The audio player.
-		 * @param[in] config configuration.
-		 * @param[in] parent The parent widget.
+		 * @param[in] name               The category name.
+		 * @param[in] audioPlayer        The audio player.
+		 * @param[in] textToSpeechPlayer The text to speech player.
+		 * @param[in] config             The configuration.
+		 * @param[in] parent             The parent widget.
 		 */
-		explicit CategoryCreator(const QString& name, const std::shared_ptr< media::AudioPlayer >& audioPlayer, 
+		explicit CategoryCreator(const QString& name, const std::shared_ptr< media::AudioPlayer >& audioPlayer, const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer,
 			const common::Configuration& config, QWidget* parent = nullptr);
 
 		/**
 		 * @brief Constructor
 		 *
-		 * @param[in] tree property_tree to load category from.
-		 * @param[in] audioPlayer The audio player.
-		 * @param[in] config configuration.
-		 * @param[in] skipEntries whether entries loading should be skipped.
-		 * @param[in] parent The parent widget.
+		 * @param[in] tree               The property_tree to load category from.
+		 * @param[in] audioPlayer        The audio player.
+		 * @param[in] textToSpeechPlayer The text to speech player.
+		 * @param[in] config             The configuration.
+		 * @param[in] skipEntries        Flag to determine whether entries loading should be skipped.
+		 * @param[in] parent             The parent widget.
 		 */
-		explicit CategoryCreator(const boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, const common::Configuration& config, 
-			bool skipEntries = false, QWidget* parent = nullptr);
+		explicit CategoryCreator(const boost::property_tree::ptree &tree, const media::AudioPlayer::Ptr& audioPlayer, const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer,
+			const common::Configuration& config, bool skipEntries = false, QWidget* parent = nullptr);
+
 		/**
 		 * @brief Default destructor
 		 */
@@ -104,7 +114,6 @@ namespace MusicQuiz {
 		 * 
 		 * @return the serialized ptree
 		 */
-
 		boost::property_tree::ptree saveToXml(const std::string savePath, const std::string& xmlPath);
 
 	private slots:
@@ -177,9 +186,7 @@ namespace MusicQuiz {
 		 * @param[in] row row to insert at.
 		 * @param[in] column column to insert at.
 		 * @param[in] releasedCallback function to call when button is released.
-
 		 */
-
 		void addButtonToTable(const QString& objectName, int row, int column, void (MusicQuiz::CategoryCreator::*releasedCallback)(void));
 
 		/** Variables */
@@ -192,6 +199,7 @@ namespace MusicQuiz {
 		std::vector< MusicQuiz::EntryCreator* > _entries;
 
 		std::shared_ptr< media::AudioPlayer > _audioPlayer = nullptr;
+		std::shared_ptr< media::TextToSpeechPlayer > _textToSpeechPlayer = nullptr;
 
 		const common::Configuration& _config;
 	};

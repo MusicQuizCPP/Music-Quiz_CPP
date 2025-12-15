@@ -1,26 +1,19 @@
 #pragma once
 
 #include <memory>
+#include <filesystem>
 
 #include <QString>
 #include <QWidget>
 #include <QObject>
-#include <QKeyEvent>
-#include <QMouseEvent>
 #include <QMediaPlayer>
-#include <QVideoWidget>
 
 
 namespace media {
 	class AudioPlayer : public QWidget {
 		Q_OBJECT
-	public:
-		enum class AudioPlayState {
-			IDLE = 1,		// Default
-			PLAYING = 2,
-			PAUSED = 3
-		};
 
+	public:
 		/**
 		 * @brief Constructor
 		 *
@@ -45,12 +38,12 @@ namespace media {
 		AudioPlayer& operator=(const AudioPlayer&) = delete;
 
 		/**
-		 * @brief Plays a video.
+		 * @brief Plays a song.
 		 *
 		 * @param[in] audioFile The name of the audio file to play.
 		 * @param[in] startTime The time at which to start playing the audio file from.
 		 */
-		void play(const QString& audioFile, size_t startTime = 0);
+		void play(const std::filesystem::path& audioFile, size_t startTime = 0);
 
 		/**
 		 * @brief Pauses the audio that is currently playing.
@@ -67,13 +60,26 @@ namespace media {
 		 */
 		void stop();
 
+		/**
+		 * @brief Sets the playback volume.
+		 *
+		 * @param[in] volume Volume in range [0, 100]. Values outside range are clamped.
+		 */
+		void setVolume(int volume);
+
 	private slots:
 		/**
-		 * @brief Handles mediastatus changes
+		 * @brief Handles media status changes
 		 */
 		void handleMediaStatus(QMediaPlayer::MediaStatus status);
 
 	protected:
+		/** Audio Play State */
+		enum class AudioPlayState {
+			IDLE = 1,		// Default
+			PLAYING = 2,
+			PAUSED = 3
+		};
 
 		/** Variables */
 		QMediaPlayer* _player = nullptr;

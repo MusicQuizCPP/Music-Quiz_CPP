@@ -26,5 +26,16 @@ namespace MusicQuiz {
 
 		/** Light Device */
 		std::string deviceIP;
+
+		/** Guess time Limit */
+		bool guessTimeLimit = true;
+		size_t timeLimit = 10000;
+
+		/** Show Entry Type Icon */
+		bool showEntryTypeIcon = false;
+
+		/** Bingo */
+		bool bingoEnabled = false;
+		size_t bingoPoints = 100;
 	};
 }

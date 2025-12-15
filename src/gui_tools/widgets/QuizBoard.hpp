@@ -9,15 +9,24 @@
 #include <QObject>
 #include <QDialog>
 #include <QKeyEvent>
+#include <QShowEvent>
+#include <QPushButton>
 
 #include "util/QuizSettings.hpp"
+
 #include "lightcontrol/client/LightControlClient.hpp"
+
+#include "gui_tools/widgets/QuizTeam.hpp"
+#include "gui_tools/widgets/QuizEntry.hpp"
+#include "gui_tools/GuiUtil/QExtensions/QCountDownClock.hpp"
+
 
 namespace MusicQuiz {
 	class QuizTeam;
 	class QuizCategory;
 	class QuizBoard : public QDialog {
 		Q_OBJECT
+
 	public:
 		/**
 		 * @brief Constructor
@@ -83,6 +92,14 @@ namespace MusicQuiz {
 		void handleGameComplete();
 
 		/**
+		 * @brief Checks if a bingo was completed.
+		 * 
+		 * @param[in] entry The quiz entry that was answered.
+		 * @param[in] team  The team that answered the entry.
+		 */
+		void handleBingo(QuizEntry* entry, QuizTeam* team);
+
+		/**
 		 * @brief Handles the close event.
 		 *
 		 * @param[in] event The event.
@@ -104,11 +121,38 @@ namespace MusicQuiz {
 		 */
 		bool eventFilter(QObject* target, QEvent* event);
 
+		/**
+		 * @brief Blurs the quiz (used when displaying image or text).
+		 */
+		void blurQuiz();
+
+		/**
+		 * @brief Unblurs the quiz (used when displaying image or text).
+		 */
+		void unBlurQuiz();
+
+		/**
+		 * @brief Displays a countdown clock to show how much time the participant have left to guess.
+		 */
+		void startCountdown();
+
+		/**
+		 * @brief Stops the countdown.
+		 */
+		void stopCountdown();
+
 	signals:
 		void quitSignal();
 		void gameComplete(std::vector<MusicQuiz::QuizTeam*> winningTeam);
 
 	protected:
+		/**
+		 * @brief Overrides the show event to update the text size.
+		 * 
+		 * @param[in] event The event.
+		 */
+		void showEvent(QShowEvent* event) override;
+
 		/**
 		 * @brief Creates the category layout.
 		 */
@@ -124,7 +168,18 @@ namespace MusicQuiz {
 
 		std::vector<QuizTeam*> _teams;
 		std::vector<QString> _rowCategories;
+		std::vector<QPushButton*> _rowCategoryButtons;
 		std::vector<MusicQuiz::QuizCategory*> _categories;
+
+		/*/ Bingo tracking */
+		std::vector< std::vector<int> > _cellOwner;
+		std::vector< std::vector<bool> > _bingoRowAwarded; // [team][row]
+		std::vector< std::vector<bool> > _bingoColAwarded; // [team][col]
+		std::vector< std::vector<bool> > _bingoDiagAwarded; // [team][diag(0..1)]
+		QPixmap _bingoPixmap = QPixmap(":/imgs/bingo.png");
+
 		std::shared_ptr<LightControl::LightControlClient> _lightClient;
+
+		MusicQuiz::QExtensions::QCountDownClock* _countdownClock = nullptr;
 	};
 }

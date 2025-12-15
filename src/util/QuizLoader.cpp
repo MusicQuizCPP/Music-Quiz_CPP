@@ -7,31 +7,31 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
+#include <QVoice>
+
 #include "common/Log.hpp"
 #include "common/Configuration.hpp"
 
 #include "gui_tools/widgets/QuizEntry.hpp"
 
-using namespace MusicQuiz::util;
-using namespace std;
 
-vector<string> QuizLoader::getListOfQuizzes(const common::Configuration& config)
+std::vector< std::string > MusicQuiz::util::QuizLoader::getListOfQuizzes(const common::Configuration& config)
 {
 	/** Check if data folder exists */
-	const filesystem::path dataFolder = config.getQuizDataPath();
-	if ( !filesystem::is_directory(dataFolder) ) {
-		throw runtime_error("Data folder does not exists.");
+	const std::filesystem::path dataFolder = config.getQuizDataPath();
+	if ( !std::filesystem::is_directory(dataFolder) ) {
+		throw std::runtime_error("Data folder does not exists.");
 	}
 
 	/** Find Quizzes */
-	vector<string> quizList;
-	filesystem::recursive_directory_iterator end;
+	std::vector< std::string > quizList;
+	std::filesystem::recursive_directory_iterator end;
 
-	for ( filesystem::recursive_directory_iterator file(dataFolder); file != end; ++file ) {
-		const string fileStr = filesystem::path(*file).string();
+	for ( std::filesystem::recursive_directory_iterator file(dataFolder); file != end; ++file ) {
+		const std::string fileStr = std::filesystem::path(*file).string();
 
 		/** Skip non quiz files */
-		if ( fileStr.find(".quiz.xml") == string::npos ) {
+		if ( fileStr.find(".quiz.xml") == std::string::npos ) {
 			continue;
 		}
 
@@ -42,21 +42,21 @@ vector<string> QuizLoader::getListOfQuizzes(const common::Configuration& config)
 	return quizList;
 }
 
-QuizLoader::QuizPreview QuizLoader::getQuizPreview(size_t idx, const common::Configuration& config)
+MusicQuiz::util::QuizLoader::QuizPreview MusicQuiz::util::QuizLoader::getQuizPreview(size_t idx, const common::Configuration& config)
 {
 	/** Get List of Quizzes */
-	const vector<string> quizList = getListOfQuizzes(config);
+	const std::vector< std::string > quizList = getListOfQuizzes(config);
 	if ( quizList.empty() ) {
-		throw runtime_error("No quizzes found in the data folder.");
+		throw std::runtime_error("No quizzes found in the data folder.");
 	}
 
 	/** Sanity Check */
 	if ( idx >= quizList.size() ) {
-		throw runtime_error("Index out of range.");
+		throw std::runtime_error("Index out of range.");
 	}
 
-	if ( !filesystem::exists(quizList[idx]) ) {
-		throw runtime_error("Quiz file does not exists.");
+	if ( !std::filesystem::exists(quizList[idx]) ) {
+		throw std::runtime_error("Quiz file does not exists.");
 	}
 
 	/** Load preview */
@@ -66,16 +66,17 @@ QuizLoader::QuizPreview QuizLoader::getQuizPreview(size_t idx, const common::Con
 	boost::property_tree::ptree sub_tree = tree.get_child("MusicQuiz");
 
 	/** Name */
-	quizPreview.quizName = sub_tree.get<string>("QuizName");
+	quizPreview.quizName = sub_tree.get< std::string >("QuizName");
 
 	/** Author */
-	quizPreview.quizAuthor = sub_tree.get<string>("QuizAuthor");
+	quizPreview.quizAuthor = sub_tree.get< std::string >("QuizAuthor");
 
-	/** Description */
-	quizPreview.quizDescription = sub_tree.get<string>("QuizDescription");
+	/** Show Entry Type Icons */
+	quizPreview.showEntryTypeIcons = sub_tree.get("QuizShowEntryTypeIcons", false);
 
 	/** Guess the Category */
 	quizPreview.guessTheCategory = sub_tree.get("QuizGuessTheCategory.<xmlattr>.enabled", false);
+	quizPreview.guessTheCategoryPoints = sub_tree.get("QuizGuessTheCategory", 500);
 
 	/** Categories & Row Categories */
 	boost::property_tree::ptree::const_iterator ctrl = sub_tree.begin();
@@ -85,17 +86,23 @@ QuizLoader::QuizPreview QuizLoader::getQuizPreview(size_t idx, const common::Con
 			boost::property_tree::ptree::const_iterator sub_ctrl = categoriesTree.begin();
 			for ( ; sub_ctrl != categoriesTree.end(); ++sub_ctrl ) {
 				if ( sub_ctrl->first == "Category" ) {
-					quizPreview.categories.push_back(sub_ctrl->second.get<string>("<xmlattr>.name"));
+					quizPreview.categories.push_back(sub_ctrl->second.get< std::string >("<xmlattr>.name"));
 
-					if ( !quizPreview.includeSongs || !quizPreview.includeVideos ) { // Check if the quiz contains songs / videos.
+					if ( !quizPreview.includeSongs || !quizPreview.includeVideos || !quizPreview.includeTextToSpeech || !quizPreview.includeImages || !quizPreview.includeText ) {
 						boost::property_tree::ptree mediaTree = sub_ctrl->second;
 						boost::property_tree::ptree::const_iterator it = mediaTree.begin();
 						for ( ; it != mediaTree.end(); ++it ) {
 							if ( it->first == "QuizEntry" ) {
-								if ( it->second.get<string>("<xmlattr>.type") == "song" && !quizPreview.includeSongs ) {
+								if ( it->second.get< std::string >("<xmlattr>.type") == "song" && !quizPreview.includeSongs ) {
 									quizPreview.includeSongs = true;
-								} else if ( it->second.get<string>("<xmlattr>.type") == "video" && !quizPreview.includeVideos ) {
+								} else if ( it->second.get< std::string >("<xmlattr>.type") == "video" && !quizPreview.includeVideos ) {
 									quizPreview.includeVideos = true;
+								} else if ( it->second.get< std::string >("<xmlattr>.type") == "textToSpeech" && !quizPreview.includeTextToSpeech ) {
+									quizPreview.includeTextToSpeech = true;
+								} else if ( it->second.get< std::string >("<xmlattr>.type") == "image" && !quizPreview.includeImages ) {
+									quizPreview.includeImages = true;
+								} else if ( it->second.get< std::string >("<xmlattr>.type") == "text" && !quizPreview.includeText ) {
+									quizPreview.includeText = true;
 								}
 							}
 						}
@@ -116,22 +123,23 @@ QuizLoader::QuizPreview QuizLoader::getQuizPreview(size_t idx, const common::Con
 	return quizPreview;
 }
 
-vector<MusicQuiz::QuizCategory*> QuizLoader::loadQuizCategories(const size_t idx, const media::AudioPlayer::Ptr& audioPlayer,
-	const media::VideoPlayer::Ptr& videoPlayer, const common::Configuration& config, string& err)
+std::vector< MusicQuiz::QuizCategory* > MusicQuiz::util::QuizLoader::loadQuizCategories(const size_t idx, const media::AudioPlayer::Ptr& audioPlayer,
+	const media::VideoPlayer::Ptr& videoPlayer, const media::TextToSpeechPlayer::Ptr& textToSpeechPlayer, const media::ImagePlayer::Ptr& imagePlayer,
+	const media::TextPlayer::Ptr& textPlayer, const common::Configuration& config, std::string& err)
 {
 	/** Get List of Quizzes */
-	const vector<string> quizList = getListOfQuizzes(config);
+	const std::vector< std::string > quizList = getListOfQuizzes(config);
 	if ( quizList.empty() ) {
-		throw runtime_error("No quizzes found in the data folder.");
+		throw std::runtime_error("No quizzes found in the data folder.");
 	}
 
 	/** Sanity Check */
 	if ( idx >= quizList.size() ) {
-		throw runtime_error("No quiz index requested does not exists.");
+		throw std::runtime_error("No quiz index requested does not exists.");
 	}
 
-	if ( !filesystem::exists(quizList[idx]) ) {
-		throw runtime_error("Quiz file does not exists.");
+	if ( !std::filesystem::exists(quizList[idx]) ) {
+		throw std::runtime_error("Quiz file does not exists.");
 	}
 
 
@@ -142,7 +150,7 @@ vector<MusicQuiz::QuizCategory*> QuizLoader::loadQuizCategories(const size_t idx
 	boost::property_tree::read_xml(quizList[idx], tree, boost::property_tree::xml_parser::trim_whitespace);
 	boost::property_tree::ptree sub_tree = tree.get_child("MusicQuiz");
 
-	vector<MusicQuiz::QuizCategory*> categories;
+	std::vector< MusicQuiz::QuizCategory* > categories;
 	boost::property_tree::ptree::const_iterator ctrl = sub_tree.begin();
 	for ( ; ctrl != sub_tree.end(); ++ctrl ) {
 		if ( ctrl->first == "QuizCategories" ) { // Load Categories
@@ -151,99 +159,184 @@ vector<MusicQuiz::QuizCategory*> QuizLoader::loadQuizCategories(const size_t idx
 			try {
 				for ( ; sub_ctrl != categoriesTree.end(); ++sub_ctrl ) {
 					if ( sub_ctrl->first == "Category" ) {
-
 						/** Category Name */
-						const QString categoryName = QString::fromStdString(sub_ctrl->second.get<string>("<xmlattr>.name"));
+						const QString categoryName = QString::fromStdString(sub_ctrl->second.get< std::string >("<xmlattr>.name"));
 
 						/** Category Entries */
-						vector<MusicQuiz::QuizEntry*> categorieEntries;
+						std::vector< MusicQuiz::QuizEntry* > categorieEntries;
 						boost::property_tree::ptree entryTree = sub_ctrl->second;
 						boost::property_tree::ptree::const_iterator it = entryTree.begin();
 						for ( ; it != entryTree.end(); ++it ) {
-							if ( it->first == "QuizEntry" ) {
+							if ( it->first != "QuizEntry" ) {
+								continue;
+							}
 
-								/** Settings */
-								const QString answer = QString::fromStdString(it->second.get<string>("Answer"));
-								const size_t points = it->second.get<size_t>("Points");
+							/** Settings */
+							const QString answer = QString::fromStdString(it->second.get< std::string >("Answer"));
+							const size_t points = it->second.get<size_t>("Points");
+
+							/** Media Type */
+							const std::string type = it->second.get< std::string >("<xmlattr>.type");
+							if ( type == "song" ) { // Song
+								std::string songFileString = config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile"));
+								const size_t audioStartTime = it->second.get<size_t>("StartTime");
+								const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
+								std::replace(songFileString.begin(), songFileString.end(), '\\', '/');
+								std::filesystem::path songFile(songFileString);
+
+								/** Check if file exsists */
+								if ( !std::filesystem::exists(songFile) ) {
+									err += "Missing song file '" + songFile.string() + "'\n";
+								}
+
+								/** Push Back Song Entry */
+								categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, answer, points, audioStartTime, answerStartTime,
+									audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer, textPlayer));
+							} else if ( type == "video" ) { // Video
+								std::string songFileString = config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile"));
+								std::string videoFileString = config.mediaPathToFullPath(it->second.get< std::string >("Media.VideoFile"));
+								std::replace(songFileString.begin(), songFileString.end(), '\\', '/');
+								std::replace(videoFileString.begin(), videoFileString.end(), '\\', '/');
+								std::filesystem::path songFile(songFileString);
+								std::filesystem::path videoFile(videoFileString);
+								const size_t videoStartTime = it->second.get<size_t>("StartTime");
+								const size_t videoSongStartTime = it->second.get<size_t>("VideoSongStartTime");
 								const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
 
-								/** Media Type */
-								const string type = it->second.get<string>("<xmlattr>.type");
-								if ( type == "song" ) { // Song
-									QString songFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get<string>("Media.SongFile")));
-									const size_t audioStartTime = it->second.get<size_t>("StartTime");
-									replace(songFile.begin(), songFile.end(), '\\', '/');
-
-									/** Check if file exsists */
-									if ( !filesystem::exists(songFile.toStdString()) ) {
-										err += "Missing song file '" + songFile.toStdString() + "'\n";
-									}
-
-									/** Push Back Song Entry */
-									categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, answer, points, audioStartTime, answerStartTime, audioPlayer));
-								} else if ( type == "video" ) { // Video
-									QString songFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get<string>("Media.SongFile")));
-									QString videoFile = QString::fromStdString(config.mediaPathToFullPath(it->second.get<string>("Media.VideoFile")));
-									replace(songFile.begin(), songFile.end(), '\\', '/');
-									replace(videoFile.begin(), videoFile.end(), '\\', '/');
-									const size_t videoStartTime = it->second.get<size_t>("StartTime");
-									const size_t videoSongStartTime = it->second.get<size_t>("VideoSongStartTime");
-
-									/** Check if files exsists */
-									if ( !filesystem::exists(songFile.toStdString()) ) {
-										err += "Missing song file '" + songFile.toStdString() + "'\n";
-									}
-
-									if ( !filesystem::exists(videoFile.toStdString()) ) {
-										err += "Missing video file '" + videoFile.toStdString() + "'\n";
-									}
-
-									/** Push Back Video Entry */
-									categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, videoFile, answer, points, videoSongStartTime, videoStartTime, answerStartTime, audioPlayer, videoPlayer));
+								/** Check if files exsists */
+								if ( !std::filesystem::exists(songFile) ) {
+									err += "Missing song file '" + songFile.string() + "'\n";
 								}
+
+								if ( !std::filesystem::exists(videoFile) ) {
+									err += "Missing video file '" + videoFile.string() + "'\n";
+								}
+
+								/** Push Back Video Entry */
+								categorieEntries.push_back(new MusicQuiz::QuizEntry(songFile, videoFile, answer, points, videoSongStartTime, videoStartTime, answerStartTime,
+									audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer, textPlayer));
+							} else if ( type == "textToSpeech" ) {// text to speech
+								/** Get Speech String */
+								const QString textToSpeechString = QString::fromStdString(it->second.get<std::string>("Media.TextToSpeechString"));
+
+								/** Get Settings */
+								media::TextToSpeechPlayer::TextToSpeechSettings settings;
+								settings._pitch = it->second.get<double>("Media.Pitch", 0.0);
+								settings._rate = it->second.get<double>("Media.Rate", 0.0);
+								const QString voiceName = QString::fromStdString(it->second.get<std::string>("Media.VoiceName", ""));
+								const QVector< QVoice > avaliableVoices = textToSpeechPlayer->availableVoices();
+								for ( int i = 0; i < avaliableVoices.size(); ++i ) {
+									if ( voiceName == avaliableVoices[i].name() ) {
+										settings._voice = avaliableVoices[i];
+									}
+								}
+
+								/** Check if string has been set */
+								if ( textToSpeechString.isEmpty() ) {
+									err += "Text to speech string is empty\n";
+								}
+
+								/** Get Answer Song File */
+								std::string songFileString = config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile"));
+								const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
+								std::replace(songFileString.begin(), songFileString.end(), '\\', '/');
+								std::filesystem::path songFile(songFileString);
+
+								/** Check if file exsists */
+								if ( !std::filesystem::exists(songFile) ) {
+									err += "Missing song file '" + songFile.string() + "'\n";
+								}
+
+								/** Push Back Text to Speech Entry */
+								categorieEntries.push_back(new MusicQuiz::QuizEntry(textToSpeechString, songFile, answer, points, answerStartTime,
+									audioPlayer, videoPlayer, textToSpeechPlayer, settings, imagePlayer, textPlayer));
+							} else if ( type == "image" ) { // image
+								std::string imageFileString = config.mediaPathToFullPath(it->second.get< std::string >("Media.ImageFile"));
+								std::string songFileString = config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile"));
+								std::replace(imageFileString.begin(), imageFileString.end(), '\\', '/');
+								std::replace(songFileString.begin(), songFileString.end(), '\\', '/');
+								std::filesystem::path imageFile(imageFileString);
+								std::filesystem::path songFile(songFileString);
+								const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
+								const int pixilationDuration = it->second.get<int>("PixilationDuration", 0);
+
+								/** Check if files exsists */
+								if ( !std::filesystem::exists(imageFile) ) {
+									err += "Missing image file '" + imageFile.string() + "'\n";
+								}
+
+								if ( !std::filesystem::exists(songFile) ) {
+									err += "Missing song file '" + songFile.string() + "'\n";
+								}
+
+								/** Push Back Image Entry */
+								categorieEntries.push_back(new MusicQuiz::QuizEntry(imageFile, songFile, answer, points, answerStartTime, 
+									pixilationDuration, audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer, textPlayer));
+							} else if ( type == "text" ) {// text
+								/** Get Text String */
+								const QString textString = QString::fromStdString(it->second.get<std::string>("Media.TextString"));
+
+								/** Check if string has been set */
+								if ( textString.isEmpty() ) {
+									err += "Text string is empty\n";
+								}
+
+								/** Get Answer Song File */
+								std::string songFileString = config.mediaPathToFullPath(it->second.get< std::string >("Media.SongFile"));
+								const size_t answerStartTime = it->second.get<size_t>("AnswerStartTime");
+								std::replace(songFileString.begin(), songFileString.end(), '\\', '/');
+								std::filesystem::path songFile(songFileString);
+
+								/** Check if file exsists */
+								if ( !std::filesystem::exists(songFile) ) {
+									err += "Missing song file '" + songFile.string() + "'\n";
+								}
+
+								/** Push Back Text to Speech Entry */
+								categorieEntries.push_back(new MusicQuiz::QuizEntry(textString, songFile, answer, points, answerStartTime,
+									audioPlayer, videoPlayer, textToSpeechPlayer, imagePlayer, textPlayer));
 							}
 						}
 
 						categories.push_back(new MusicQuiz::QuizCategory(categoryName, categorieEntries));
 					}
 				}
-			} catch ( const exception& error ) {
+			} catch ( const std::exception& error ) {
 				LOG_ERROR("Failed to load category. " << error.what());
 			} catch ( ... ) {
 				LOG_ERROR("Failed to load category.");
 			}
-
 		}
 	}
 
 	return categories;
 }
 
-vector<QString> QuizLoader::loadQuizRowCategories(const size_t idx, const common::Configuration& config)
+std::vector< QString > MusicQuiz::util::QuizLoader::loadQuizRowCategories(const size_t idx, const common::Configuration& config)
 {
 	/** Get List of Quizzes */
-	const vector<string> quizList = getListOfQuizzes(config);
+	const std::vector< std::string > quizList = getListOfQuizzes(config);
 
 	if ( quizList.empty() ) {
-		throw runtime_error("No quizzes found in the data folder.");
+		throw std::runtime_error("No quizzes found in the data folder.");
 	}
 
 	/** Sanity Check */
 	if ( idx >= quizList.size() ) {
-		throw runtime_error("The quiz index requested does not exists.");
+		throw std::runtime_error("The quiz index requested does not exists.");
 	}
 
 	/** Sanity Check */
 	if ( idx >= quizList.size() ) {
-		throw runtime_error("No quiz index requested does not exists.");
+		throw std::runtime_error("No quiz index requested does not exists.");
 	}
 	return loadQuizRowCategories(quizList[idx]);
 }
 
-vector<QString> QuizLoader::loadQuizRowCategories(const std::string& xmlPath)
+std::vector< QString > MusicQuiz::util::QuizLoader::loadQuizRowCategories(const std::string& xmlPath)
 {
-	if ( !filesystem::exists(xmlPath) ) {
-		throw runtime_error("Quiz file does not exists.");
+	if ( !std::filesystem::exists(xmlPath) ) {
+		throw std::runtime_error("Quiz file does not exists.");
 	}
 
 
@@ -252,7 +345,7 @@ vector<QString> QuizLoader::loadQuizRowCategories(const std::string& xmlPath)
 	boost::property_tree::read_xml(xmlPath, tree, boost::property_tree::xml_parser::trim_whitespace);
 	boost::property_tree::ptree sub_tree = tree.get_child("MusicQuiz");
 
-	vector<QString> rowCategories;
+	std::vector< QString > rowCategories;
 	boost::property_tree::ptree::const_iterator ctrl = sub_tree.begin();
 	for ( ; ctrl != sub_tree.end(); ++ctrl ) {
 		if ( ctrl->first == "QuizRowCategories" ) { // Load Categories

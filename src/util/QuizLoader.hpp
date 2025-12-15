@@ -9,6 +9,9 @@
 
 #include "media/AudioPlayer.hpp"
 #include "media/VideoPlayer.hpp"
+#include "media/TextToSpeechPlayer.hpp"
+#include "media/ImagePlayer.hpp"
+#include "media/TextPlayer.hpp"
 #include "gui_tools/widgets/QuizCategory.hpp"
 
 namespace common {
@@ -25,8 +28,12 @@ namespace MusicQuiz {
 				std::string quizAuthor = "";
 				bool includeSongs = false;
 				bool includeVideos = false;
+				bool includeTextToSpeech = false;
+				bool includeImages = false;
+				bool includeText = false;
+				bool showEntryTypeIcons = false;
 				bool guessTheCategory = false;
-				std::string quizDescription = "";
+				int guessTheCategoryPoints = 500;
 				std::vector<std::string> categories;
 				std::vector<std::string> rowCategories;
 
@@ -34,7 +41,6 @@ namespace MusicQuiz {
 				{
 					out << "\n\nQuiz Name: " << quizPreview.quizName << "\n";
 					out << "Quiz Author: " << quizPreview.quizAuthor << "\n";
-					out << "Quiz Description: " << quizPreview.quizDescription << "\n";
 					if ( !quizPreview.categories.empty() ) {
 						out << "Quiz Categories:\n";
 						for ( size_t i = 0; i < quizPreview.categories.size(); ++i ) {
@@ -51,6 +57,10 @@ namespace MusicQuiz {
 
 					out << "Quiz Include Songs: " << (quizPreview.includeSongs ? "Yes" : "No") << "\n";
 					out << "Quiz Include Videos: " << (quizPreview.includeVideos ? "Yes" : "No") << "\n";
+					out << "Quiz Include Text To Speech: " << (quizPreview.includeTextToSpeech ? "Yes" : "No") << "\n";
+					out << "Quiz Include Images: " << (quizPreview.includeImages ? "Yes" : "No") << "\n";
+					out << "Quiz Include Text: " << (quizPreview.includeText ? "Yes" : "No") << "\n";
+					out << "Quiz Show Entry Type Icons: " << (quizPreview.showEntryTypeIcons ? "Yes" : "No") << "\n";
 					out << "Quiz Quess the Category: " << (quizPreview.guessTheCategory ? "Yes" : "No") << "\n\n";
 					return out;
 				}
@@ -91,13 +101,20 @@ namespace MusicQuiz {
 			/**
 			* @brief Returns a list of the categories.
 			*
-			* @param[in] idx The index of the quiz to load the categories from.
-			* @param[out] err The error message.
+			* @param[in] idx                The index of the quiz to load the categories from.
+			* @param[in] audioPlayer        The audio player.
+			* @param[in] videoPlayer        The video player.
+			* @param[in] textToSpeechPlayer The text to speech player.
+			* @param[in] ImagePlayer        The image player.
+			* @param[in] TextPlayer         The text player.
+			* @param[out] err               The error message.
 			*
 			* @return The quiz categories.
 			*/
 			static std::vector<MusicQuiz::QuizCategory*> loadQuizCategories(size_t idx, const std::shared_ptr< media::AudioPlayer >& audioPlayer,
-				const std::shared_ptr< media::VideoPlayer >& videoPlayer, const common::Configuration& config, std::string& err);
+				const std::shared_ptr< media::VideoPlayer >& videoPlayer, const std::shared_ptr< media::TextToSpeechPlayer >& textToSpeechPlayer,
+				const std::shared_ptr< media::ImagePlayer >& imagePlayer, const std::shared_ptr< media::TextPlayer >& textPlayer,
+				const common::Configuration& config, std::string& err);
 
 			/**
 			* @brief Returns a list of the row categories.
@@ -120,7 +137,6 @@ namespace MusicQuiz {
 
 
 		protected:
-			/** Variables */
 		};
 	}
 }
