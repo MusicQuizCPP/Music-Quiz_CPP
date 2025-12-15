@@ -22,7 +22,6 @@
 #include "gui_tools/GuiUtil/QExtensions/QPushButtonExtender.hpp"
 
 #include "LightDeviceConnectedWidget.hpp"
-
 #include "lightcontrol/client/messages/LightModeMessage.hpp"
 #include "lightcontrol/client/messages/OnBoardLEDStrength.hpp"
 #include "lightcontrol/client/messages/GlitterMessage.hpp"
@@ -64,7 +63,7 @@ MusicQuiz::QuizBoard::QuizBoard(const std::vector<MusicQuiz::QuizCategory*>& cat
 	}
 
 	if ( sameNumberOfEntries ) {
-		_rowCategories = rowCategories;
+		_rowCategories.insert(_rowCategories.end(), rowCategories.begin(), rowCategories.end());
 	}
 
 	/** Create Widget Layout */
@@ -82,7 +81,7 @@ MusicQuiz::QuizBoard::QuizBoard(const std::vector<MusicQuiz::QuizCategory*>& cat
 void MusicQuiz::QuizBoard::lightClientConnectedCallback(LightControl::LightControlClient* client)
 {
 	client->sendMessage(LightControl::OnBoardLEDStrength(0));
-	client->sendMessage(LightControl::LightModeMessage( LightControl::LightMode::OFF, 1.f, 0, 0, 0));
+	client->sendMessage(LightControl::LightModeMessage(LightControl::LightMode::OFF, 1.f, 0, 0, 0));
 }
 
 void MusicQuiz::QuizBoard::createLayout()
@@ -100,6 +99,7 @@ void MusicQuiz::QuizBoard::createLayout()
 	size_t maxNumberOfEntries = 0;
 	for ( size_t i = 0; i < _categories.size(); ++i ) {
 		categorylayout->addWidget(_categories[i]);
+		categorylayout->setStretch(i, 1);
 		if ( _settings.guessTheCategory ) {
 			connect(_categories[i], SIGNAL(guessed(size_t)), this, SLOT(handleAnswer(size_t)));
 		}
@@ -126,10 +126,12 @@ void MusicQuiz::QuizBoard::createLayout()
 		rowCategorylayout->setSpacing(10);
 
 		/** Add Light Device Status Box */
-		LightDeviceConnectedWidget* connectedWidget = new LightDeviceConnectedWidget(_lightClient, this);
-		connectedWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		connectedWidget->setObjectName("QuizEntry_rowCategoryLabel");
-		rowCategorylayout->addWidget(connectedWidget);
+		if ( _lightClient != nullptr ) {
+			LightDeviceConnectedWidget* connectedWidget = new LightDeviceConnectedWidget(_lightClient, this);
+			connectedWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+			connectedWidget->setObjectName("QuizEntry_rowCategoryLabel");
+			rowCategorylayout->addWidget(connectedWidget);
+		}
 
 		/** Add Row Categories */
 		for ( size_t i = 0; i < _rowCategories.size(); ++i ) {
@@ -137,6 +139,7 @@ void MusicQuiz::QuizBoard::createLayout()
 			rowCategoryBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 			rowCategoryBtn->setObjectName("QuizEntry_rowCategoryLabel");
 			rowCategorylayout->addWidget(rowCategoryBtn);
+			_rowCategoryButtons.push_back(rowCategoryBtn);
 		}
 
 		/** Add layouts to main layout */
@@ -224,10 +227,10 @@ void MusicQuiz::QuizBoard::handleAnswer(const size_t points)
 	}
 
 	/** Set color on light device */
-	_lightClient->sendMessage(LightControl::LightModeMessage( LightControl::LightMode::ON, 1.f,
-																static_cast<uint8_t>(buttonColor.red()),
-																static_cast<uint8_t>(buttonColor.green()),
-																static_cast<uint8_t>(buttonColor.blue())));
+	_lightClient->sendMessage(LightControl::LightModeMessage(LightControl::LightMode::ON, 1.f,
+		static_cast<uint8_t>(buttonColor.red()),
+		static_cast<uint8_t>(buttonColor.green()),
+		static_cast<uint8_t>(buttonColor.blue())));
 
 	/** Set Button Color */
 	MusicQuiz::QuizEntry* entryButton = dynamic_cast<MusicQuiz::QuizEntry*>(sender());
@@ -261,7 +264,6 @@ void MusicQuiz::QuizBoard::handleGameComplete()
 				isGameComplete = false;
 				break;
 			}
-
 		}
 	}
 
@@ -274,9 +276,11 @@ void MusicQuiz::QuizBoard::handleGameComplete()
 				winningTeams.push_back(_teams[i]);
 			}
 		}
-		_lightClient->sendMessage(LightControl::GlitterMessage(std::chrono::milliseconds(100), true, 50));
-		_lightClient->sendMessage(LightControl::LightModeMessage(LightControl::LightMode::GLITTER, 1.f, 0, 0, 0));
 
+		if ( _lightClient != nullptr ) {
+			_lightClient->sendMessage(LightControl::GlitterMessage(std::chrono::milliseconds(100), true, 50));
+			_lightClient->sendMessage(LightControl::LightModeMessage(LightControl::LightMode::GLITTER, 1.f, 0, 0, 0));
+		}
 
 		emit gameComplete(winningTeams);
 	} else if ( isGameComplete || _quizStopped ) {
@@ -316,7 +320,6 @@ bool MusicQuiz::QuizBoard::closeWindow()
 
 	return false;
 }
-
 void MusicQuiz::QuizBoard::keyPressEvent(QKeyEvent* event)
 {
 	switch ( event->key() ) {
@@ -330,6 +333,31 @@ void MusicQuiz::QuizBoard::keyPressEvent(QKeyEvent* event)
 	default:
 		QWidget::keyPressEvent(event);
 		break;
+	}
+}
+
+void MusicQuiz::QuizBoard::showEvent(QShowEvent* event) 
+{
+	/** Accept the event */
+	event->accept();
+
+	/** Sanity Check */
+	if ( _rowCategoryButtons.empty() ) {
+		return;
+	}
+
+	/** Resize Row Category Fonts */
+	for ( size_t i = 0; i < _rowCategoryButtons.size(); ++i ) {
+		int textWidth = _rowCategoryButtons[i]->fontMetrics().boundingRect(_rowCategoryButtons[i]->text()).width();
+		size_t fontSize = 40;
+		while ( textWidth > _rowCategoryButtons[i]->width() - 40 && fontSize > 10U ) {
+			_rowCategoryButtons[i]->setStyleSheet("font-size: " + QString::number(fontSize) + "px;");
+			textWidth = _rowCategoryButtons[i]->fontMetrics().boundingRect(_rowCategories[i]).width();
+			--fontSize;
+		}
+
+		const std::string stylesheetString = "font-size: " + std::to_string(fontSize) + "px;";
+		_rowCategoryButtons[i]->setStyleSheet(QString::fromStdString(stylesheetString));
 	}
 }
 

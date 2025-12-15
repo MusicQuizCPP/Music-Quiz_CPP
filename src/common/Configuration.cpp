@@ -3,39 +3,88 @@
 #include <filesystem>
 #include <regex>
 
-using namespace common;
-using namespace std;
+#include "common/Log.hpp"
+#include "common/TimeUtil.hpp"
 
-Configuration::Configuration() : _quizDataPath("./data")
-{
-}
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 
-string Configuration::getQuizDataPath() const
+
+common::Configuration::Configuration() : _quizDataPath("./data")
+{}
+
+std::string common::Configuration::getQuizDataPath() const
 {
     return _quizDataPath;
 }
 
-void Configuration::setQuizDataPath(string path)
+void common::Configuration::setQuizDataPath(std::string path)
 {
+	/** Set the path */
     _quizDataPath = path;
+
+	/** Update the config file */
+	saveConfigurationFile();
 }
 
-bool Configuration::doQuizDataPathExist() const
+bool common::Configuration::doQuizDataPathExist() const
 {
-    return filesystem::is_directory(_quizDataPath);
+    return std::filesystem::is_directory(_quizDataPath);
 }
 
-string Configuration::mediaPathToFullPath(string mediaPathStr) const
+bool common::Configuration::doQuizConfigFileExist() const
 {
-	filesystem::path quizDataPath(getQuizDataPath());
-	filesystem::path mediaPath(mediaPathStr);
+	return std::filesystem::exists(_configFilePath);
+}
 
-	filesystem::path fullpath = quizDataPath / mediaPath;
+void common::Configuration::loadConfigurationFile()
+{
+	/** Sanity Check */
+	if (!std::filesystem::exists(_configFilePath)) {
+		throw std::runtime_error("The quiz config file does not exists.");
+	}
 
-	if( !filesystem::exists(fullpath)) //Hack for compatibility with older quizes
+	/** Load file */
+	boost::property_tree::ptree tree;
+	boost::property_tree::read_xml(_configFilePath, tree, boost::property_tree::xml_parser::trim_whitespace);
+	
+	/** Get quiz data path */
+	boost::property_tree::ptree sub_tree = tree.get_child("Configuration");
+	_quizDataPath = sub_tree.get< std::string >("DataPath");
+}
+
+void common::Configuration::saveConfigurationFile()
+{
+	/** Sanity Check */
+	if (!doQuizDataPathExist()) {
+		LOG_DEBUG("Invalid data path set, config file will not be created.");
+		return;
+	}
+
+	/** Create Tree */
+	boost::property_tree::ptree tree;
+	boost::property_tree::ptree& main_tree = tree.put("Configuration", "");
+	main_tree.put("<xmlcomment>", std::string("File content written on the ") + common::TimeUtil::getTimeNow());
+
+	/** Set quiz data path */
+	main_tree.put("DataPath", _quizDataPath);
+
+	/** Save file */
+	boost::property_tree::xml_writer_settings< std::string > settings('\t', 1);
+	boost::property_tree::write_xml(_configFilePath, tree, std::locale(), settings);
+}
+
+std::string common::Configuration::mediaPathToFullPath(std::string mediaPathStr) const
+{
+	std::filesystem::path quizDataPath(getQuizDataPath());
+	std::filesystem::path mediaPath(mediaPathStr);
+
+	std::filesystem::path fullpath = quizDataPath / mediaPath;
+
+	if( !std::filesystem::exists(fullpath)) //Hack for compatibility with older quizes
 	{
-		mediaPath = regex_replace(mediaPathStr, regex("\\./data/"), "");
-		if(filesystem::exists(quizDataPath / mediaPath))
+		mediaPath = std::regex_replace(mediaPathStr, std::regex("\\./data/"), "");
+		if(std::filesystem::exists(quizDataPath / mediaPath))
 		{
 			fullpath = quizDataPath / mediaPath;
 		}

@@ -5,22 +5,14 @@
 #include <QString>
 #include <QWidget>
 #include <QObject>
-#include <QKeyEvent>
-#include <QMouseEvent>
 #include <QMediaPlayer>
-#include <QVideoWidget>
 
 
 namespace media {
 	class AudioPlayer : public QWidget {
 		Q_OBJECT
-	public:
-		enum class AudioPlayState {
-			IDLE = 1,		// Default
-			PLAYING = 2,
-			PAUSED = 3
-		};
 
+	public:
 		/**
 		 * @brief Constructor
 		 *
@@ -45,7 +37,7 @@ namespace media {
 		AudioPlayer& operator=(const AudioPlayer&) = delete;
 
 		/**
-		 * @brief Plays a video.
+		 * @brief Plays a song.
 		 *
 		 * @param[in] audioFile The name of the audio file to play.
 		 * @param[in] startTime The time at which to start playing the audio file from.
@@ -69,11 +61,17 @@ namespace media {
 
 	private slots:
 		/**
-		 * @brief Handles mediastatus changes
+		 * @brief Handles media status changes
 		 */
 		void handleMediaStatus(QMediaPlayer::MediaStatus status);
 
 	protected:
+		/** Audio Play State */
+		enum class AudioPlayState {
+			IDLE = 1,		// Default
+			PLAYING = 2,
+			PAUSED = 3
+		};
 
 		/** Variables */
 		QMediaPlayer* _player = nullptr;

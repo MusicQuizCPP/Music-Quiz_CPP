@@ -1,8 +1,9 @@
 #pragma once 
 
-#include <string>
 #include <atomic>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include <QtGui>
 #include <QTimer>
@@ -16,10 +17,12 @@
 #include "util/QuizSettings.hpp"
 #include "media/AudioPlayer.hpp"
 #include "media/VideoPlayer.hpp"
+#include "media/TextToSpeechPlayer.hpp"
 
 #include "gui_tools/widgets/QuizTeam.hpp"
 #include "gui_tools/widgets/QuizEntry.hpp"
 #include "gui_tools/widgets/QuizBoard.hpp"
+
 
 namespace common {
 	class Configuration;
@@ -62,8 +65,6 @@ namespace MusicQuiz {
 		MusicQuizController(const MusicQuizController&) = delete;
 		MusicQuizController& operator=(const MusicQuizController&) = delete;
 
-	public slots:
-
 	private slots:
 		/**
 		 * @brief Handles the quiz states.
@@ -103,7 +104,6 @@ namespace MusicQuiz {
 		void quizCompleted(std::vector<MusicQuiz::QuizTeam*> winningTeam);
 
 	private:
-
 		/** Variables */
 		const QString _themeSongFile;
 		const QString _victorySongFile;
@@ -135,12 +135,15 @@ namespace MusicQuiz {
 		MusicQuiz::QuizSettings _settings;
 
 		/** Audio Player */
-		std::shared_ptr<media::AudioPlayer> _audioPlayer = nullptr;
+		std::shared_ptr< media::AudioPlayer > _audioPlayer = nullptr;
 
 		/** Video Player */
-		std::shared_ptr<media::VideoPlayer> _videoPlayer = nullptr;
+		std::shared_ptr< media::VideoPlayer > _videoPlayer = nullptr;
 
+		/** Text to Speech Player */
+		std::shared_ptr< media::TextToSpeechPlayer > _textToSpeechPlayer = nullptr;
+		
+		/** The configuration */
 		const common::Configuration& _config;
-
 	};
 }

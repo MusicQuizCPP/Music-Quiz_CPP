@@ -1,9 +1,11 @@
 #include "QuizSettingsDialog.hpp"
 
-#include <stdexcept>
+#include <map>
 #include <chrono>
-#include <QString>
+#include <stdexcept>
+
 #include <QLabel>
+#include <QString>
 #include <QWidget>
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -250,7 +252,6 @@ QWidget* MusicQuiz::QuizSettingsDialog::getLightInterfaceLayout(const MusicQuiz:
 	return widget;
 }
 
-
 QWidget* MusicQuiz::QuizSettingsDialog::getDailyTripleLayout(const MusicQuiz::QuizSettings& settings)
 {
 	/** Layout */
@@ -370,6 +371,7 @@ void MusicQuiz::QuizSettingsDialog::setDailyTriplePercentage(int value)
 
 void MusicQuiz::QuizSettingsDialog::saveSettings()
 {
+	/** Settings */
 	MusicQuiz::QuizSettings settings;
 
 	/** Hidden Anwsers */
@@ -387,8 +389,8 @@ void MusicQuiz::QuizSettingsDialog::saveSettings()
 	settings.dailyTriple = _dailyTriple->isChecked();
 	settings.dailyTripleHidden = _dailyTripleHidden->isChecked();
 	settings.dailyTriplePercentage = _dailyTriplePercentage->value();
-
 	settings.deviceIP = _ipInput->text().toStdString();
+
 	/** Emit Signal with settings */
 	emit settingsUpdated(settings);
 
