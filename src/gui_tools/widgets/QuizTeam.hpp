@@ -79,6 +79,12 @@ namespace MusicQuiz {
 		void accumulateScore();
 
 	protected:
+		/**
+		 * @brief Overrides the paint event.
+		 *
+		 * @param[in] event The event.
+		 */
+		void paintEvent(QPaintEvent* event) override;
 
 		/** Variables */
 		QString _name = "";
