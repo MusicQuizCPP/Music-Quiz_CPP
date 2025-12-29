@@ -30,6 +30,7 @@
         <file>imgs/image_icon.png</file>
         <file>imgs/text_icon.png</file>
         <file>imgs/bingo.png</file>
+        <file>imgs/background.jpg</file>
         <file>stylesheet_musicQuiz.qss</file>
 		<file>fonts/BebasNeue-Regular.ttf</file>
     </qresource>

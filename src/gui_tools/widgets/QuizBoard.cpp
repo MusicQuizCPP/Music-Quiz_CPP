@@ -598,3 +598,13 @@ void MusicQuiz::QuizBoard::stopCountdown()
 		_countdownClock->stop();
 	}
 }
+
+void MusicQuiz::QuizBoard::paintEvent(QPaintEvent*)
+{
+	/** Draw Background */
+	QPainter painter(this);
+	QPixmap scaled = _background.scaled(size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+	QPoint center((width() - scaled.width()) / 2, (height() - scaled.height()) / 2);
+	painter.drawPixmap(center, scaled);
+	painter.fillRect(rect(), QColor(0, 0, 100, 150));
+}

@@ -154,6 +154,13 @@ namespace MusicQuiz {
 		void showEvent(QShowEvent* event) override;
 
 		/**
+		 * @brief Overrides the paint event.
+		 *
+		 * @param[in] event The event.
+		 */
+		void paintEvent(QPaintEvent* event) override;
+
+		/**
 		 * @brief Creates the category layout.
 		 */
 		void createLayout();
@@ -180,6 +187,8 @@ namespace MusicQuiz {
 
 		std::shared_ptr<LightControl::LightControlClient> _lightClient;
 
-		MusicQuiz::QExtensions::QCountDownClock* _countdownClock = nullptr;
+		QExtensions::QCountDownClock* _countdownClock = nullptr;
+
+		const QPixmap _background = QPixmap(":imgs/background.jpg");
 	};
 }
