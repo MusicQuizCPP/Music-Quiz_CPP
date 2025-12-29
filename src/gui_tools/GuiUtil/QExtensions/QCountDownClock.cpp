@@ -28,7 +28,7 @@ MusicQuiz::QExtensions::QCountDownClock::QCountDownClock(const int countdown, co
 	setWindowFlag(Qt::WindowTransparentForInput, true);
 
 	setAutoFillBackground(false);
-	setStyleSheet("background: transparent;");
+	setStyleSheet("background: transparent; border: none;");
 
 	/** Setup timer */
 	_updateTimer = new QTimer(this);
@@ -87,13 +87,32 @@ void MusicQuiz::QExtensions::QCountDownClock::paintEvent(QPaintEvent* event)
 		painter.drawPie(rectangle, startAngle, spanAngle);
 	}
 
-	/** Draw countdown text */
+	/** Draw Countdown Text */
 	painter.setBrush(Qt::NoBrush);
 	QFont font = painter.font();
 	font.setPixelSize(static_cast<int>(rectangle.height() / 2.5));
 	font.setBold(true);
 	painter.setFont(font);
-	painter.setPen(Qt::yellow);
-	const int timeLeft = std::ceil((_countdown - _elapsedTime) / 1000.0);
-	painter.drawText(rectangle, Qt::AlignCenter, QString::number(timeLeft));
+	const QString timeLeft = QString::number(std::ceil((_countdown - _elapsedTime) / 1000.0));
+
+	/** Draw Text Shadow */
+	QPoint shadowOffset(4, 4);
+	QColor shadowColor(0, 0, 0, 150);
+
+	painter.setPen(shadowColor);
+	painter.drawText(rectangle.translated(shadowOffset), Qt::AlignCenter, timeLeft);
+
+	/** Draw Text */
+	const QPointF start(rectangle.center().x(), rectangle.top());
+	const QPointF end(rectangle.center().x(), rectangle.bottom());
+	QLinearGradient gradient(start, end);
+
+	gradient.setColorAt(0.0, QColor(250, 250, 90));
+	gradient.setColorAt(0.25, QColor(249, 240, 80));
+	gradient.setColorAt(0.5, QColor(247, 222, 72));
+	gradient.setColorAt(0.75, QColor(240, 195, 80));
+	gradient.setColorAt(1.0, QColor(232, 181, 66));
+
+	painter.setPen(QPen(QBrush(gradient), 0));
+	painter.drawText(rectangle, Qt::AlignCenter, timeLeft);
 }
