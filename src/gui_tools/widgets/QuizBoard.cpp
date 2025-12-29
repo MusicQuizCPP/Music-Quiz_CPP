@@ -20,8 +20,6 @@
 #include "util/QuizSettings.hpp"
 #include "gui_tools/widgets/QuizCategory.hpp"
 
-#include "gui_tools/GuiUtil/QExtensions/QPushButtonExtender.hpp"
-
 #include "LightDeviceConnectedWidget.hpp"
 #include "lightcontrol/client/messages/SetColor.hpp"
 #include "lightcontrol/client/messages/SetOn.hpp"
@@ -150,20 +148,37 @@ void MusicQuiz::QuizBoard::createLayout()
 		QVBoxLayout* rowCategorylayout = new QVBoxLayout;
 		rowCategorylayout->setSpacing(10);
 
+		QVBoxLayout* rowCategoryDummylayout = new QVBoxLayout;
+		rowCategoryDummylayout->setSpacing(10);
+
+		QVBoxLayout* rowCategoryLabellayout = new QVBoxLayout;
+		rowCategoryLabellayout->setSpacing(10);
+
 		/** Add Light Device Status Box */
-		if ( _lightClient != nullptr ) {
+		rowCategorylayout->addLayout(rowCategoryDummylayout, 1);
+		if ( _lightClient != nullptr && _lightClient->isRunning() ) {
 			LightDeviceConnectedWidget* connectedWidget = new LightDeviceConnectedWidget(_lightClient, this);
 			connectedWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-			connectedWidget->setObjectName("QuizEntry_rowCategoryLabel");
-			rowCategorylayout->addWidget(connectedWidget);
+			connectedWidget->setObjectName("RowCategoryLabel");
+			rowCategoryDummylayout->addWidget(connectedWidget);
+		} else {
+			QWidget* dummyWidget = new QWidget(this);
+			dummyWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+			dummyWidget->setStyleSheet("min-heigh: 100px; min-width: 100px;");
+			rowCategoryDummylayout->addWidget(dummyWidget);
 		}
 
+		/** Add Spacer */
+		rowCategorylayout->addItem(new QSpacerItem(0, 10, QSizePolicy::Ignored, QSizePolicy::Fixed));
+
 		/** Add Row Categories */
+		rowCategorylayout->addLayout(rowCategoryLabellayout, _rowCategories.size() + 1);
 		for ( size_t i = 0; i < _rowCategories.size(); ++i ) {
-			QPushButton* rowCategoryBtn = new QPushButton(_rowCategories[i], this);
+			QExtensions::NeonQPushButtonExtender* rowCategoryBtn = new QExtensions::NeonQPushButtonExtender(this);
+			rowCategoryBtn->setText(_rowCategories[i]);
 			rowCategoryBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-			rowCategoryBtn->setObjectName("QuizEntry_rowCategoryLabel");
-			rowCategorylayout->addWidget(rowCategoryBtn);
+			rowCategoryBtn->setObjectName("RowCategoryLabel");
+			rowCategoryLabellayout->addWidget(rowCategoryBtn);
 			_rowCategoryButtons.push_back(rowCategoryBtn);
 		}
 
@@ -179,17 +194,20 @@ void MusicQuiz::QuizBoard::createLayout()
 		mainlayout->addItem(categorylayout, 0, 0);
 	}
 
+	/** Add Spacer */
+	mainlayout->addItem(new QSpacerItem(0, 10, QSizePolicy::Ignored, QSizePolicy::Fixed), 1, 0);
+
 	/** Teams */
 	for ( size_t i = 0; i < _teams.size(); ++i ) {
 		_teams[i]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		teamsLayout->addWidget(_teams[i]);
 	}
-	mainlayout->addItem(teamsLayout, 1, 0);
+	mainlayout->addItem(teamsLayout, 2, 0);
 
 	/** Set Row Stretch */
 	if ( !_teams.empty() ) {
 		mainlayout->setRowStretch(0, static_cast<int>(static_cast<double>(maxNumberOfEntries + 1) * 1.5));
-		mainlayout->setRowStretch(1, 1);
+		mainlayout->setRowStretch(2, 1);
 	}
 
 	/** Set Layout */
@@ -456,7 +474,7 @@ void MusicQuiz::QuizBoard::handleBingo(MusicQuiz::QuizEntry* entry, MusicQuiz::Q
 		/** Setup font */
 		QFont font = painter.font();
 		font.setBold(true);
-		int fontPointSize = std::max(12, static_cast<int>(bingoOverlayPixmap.height() * 0.04));
+		int fontPointSize = std::max(24, static_cast<int>(bingoOverlayPixmap.height() * 0.06));
 		font.setPointSize(fontPointSize);
 		painter.setFont(font);
 
@@ -464,18 +482,32 @@ void MusicQuiz::QuizBoard::handleBingo(MusicQuiz::QuizEntry* entry, MusicQuiz::Q
 		QRect textRect(rect.left(), rect.bottom() - (fontPointSize * 2) - 10, rect.width(), fontPointSize * 2 + 10);
 
 		/** Add text */
-		QPen yellowPen(Qt::yellow);
-		yellowPen.setWidth(1);
-		painter.setPen(yellowPen);
-		painter.drawText(textRect, Qt::AlignHCenter | Qt::AlignVCenter, "+" + QString::number(static_cast<int>(_settings.bingoPoints * newBingo)));
+		QString text = "+" + QString::number(static_cast<int>( _settings.bingoPoints * newBingo ));
+
+		/** Draw Text Shadow */
+		QPoint shadowOffset(4, 4);
+		QColor shadowColor(0, 0, 0, 150);
+
+		painter.setPen(shadowColor);
+		painter.drawText(textRect.translated(shadowOffset), Qt::AlignCenter, text);
+
+		/** Draw Text */
+		const QPointF start(textRect.center().x(), textRect.top());
+		const QPointF end(textRect.center().x(), textRect.bottom());
+		QLinearGradient gradient(start, end);
+		gradient.setColorAt(0.0, QColor(255, 255, 255));
+		gradient.setColorAt(1.0, QColor(210, 210, 210));
+
+		painter.setPen(QPen(QBrush(gradient), 0));
+		painter.drawText(textRect, Qt::AlignCenter, text);
 		painter.end();
 
 		/** Show image */
 		imageLabel->setPixmap(bingoOverlayPixmap);
 		imageLabel->show();
 
-		/** Remove image after 5 seconds and clean up */
-		QTimer::singleShot(5000, this, [imageLabel, this]() {
+		/** Remove image after 7.5 seconds and clean up */
+		QTimer::singleShot(7500, this, [imageLabel, this]() {
 			if ( imageLabel != nullptr ) {
 				imageLabel->hide();
 				imageLabel->deleteLater();

@@ -19,7 +19,6 @@ QWidget#TextPlayerWidget
 QDialog#QuizBoard
 {
 	color				: Yellow;
-	background-color	: rgb(0, 0, 100);
 }
 
 QDialog#QuizSelector
@@ -60,27 +59,29 @@ QDialog#QuizWinningScreen
 
 QPushButton[objectName^="QuizEntry"]
 {
-	color				: Yellow;
-	font-size			: 40px;
-
-	background-color	: rgb(0, 0, 255);
-
-	border-color		: rgb(0, 0, 255);
-	border-radius		: 0px;
-	border-width		: 3px;
-	border-style		: solid;
+	color: transparent;
+	background: qlineargradient(
+        x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgb(0, 0, 60, 175),
+        stop:1 rgb(0, 0, 80, 175)
+    );
+	
 	margin				: 0px;
-	padding				: 0px;
-
 	min-height			: 100px;
 	min-width			: 200px;
 }
 
+QPushButton[objectName^="QuizEntry"]:hover {
+    background: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1,
+        stop:0 rgb(0, 0, 100, 200),
+        stop:1 rgb(0, 0, 120, 200)
+    );
+}
+
 QPushButton[objectName^="TeamEntry"]
 {
-	font-size			: 40px;
-	font-weight			: bold;
-
+	color				: transparent;
 	min-height			: 100px;
 	min-width			: 200px;
 }
@@ -90,19 +91,34 @@ QPushButton[objectName^="_dayliDouble"]
 	border-color		: rgb(255, 215, 0);
 }
 
-QPushButton#QuizEntry_categoryLabel
+QPushButton#CategoryLabel
 {
-	font-size			: 40px;
-	font-weight			: bold;
+	color: transparent;
+	background: qlineargradient(
+        x1:0, y1:0, x2:0, y2:1,
+		stop:0 rgb(0, 0, 128, 200),
+		stop:1 rgb(0, 0, 144, 175)
+    );
+	
+	padding: 10px;
+    letter-spacing: 1px;
+	font-weight: bold;
+	min-height			: 50px;
+	min-width			: 150px;
 }
 
-QPushButton#QuizEntry_rowCategoryLabel
+QPushButton#RowCategoryLabel
 {
-	font-size			: 40px;
-	font-weight			: bold;
-
-	min-width			: 200px;
+	color: transparent;
+	background: qlineargradient(
+        x1:0, y1:0, x2:0, y2:1,
+		stop:0 rgb(0, 0, 128, 200),
+		stop:1 rgb(0, 0, 144, 175)
+    );
+	
+	margin				: 0px;
 	min-height			: 100px;
+	min-width			: 100px;
 }
 
 QPushButton#menuButton

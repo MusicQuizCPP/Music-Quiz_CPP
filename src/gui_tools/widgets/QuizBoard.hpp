@@ -19,6 +19,7 @@
 #include "gui_tools/widgets/QuizTeam.hpp"
 #include "gui_tools/widgets/QuizEntry.hpp"
 #include "gui_tools/GuiUtil/QExtensions/QCountDownClock.hpp"
+#include "gui_tools/GuiUtil/QExtensions/NeonQPushButtonExtender.hpp"
 
 
 namespace MusicQuiz {
@@ -171,12 +172,12 @@ namespace MusicQuiz {
 
 		QString _name = "";
 
-		MusicQuiz::QuizSettings _settings;
+		QuizSettings _settings;
 
 		std::vector<QuizTeam*> _teams;
 		std::vector<QString> _rowCategories;
-		std::vector<QPushButton*> _rowCategoryButtons;
-		std::vector<MusicQuiz::QuizCategory*> _categories;
+		std::vector<QExtensions::NeonQPushButtonExtender*> _rowCategoryButtons;
+		std::vector<QuizCategory*> _categories;
 
 		/*/ Bingo tracking */
 		std::vector< std::vector<int> > _cellOwner;
