@@ -34,18 +34,26 @@ void MusicQuiz::QuizCategory::createLayout()
 	mainlayout->setContentsMargins(0, 0, 0, 0);
 	mainlayout->setSpacing(10);
 
+	QVBoxLayout* entrylayout = new QVBoxLayout;
+	entrylayout->setContentsMargins(5, 0, 5, 0);
+	entrylayout->setSpacing(10);
+
 	/** Category Name */
-	_categoryBtn = new MusicQuiz::QExtensions::QPushButtonExtender(this);
-	_categoryBtn->setObjectName("QuizEntry_categoryLabel");
+	_categoryBtn = new MusicQuiz::QExtensions::NeonQPushButtonExtender(this);
+	_categoryBtn->setObjectName("CategoryLabel");
 	_categoryBtn->setText(QString::fromLocal8Bit(_name.toStdString().c_str()));
-	_categoryBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	_categoryBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
 	connect(_categoryBtn, SIGNAL(leftClicked()), this, SLOT(leftClickEvent()));
 	connect(_categoryBtn, SIGNAL(rightClicked()), this, SLOT(rightClickEvent()));
-	mainlayout->addWidget(_categoryBtn);
+	mainlayout->addWidget(_categoryBtn, 1);
+
+	/** Add Spacer */
+	mainlayout->addItem(new QSpacerItem(0, 10, QSizePolicy::Ignored, QSizePolicy::Fixed));
 
 	/** Add Entries */
+	mainlayout->addLayout(entrylayout, _entries.size() + 1);
 	for ( size_t i = 0; i < _entries.size(); ++i ) {
-		mainlayout->addWidget(_entries[i]);
+		entrylayout->addWidget(_entries[i]);
 	}
 
 	/** Set Layout */
@@ -54,11 +62,20 @@ void MusicQuiz::QuizCategory::createLayout()
 
 void MusicQuiz::QuizCategory::enableGuessTheCategory(const size_t points)
 {
+	/** Set Variables */
 	_guessTheCategory = true;
 	_points = points;
 
+	/** Update Text */
 	if ( _guessTheCategory && _categoryBtn != nullptr ) {
 		_categoryBtn->setText("?");
+	}
+
+	/** Set Cursor */
+	if ( _guessTheCategory ) {
+		_categoryBtn->setCursor(Qt::PointingHandCursor);
+	} else {
+		_categoryBtn->setCursor(Qt::ArrowCursor);
 	}
 }
 
