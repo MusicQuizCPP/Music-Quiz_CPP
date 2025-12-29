@@ -208,6 +208,11 @@ namespace MusicQuiz {
 
 	protected:
 		/**
+		 * @brief Initializes the widget.
+		 */
+		void initializeWidget();
+
+		/**
 		 * @brief Override the mouse release event.
 		 *
 		 * @param[in] event The event.
@@ -243,6 +248,11 @@ namespace MusicQuiz {
 		 */
 		void showEntryTypeIcon();
 
+		/**
+		 * @brief Overridden Paint Event
+		 */
+		void paintEvent(QPaintEvent* event) override;
+
 		/** Variables */
 		size_t _points = 0;
 		bool _textSizeSet = false;
@@ -259,7 +269,6 @@ namespace MusicQuiz {
 
 		QString _answer = "";
 		bool _entryAnswered = false;
-		QColor _answeredColor = QColor(0, 0, 120);
 
 		int _pixilationDuration = 0;
 
@@ -281,5 +290,12 @@ namespace MusicQuiz {
 		bool _triplePoints = false;
 		bool _hiddenDoublePoints = false;
 		bool _hiddenTriplePoints = false;
+
+		/** Colors */
+		const QColor _idleColor = QColor(0, 0, 70, 175);
+		const QColor _playingColor = QColor(0, 0, 255, 255);
+		const QColor _pausedColor = QColor(255, 215, 0, 240);
+		const QColor _playingAnswerColor = QColor(0, 128, 0, 210);
+		QColor _answeredColor = QColor(0, 10, 150, 225);
 	};
 }

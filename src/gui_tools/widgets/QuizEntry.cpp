@@ -6,12 +6,16 @@
 
 #include <QLabel>
 #include <QPainter>
+#include <QPainterPath>
 #include <QMouseEvent>
 #include <QSizePolicy>
-#include <QApplication>
 #include <QHBoxLayout>
+#include <QApplication>
+#include <QFontDatabase>
+#include <QStyleOptionButton>
 
 #include "common/Log.hpp"
+#include "util/FontUtil.hpp"
 
 
 MusicQuiz::QuizEntry::QuizEntry(const std::filesystem::path& audioFile, const QString& answer, const size_t points, const size_t startTime, const size_t answerStartTime,
@@ -25,17 +29,8 @@ MusicQuiz::QuizEntry::QuizEntry(const std::filesystem::path& audioFile, const QS
 		throw std::runtime_error("Failed to create quiz entry. Invalid audio player.");
 	}
 
-	/** Set Button Text */
-	setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
-
-	/** Set Start State */
-	_state = EntryState::IDLE;
-
-	/** Set Object Name */
-	setObjectName("QuizEntry");
-
-	/** Set Size Policy */
-	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	/** Initialize Widget */
+	initializeWidget();
 
 	/** Set Entry Type */
 	_type = EntryType::Song;
@@ -57,17 +52,8 @@ MusicQuiz::QuizEntry::QuizEntry(const std::filesystem::path& audioFile, const st
 		throw std::runtime_error("Failed to create quiz entry. Invalid video player.");
 	}
 
-	/** Set Button Text */
-	setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
-
-	/** Set Start State */
-	_state = EntryState::IDLE;
-
-	/** Set Object Name */
-	setObjectName("QuizEntry");
-
-	/** Set Size Policy */
-	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	/** Initialize Widget */
+	initializeWidget();
 
 	/** Set Entry Type */
 	_type = EntryType::Video;
@@ -87,17 +73,8 @@ MusicQuiz::QuizEntry::QuizEntry(const QString& string, const std::filesystem::pa
 		throw std::runtime_error("Failed to create quiz entry. Invalid text to speech player.");
 	}
 
-	/** Set Button Text */
-	setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
-
-	/** Set Start State */
-	_state = EntryState::IDLE;
-
-	/** Set Object Name */
-	setObjectName("QuizEntry");
-
-	/** Set Size Policy */
-	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	/** Initialize Widget */
+	initializeWidget();
 
 	/** Set Entry Type */
 	_type = EntryType::TextToSpeech;
@@ -118,17 +95,8 @@ MusicQuiz::QuizEntry::QuizEntry(const std::filesystem::path& imageFile, const st
 		throw std::runtime_error("Failed to create quiz entry. Invalid audio player.");
 	}
 
-	/** Set Button Text */
-	setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
-
-	/** Set Start State */
-	_state = EntryState::IDLE;
-
-	/** Set Object Name */
-	setObjectName("QuizEntry");
-
-	/** Set Size Policy */
-	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	/** Initialize Widget */
+	initializeWidget();
 
 	/** Set Entry Type */
 	_type = EntryType::Image;
@@ -156,6 +124,22 @@ MusicQuiz::QuizEntry::QuizEntry(const QString& string, const std::filesystem::pa
 		throw std::runtime_error("Failed to create quiz entry. Invalid text player.");
 	}
 
+	/** Initialize Widget */
+	initializeWidget();
+
+	/** Set Entry Type */
+	_type = EntryType::Text;
+
+	/** Create Callback Function */
+	_mouseEventCallback = std::bind(&MusicQuiz::QuizEntry::handleMouseEvent, this, std::placeholders::_1);
+
+    /** Connect signal */
+    QObject::connect(_textPlayer.get(), &media::TextPlayer::shown, this, &MusicQuiz::QuizEntry::blurQuiz);
+    QObject::connect(_textPlayer.get(), &media::TextPlayer::hidden, this, &MusicQuiz::QuizEntry::unBlurQuiz);
+}
+
+void MusicQuiz::QuizEntry::initializeWidget()
+{
 	/** Set Button Text */
 	setText("$" + QString::fromLocal8Bit(std::to_string(_points).c_str()));
 
@@ -168,15 +152,16 @@ MusicQuiz::QuizEntry::QuizEntry(const QString& string, const std::filesystem::pa
 	/** Set Size Policy */
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-	/** Set Entry Type */
-	_type = EntryType::Text;
+	/** Set Cursor */
+	setCursor(Qt::PointingHandCursor);
 
-	/** Create Callback Function */
-	_mouseEventCallback = std::bind(&MusicQuiz::QuizEntry::handleMouseEvent, this, std::placeholders::_1);
+	/** Set font */
+	const int fontIndex = QFontDatabase::addApplicationFont(":/fonts/BebasNeue-Regular.ttf");
+	const QString fontFamily = QFontDatabase::applicationFontFamilies(fontIndex).at(0);
 
-    /** Connect signal */
-    QObject::connect(_textPlayer.get(), &media::TextPlayer::shown, this, &MusicQuiz::QuizEntry::blurQuiz);
-    QObject::connect(_textPlayer.get(), &media::TextPlayer::hidden, this, &MusicQuiz::QuizEntry::unBlurQuiz);
+	QFont font(fontFamily);
+	font.setLetterSpacing(QFont::AbsoluteSpacing, 1.5);
+	setFont(font);
 }
 
 void MusicQuiz::QuizEntry::mouseReleaseEvent(QMouseEvent* event)
@@ -211,16 +196,16 @@ void MusicQuiz::QuizEntry::handleMouseEvent(QMouseEvent* event)
 	/** Set Object Name (this changes the color) */
 	switch ( _state ) {
 	case MusicQuiz::QuizEntry::EntryState::IDLE:
-		applyColor(QColor(0, 0, 255));
+		applyColor(_idleColor);
 		break;
 	case MusicQuiz::QuizEntry::EntryState::PLAYING:
-		applyColor(QColor(0, 0, 139));
+		applyColor(_playingColor);
 		break;
 	case MusicQuiz::QuizEntry::EntryState::PAUSED:
-		applyColor(QColor(255, 215, 0));
+		applyColor(_pausedColor);
 		break;
 	case MusicQuiz::QuizEntry::EntryState::PLAYING_ANSWER:
-		applyColor(QColor(0, 128, 0));
+		applyColor(_playingAnswerColor);
 		if ( !_entryAnswered ) {
 			_entryAnswered = true;
 
@@ -295,7 +280,7 @@ void MusicQuiz::QuizEntry::leftClickEvent()
 		break;
 	case EntryState::PAUSED: // Play Answer
 		emit stopCountdown();
-		_textSizeSet = false;
+		//_textSizeSet = false;
 		_state = EntryState::PLAYING_ANSWER;
 		if ( _type == EntryType::Song ) {
 			_videoPlayer->stop();
@@ -428,47 +413,14 @@ void MusicQuiz::QuizEntry::setColor(const QColor& color)
 {
 	/** Set Color */
 	_answeredColor = color;
+	_answeredColor.setAlpha(255);
 }
 
 void MusicQuiz::QuizEntry::applyColor(const QColor& color)
 {
 	/** Background Color */
 	std::stringstream ss;
-	ss << "background-color	: rgb(" << color.red() << ", " << color.green() << ", " << color.blue() << ");";
-
-	/** Border Color */
-	QColor borderColor = color;
-	if ( _doublePoints ) { // Double Points
-		if ( (_hiddenDoublePoints && _state != QuizEntry::EntryState::IDLE) || !_hiddenDoublePoints ) {
-			borderColor = QColor(255, 255, 0);
-		}
-	} else if ( _triplePoints ) { // Triple Points
-		if ( (_hiddenTriplePoints && _state != QuizEntry::EntryState::IDLE) || !_hiddenTriplePoints ) {
-			borderColor = QColor(220, 0, 185);
-		}
-	}
-	ss << "border: 3px solid rgb(" << borderColor.red() << ", " << borderColor.green() << ", " << borderColor.blue() << ");";
-
-	/** Text Color */
-	if ( _state == QuizEntry::EntryState::PLAYED && color != QColor(128, 128, 128) ) {
-		ss << "color : rgb(" << 255 - color.red() << ", " << 255 - color.green() << ", " << 255 - color.blue() << ");";
-	} else {
-		ss << "color : Yellow;";
-	}
-
-	/** Text Size */
-	int textWidth = fontMetrics().horizontalAdvance(text());
-	if ( _state != QuizEntry::EntryState::PLAYED && !_textSizeSet ) {
-		size_t fontSize = 40;
-		while ( textWidth > width() - 40 && fontSize > 10U ) {
-			setStyleSheet("font-size: " + QString::number(fontSize) + "px;");
-			textWidth = fontMetrics().horizontalAdvance(text());
-			--fontSize;
-		}
-
-		_textSizeSet = true;
-	}
-
+	ss << "background-color	: rgb(" << color.red() << ", " << color.green() << ", " << color.blue() << ", " << color.alpha() << ");";
 	setStyleSheet(QString::fromStdString(ss.str()));
 
 	/** Ensure icon border is not changed */
@@ -495,9 +447,6 @@ void MusicQuiz::QuizEntry::setDoublePointsEnabled(bool enabled, bool hidden)
 	if ( _doublePoints ) {
 		_triplePoints = false;
 	}
-
-	/** Apply Color */
-	applyColor(QColor(0, 0, 255));
 }
 
 void MusicQuiz::QuizEntry::setTriplePointsEnabled(bool enabled, bool hidden)
@@ -507,9 +456,6 @@ void MusicQuiz::QuizEntry::setTriplePointsEnabled(bool enabled, bool hidden)
 	if ( _triplePoints ) {
 		_doublePoints = false;
 	}
-
-	/** Apply Color */
-	applyColor(QColor(0, 0, 255));
 }
 
 void MusicQuiz::QuizEntry::setShowEntryTypeIcon(bool showIcons)
@@ -568,4 +514,115 @@ void MusicQuiz::QuizEntry::showEntryTypeIcon()
 
 	/** Set icon pixmap */
 	iconLabel->setPixmap(scaledIconPixmap);
+}
+
+void MusicQuiz::QuizEntry::paintEvent(QPaintEvent* event)
+{
+	/** Set up options and painter */
+	QStyleOptionButton option;
+	initStyleOption(&option);
+
+	QPainter p(this);
+	p.setRenderHint(QPainter::Antialiasing);
+
+	/** Setup Colors */
+	QColor topMiddleColor = QColor(13, 73, 171);
+	QColor topCornersColor = QColor(14, 81, 189);
+	QColor bottomCornersColor = QColor(111, 190, 225);
+	QColor bottomMiddleColor = QColor(159, 210, 250);
+
+	if ( _doublePoints ) { // Double Points
+		if ( ( _hiddenDoublePoints && _state != QuizEntry::EntryState::IDLE ) || !_hiddenDoublePoints ) {
+			topMiddleColor = QColor(220, 180, 0);
+			topCornersColor = QColor(250, 200, 25);
+			bottomCornersColor = QColor(250, 230, 25);
+			bottomMiddleColor = QColor(250, 250, 25);
+		}
+	} else if ( _triplePoints ) { // Triple Points
+		if ( ( _hiddenTriplePoints && _state != QuizEntry::EntryState::IDLE ) || !_hiddenTriplePoints ) {
+			topMiddleColor = QColor(150, 0, 105);
+			topCornersColor = QColor(180, 0, 135);
+			bottomCornersColor = QColor(200, 0, 155);
+			bottomMiddleColor = QColor(220, 0, 185);
+		}
+	}
+
+	/** Draw base button */
+	style()->drawControl(QStyle::CE_PushButtonBevel, &option, &p, this);
+	style()->drawControl(QStyle::CE_PushButtonLabel, &option, &p, this);
+	QRect r = rect();
+
+	/** Top Line */
+	QLinearGradient topGlow(r.topLeft(), r.topRight());
+	topGlow.setColorAt(0.0, topCornersColor);
+	topGlow.setColorAt(0.5, topMiddleColor);
+	topGlow.setColorAt(1.0, topCornersColor);
+
+	QPen topPen(topGlow, 5);
+	topPen.setCapStyle(Qt::FlatCap);
+	p.setPen(topPen);
+
+	p.drawLine(QPoint(r.left(), r.top()), QPoint(r.right(), r.top()));
+
+	/** Left Side */
+	QLinearGradient leftGlow(r.topLeft(), r.bottomLeft());
+	leftGlow.setColorAt(0.0, topCornersColor);
+	leftGlow.setColorAt(1.0, bottomCornersColor);
+
+	QPen leftPen(leftGlow, 5);
+	leftPen.setCapStyle(Qt::FlatCap);
+	p.setPen(leftPen);
+	p.drawLine(QPoint(r.left(), r.top()), QPoint(r.left(), r.bottom()));
+
+	/** Right Side */
+	QLinearGradient rightGlow(r.topRight(), r.bottomRight());
+	rightGlow.setColorAt(0.0, topCornersColor);
+	rightGlow.setColorAt(1.0, bottomCornersColor);
+
+	QPen rightPen(rightGlow, 5);
+	rightPen.setCapStyle(Qt::FlatCap);
+	p.setPen(rightPen);
+	p.drawLine(QPoint(r.right(), r.top()), QPoint(r.right(), r.bottom()));
+
+	/** Bottom */
+	QLinearGradient bottomGlow(r.bottomLeft(), r.bottomRight());
+	bottomGlow.setColorAt(0.0, bottomCornersColor);
+	bottomGlow.setColorAt(0.5, bottomMiddleColor);
+	bottomGlow.setColorAt(1.0, bottomCornersColor);
+
+	QPen bottomPen(bottomGlow, 5);
+	bottomPen.setCapStyle(Qt::FlatCap);
+	p.setPen(bottomPen);
+	p.drawLine(QPoint(r.left(), r.bottom()), QPoint(r.right(), r.bottom()));
+
+	/** Get Text Rect */
+	const QRect textRect = style()->subElementRect(QStyle::SE_PushButtonContents, &option, this);
+
+	/** Create Fitted Font */
+	QFont baseFont = font();
+	QFont fitted = util::FontUtil::fittedFont(text(), textRect, baseFont);
+	QFontMetrics fontMetrics(fitted);
+	p.setRenderHint(QPainter::TextAntialiasing);
+	p.setFont(fitted);
+
+	/** Draw Text Shadow */
+	QPoint shadowOffset(4, 4);
+	QColor shadowColor(0, 0, 0, 150);
+
+	p.setPen(shadowColor);
+	p.drawText(textRect.translated(shadowOffset), Qt::AlignCenter, text());
+
+	/** Draw Text */
+	const QPointF start(textRect.center().x(), textRect.top());
+	const QPointF end(textRect.center().x(), textRect.bottom());
+	QLinearGradient gradient(start, end);
+
+	gradient.setColorAt(0.0, QColor(250, 250, 200));
+	gradient.setColorAt(0.25, QColor(249, 230, 150));
+	gradient.setColorAt(0.5, QColor(247, 206, 91));
+	gradient.setColorAt(0.75, QColor(240, 195, 80));
+	gradient.setColorAt(1.0, QColor(232, 181, 66));
+
+	p.setPen(QPen(QBrush(gradient), 0));
+	p.drawText(textRect, Qt::AlignCenter, text());
 }
