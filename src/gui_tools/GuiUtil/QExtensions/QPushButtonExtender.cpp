@@ -2,10 +2,21 @@
 
 #include <sstream>
 
+#include <QFontDatabase>
+
 
 MusicQuiz::QExtensions::QPushButtonExtender::QPushButtonExtender(QWidget* parent) :
 	QPushButton(parent)
-{}
+{
+    /** Set font */
+    const int fontIndex = QFontDatabase::addApplicationFont(":/fonts/BebasNeue-Regular.ttf");
+    const QString fontFamily = QFontDatabase::applicationFontFamilies(fontIndex).at(0);
+
+    QFont font(fontFamily);
+    font.setCapitalization(QFont::AllUppercase);
+    font.setLetterSpacing(QFont::AbsoluteSpacing, 1.5);
+    setFont(font);
+}
 
 void MusicQuiz::QExtensions::QPushButtonExtender::mouseReleaseEvent(QMouseEvent* event)
 {

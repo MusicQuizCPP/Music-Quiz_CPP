@@ -43,8 +43,6 @@ namespace MusicQuiz {
 		signals:
 			void leftClicked();
 			void rightClicked();
-
-		public slots:
 		};
 	}
 }
