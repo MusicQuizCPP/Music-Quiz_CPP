@@ -9,6 +9,8 @@
 #include <QWidget>
 #include <QDialog>
 
+#include "QExtensions/ParticleSystem.hpp"
+#include "QExtensions/ConfettiSystem.hpp"
 #include "gui_tools/widgets/QuizTeam.hpp"
 
 
@@ -35,13 +37,7 @@ namespace MusicQuiz {
 		QuizWinningScreen(const QuizWinningScreen&) = delete;
 		QuizWinningScreen& operator=(const QuizWinningScreen&) = delete;
 
-	public slots:
-
 	private slots:
-		/**
-		 * @brief Increase the size of the team name.
-		 */
-		void increaseTextSize();
 
 		/**
 		 * @brief Emits the winningScreenCompleteSignal signal
@@ -53,21 +49,32 @@ namespace MusicQuiz {
 
 	protected:
 		/**
-		 * @brief Creates the category layout.
+		 * @brief Overrides the paint event.
+		 *
+		 * @param[in] event The event.
 		 */
-		void createLayout();
+		void paintEvent(QPaintEvent* event) override;
+		void resizeEvent(QResizeEvent*) override;
+
+		QPixmap _noisePixmap;
 
 		/** Variables */
-		int _textSize = 1;
-		int _hueCounter = 0;
-		QColor _textColor = QColor(255, 255, 0);
+		qreal _animationPhase = 0.0;
+		ParticleSystem _particles;
+		ConfettiSystem _confetti;
 
-		QTimer _timer;
-		QTimer _sizeTimer;
+		QTimer _timeOutTimer;
+		QTimer _animationTimer;
 		const std::chrono::milliseconds _winnerDisplayTime;
 
-		std::vector< QLabel* > _andLabels;
-		std::vector< QLabel* > _winnersLabels;
 		std::vector<MusicQuiz::QuizTeam*> _winningTeams;
+
+		QString _winnerLabel;
+		QFont _winnerLabelFittedFont;
+		QRect _winnerLabelRect;
+
+		QRadialGradient _backgroundColor;
+
+		QString _winnerNames;
 	};
 }

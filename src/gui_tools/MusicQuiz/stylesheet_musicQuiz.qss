@@ -45,13 +45,6 @@ QDialog#QuizIntroScreen
 	background-color	: rgb(25, 25, 255);
 }
 
-QDialog#QuizWinningScreen
-{
-	color				: Yellow;
-	background-color	: rgb(25, 25, 255);
-}
-
-
 
 /****************************************/
 /*****		    QPushButton			*****/
