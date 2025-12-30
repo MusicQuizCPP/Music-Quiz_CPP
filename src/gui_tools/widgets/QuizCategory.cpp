@@ -39,7 +39,7 @@ void MusicQuiz::QuizCategory::createLayout()
 	entrylayout->setSpacing(10);
 
 	/** Category Name */
-	_categoryBtn = new MusicQuiz::QExtensions::NeonQPushButtonExtender(this);
+	_categoryBtn = new MusicQuiz::QExtensions::CategoryPushButtonExtender(this);
 	_categoryBtn->setObjectName("CategoryLabel");
 	_categoryBtn->setText(QString::fromLocal8Bit(_name.toStdString().c_str()));
 	_categoryBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);

@@ -11,7 +11,7 @@
 
 namespace MusicQuiz {
 	namespace QExtensions {
-		class NeonQPushButtonExtender : public QPushButtonExtender {
+		class CategoryPushButtonExtender : public QPushButtonExtender {
 			Q_OBJECT
 
 		public:
@@ -20,12 +20,12 @@ namespace MusicQuiz {
 			 *
 			 * @param[in] parent The parent widget.
 			 */
-			explicit NeonQPushButtonExtender(QWidget* parent = nullptr);
+			explicit CategoryPushButtonExtender(QWidget* parent = nullptr);
 
 			/**
 			 * @brief Default Destructor
 			 */
-			virtual ~NeonQPushButtonExtender() = default;
+			virtual ~CategoryPushButtonExtender() = default;
 
 		protected:
 			/**

@@ -8,7 +8,7 @@
 #include <QWidget>
 #include <QShowEvent>
 
-#include "gui_tools/GuiUtil/QExtensions/NeonQPushButtonExtender.hpp"
+#include "gui_tools/GuiUtil/QExtensions/CategoryPushButtonExtender.hpp"
 
 
 namespace MusicQuiz {
@@ -113,6 +113,6 @@ namespace MusicQuiz {
 		bool _guessTheCategory = false;
 		CategoryState _state = CategoryState::IDLE;
 		std::vector<MusicQuiz::QuizEntry*> _entries;
-		MusicQuiz::QExtensions::NeonQPushButtonExtender* _categoryBtn = nullptr;
+		MusicQuiz::QExtensions::CategoryPushButtonExtender* _categoryBtn = nullptr;
 	};
 }

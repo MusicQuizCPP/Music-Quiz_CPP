@@ -1,4 +1,4 @@
-#include "NeonQPushButtonExtender.hpp"
+#include "CategoryPushButtonExtender.hpp"
 
 #include <sstream>
 
@@ -10,11 +10,11 @@
 #include "util/FontUtil.hpp"
 
 
-MusicQuiz::QExtensions::NeonQPushButtonExtender::NeonQPushButtonExtender(QWidget* parent) :
+MusicQuiz::QExtensions::CategoryPushButtonExtender::CategoryPushButtonExtender(QWidget* parent) :
     QPushButtonExtender(parent)
 {}
 
-void MusicQuiz::QExtensions::NeonQPushButtonExtender::paintEvent(QPaintEvent* event)
+void MusicQuiz::QExtensions::CategoryPushButtonExtender::paintEvent(QPaintEvent* event)
 {
     /** Set up options and painter */
     QStyleOptionButton option;

@@ -6,6 +6,6 @@ SET ( SRC_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/QTabBarExtender.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/QTabWidgetExtender.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/QPushButtonExtender.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/NeonQPushButtonExtender.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/CategoryPushButtonExtender.cpp
         CACHE INTERNAL ""
 )

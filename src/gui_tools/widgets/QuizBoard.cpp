@@ -174,7 +174,7 @@ void MusicQuiz::QuizBoard::createLayout()
 		/** Add Row Categories */
 		rowCategorylayout->addLayout(rowCategoryLabellayout, _rowCategories.size() + 1);
 		for ( size_t i = 0; i < _rowCategories.size(); ++i ) {
-			QExtensions::NeonQPushButtonExtender* rowCategoryBtn = new QExtensions::NeonQPushButtonExtender(this);
+			QExtensions::CategoryPushButtonExtender* rowCategoryBtn = new QExtensions::CategoryPushButtonExtender(this);
 			rowCategoryBtn->setText(_rowCategories[i]);
 			rowCategoryBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 			rowCategoryBtn->setObjectName("RowCategoryLabel");
