@@ -3,11 +3,9 @@
 #include <QStyle>
 
 
-
 MusicQuiz::QExtensions::QLabelExtender::QLabelExtender(QWidget* parent) :
 	QLabel(parent)
-{
-}
+{}
 
 QRect MusicQuiz::QExtensions::QLabelExtender::getRect()
 {
@@ -18,7 +16,7 @@ QRect MusicQuiz::QExtensions::QLabelExtender::getRect()
     const int align = QStyle::visualAlignment(layoutDirection(), QLabel::alignment());
     int i = indent();
     if ( i < 0 && frameWidth() ) {
-        m = fontMetrics().width(QLatin1Char('x')) / 2 - m;
+        m = fontMetrics().horizontalAdvance(QLatin1Char('x')) / 2 - m;
     }
 
     if ( m > 0 ) {
