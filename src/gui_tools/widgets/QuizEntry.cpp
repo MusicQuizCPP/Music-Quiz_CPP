@@ -596,21 +596,23 @@ void MusicQuiz::QuizEntry::paintEvent(QPaintEvent* event)
 	p.drawLine(QPoint(r.left(), r.bottom()), QPoint(r.right(), r.bottom()));
 
 	/** Get Text Rect */
+	const QString textString = text();
 	const QRect textRect = style()->subElementRect(QStyle::SE_PushButtonContents, &option, this);
 
 	/** Create Fitted Font */
 	QFont baseFont = font();
-	QFont fitted = util::FontUtil::fittedFont(text(), textRect, baseFont);
+	QFont fitted = util::FontUtil::fittedFont(textString, textRect, baseFont);
 	QFontMetrics fontMetrics(fitted);
 	p.setRenderHint(QPainter::TextAntialiasing);
 	p.setFont(fitted);
 
 	/** Draw Text Shadow */
-	QPoint shadowOffset(4, 4);
-	QColor shadowColor(0, 0, 0, 150);
+	const int offset = textString.size() > 15 ? 2 : 4;
+	const QPoint shadowOffset(offset, offset);
+	const QColor shadowColor(0, 0, 0, 150);
 
 	p.setPen(shadowColor);
-	p.drawText(textRect.translated(shadowOffset), Qt::AlignCenter, text());
+	p.drawText(textRect.translated(shadowOffset), Qt::AlignCenter, textString);
 
 	/** Draw Text */
 	const QPointF start(textRect.center().x(), textRect.top());
@@ -624,5 +626,5 @@ void MusicQuiz::QuizEntry::paintEvent(QPaintEvent* event)
 	gradient.setColorAt(1.0, QColor(232, 181, 66));
 
 	p.setPen(QPen(QBrush(gradient), 0));
-	p.drawText(textRect, Qt::AlignCenter, text());
+	p.drawText(textRect, Qt::AlignCenter, textString);
 }
