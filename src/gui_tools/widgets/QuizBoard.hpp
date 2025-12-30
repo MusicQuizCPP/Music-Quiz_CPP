@@ -190,6 +190,6 @@ namespace MusicQuiz {
 
 		QExtensions::QCountDownClock* _countdownClock = nullptr;
 
-		const QPixmap _background = QPixmap(":imgs/background.jpg");
+		const QPixmap _background = QPixmap(":imgs/background.png");
 	};
 }
